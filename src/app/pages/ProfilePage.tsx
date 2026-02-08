@@ -36,7 +36,7 @@ export function ProfilePage({ language }: ProfilePageProps) {
       await updateProfile(name);
       toast.success(t.updated);
       setIsEditing(false);
-    } catch (error) {
+    } catch {
       toast.error(t.error);
     }
   };
@@ -77,17 +77,13 @@ export function ProfilePage({ language }: ProfilePageProps) {
             <h1 className="text-3xl text-foreground">{t.title}</h1>
           </div>
           {!isEditing && (
-            <Button
-              onClick={() => setIsEditing(true)}
-              variant="outline"
-              className="gap-2"
-            >
+            <Button onClick={() => setIsEditing(true)} variant="outline" className="gap-2">
               <Edit2 className="w-4 h-4" />
               {t.edit}
             </Button>
           )}
         </div>
-        
+
         <div className="bg-card border border-border rounded-lg p-6 mb-6">
           <div className="flex items-center gap-6 mb-8">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
@@ -113,10 +109,7 @@ export function ProfilePage({ language }: ProfilePageProps) {
                       <Save className="w-4 h-4" />
                       {t.save}
                     </Button>
-                    <Button
-                      onClick={handleCancel}
-                      variant="outline"
-                    >
+                    <Button onClick={handleCancel} variant="outline">
                       {t.cancel}
                     </Button>
                   </div>
@@ -125,7 +118,9 @@ export function ProfilePage({ language }: ProfilePageProps) {
                 <div>
                   <h2 className="text-2xl text-foreground mb-1">{user.name}</h2>
                   <p className="text-muted-foreground">
-                    {language === 'ru' ? 'Исследователь мистических мест' : 'Explorer of mystical places'}
+                    {language === 'ru'
+                      ? 'Исследователь мистических мест'
+                      : 'Explorer of mystical places'}
                   </p>
                 </div>
               )}

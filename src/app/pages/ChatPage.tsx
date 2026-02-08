@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { MessageCircle, X, Send, ArrowLeft } from 'lucide-react';
+import { MessageCircle, Send, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { serverUrl } from '../utils/supabase';
@@ -30,11 +30,15 @@ export function ChatPage() {
   }, [user, navigate]);
 
   // Load chat history on mount
-  useEffect(() => {
-    if (user && accessToken) {
-      loadChatHistory();
-    }
-  }, [user, accessToken]);
+  useEffect(
+    () => {
+      if (user && accessToken) {
+        loadChatHistory();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [user, accessToken]
+  );
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -53,7 +57,7 @@ export function ChatPage() {
         `${serverUrl}/chat/history?token=${encodeURIComponent(accessToken)}&hotelId=general`,
         {
           headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
           },
         }
       );
@@ -92,7 +96,7 @@ export function ChatPage() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
           },
           body: JSON.stringify({
             hotelId: 'general',
@@ -104,7 +108,7 @@ export function ChatPage() {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Add concierge response
         if (data.reply) {
           const conciergeMessage: Message = {
@@ -113,7 +117,7 @@ export function ChatPage() {
             isUser: false,
             timestamp: new Date().toISOString(),
           };
-          
+
           setMessages((prev) => [...prev, conciergeMessage]);
         }
       } else {
@@ -191,28 +195,21 @@ export function ChatPage() {
               <p className="text-sm text-muted-foreground">
                 {language === 'ru'
                   ? 'Здравствуйте! Я ваш виртуальный консьерж. Чем я могу помочь?'
-                  : 'Hello! I\'m your virtual concierge. How can I help?'}
+                  : "Hello! I'm your virtual concierge. How can I help?"}
               </p>
             </div>
           </div>
         )}
 
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`mb-4 flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}
-          >
+          <div key={msg.id} className={`mb-4 flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
             <div
               className={`rounded-lg p-4 max-w-md ${
-                msg.isUser
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-foreground'
+                msg.isUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground'
               }`}
             >
               <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-              <span className="text-xs opacity-70 mt-2 block">
-                {formatTime(msg.timestamp)}
-              </span>
+              <span className="text-xs opacity-70 mt-2 block">{formatTime(msg.timestamp)}</span>
             </div>
           </div>
         ))}
@@ -221,9 +218,18 @@ export function ChatPage() {
           <div className="mb-4 flex justify-start">
             <div className="bg-secondary rounded-lg p-4 max-w-md">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: '0ms' }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: '150ms' }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                  style={{ animationDelay: '300ms' }}
+                ></div>
               </div>
             </div>
           </div>
@@ -241,9 +247,7 @@ export function ChatPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={
-                language === 'ru' ? 'Введите сообщение...' : 'Type a message...'
-              }
+              placeholder={language === 'ru' ? 'Введите сообщение...' : 'Type a message...'}
               className="flex-1 px-4 py-3 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
               disabled={isLoading}
             />

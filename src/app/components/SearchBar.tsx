@@ -52,8 +52,8 @@ export function SearchBar({
             </SelectTrigger>
             <SelectContent className="bg-card border-border">
               {sortOptions.map((option) => (
-                <SelectItem 
-                  key={option.value} 
+                <SelectItem
+                  key={option.value}
                   value={option.value}
                   className="text-foreground focus:bg-primary/20 focus:text-primary cursor-pointer"
                 >

@@ -16,7 +16,7 @@ export function FloatingWidget() {
       >
         {/* Glow effect */}
         <div className="absolute inset-0 blur-2xl bg-primary/20 -z-10" />
-        
+
         {/* Suitcase Container */}
         <div className="relative w-24 h-24">
           {/* Main Suitcase */}
@@ -33,10 +33,10 @@ export function FloatingWidget() {
                 <stop offset="100%" style={{ stopColor: '#6B3410', stopOpacity: 1 }} />
               </linearGradient>
               <filter id="shadow">
-                <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.3"/>
+                <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.3" />
               </filter>
             </defs>
-            
+
             {/* Handle */}
             <path
               d="M 35 25 Q 35 18 40 18 L 60 18 Q 65 18 65 25"
@@ -45,7 +45,7 @@ export function FloatingWidget() {
               strokeWidth="3"
               strokeLinecap="round"
             />
-            
+
             {/* Main body */}
             <rect
               x="20"
@@ -58,11 +58,27 @@ export function FloatingWidget() {
               stroke="#654321"
               strokeWidth="2"
             />
-            
+
             {/* Leather texture lines */}
-            <line x1="25" y1="35" x2="75" y2="35" stroke="#6B3410" strokeWidth="0.5" opacity="0.5" />
-            <line x1="25" y1="75" x2="75" y2="75" stroke="#6B3410" strokeWidth="0.5" opacity="0.5" />
-            
+            <line
+              x1="25"
+              y1="35"
+              x2="75"
+              y2="35"
+              stroke="#6B3410"
+              strokeWidth="0.5"
+              opacity="0.5"
+            />
+            <line
+              x1="25"
+              y1="75"
+              x2="75"
+              y2="75"
+              stroke="#6B3410"
+              strokeWidth="0.5"
+              opacity="0.5"
+            />
+
             {/* Lock */}
             <rect
               x="47"
@@ -75,13 +91,13 @@ export function FloatingWidget() {
               strokeWidth="1"
             />
             <circle cx="50" cy="52" r="1.5" fill="#654321" />
-            
+
             {/* Corner metal pieces */}
             <circle cx="25" cy="35" r="2" fill="#8B7355" />
             <circle cx="75" cy="35" r="2" fill="#8B7355" />
             <circle cx="25" cy="75" r="2" fill="#8B7355" />
             <circle cx="75" cy="75" r="2" fill="#8B7355" />
-            
+
             {/* Straps */}
             <rect x="30" y="50" width="40" height="3" rx="1.5" fill="#654321" opacity="0.7" />
             <rect x="30" y="60" width="40" height="3" rx="1.5" fill="#654321" opacity="0.7" />
@@ -90,7 +106,7 @@ export function FloatingWidget() {
           {/* Travel Stickers - appear on hover */}
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
-            animate={{ 
+            animate={{
               opacity: isHovered ? 1 : 0,
               scale: isHovered ? 1 : 0,
             }}
@@ -104,7 +120,7 @@ export function FloatingWidget() {
 
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
-            animate={{ 
+            animate={{
               opacity: isHovered ? 1 : 0,
               scale: isHovered ? 1 : 0,
             }}
@@ -118,7 +134,7 @@ export function FloatingWidget() {
 
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
-            animate={{ 
+            animate={{
               opacity: isHovered ? 1 : 0,
               scale: isHovered ? 1 : 0,
             }}
@@ -136,9 +152,9 @@ export function FloatingWidget() {
             initial={{ height: 0 }}
             animate={{ height: isHovered ? '80%' : 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            style={{ 
+            style={{
               mixBlendMode: 'overlay',
-              pointerEvents: 'none'
+              pointerEvents: 'none',
             }}
           />
         </div>
@@ -146,9 +162,9 @@ export function FloatingWidget() {
         {/* Tooltip */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
-          animate={{ 
+          animate={{
             opacity: isHovered ? 1 : 0,
-            y: isHovered ? 0 : 10
+            y: isHovered ? 0 : 10,
           }}
           transition={{ duration: 0.2 }}
           className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap"

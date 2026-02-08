@@ -27,11 +27,15 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Load chat history when chat opens
-  useEffect(() => {
-    if (chatOpen && user && accessToken) {
-      loadChatHistory();
-    }
-  }, [chatOpen, user, accessToken]);
+  useEffect(
+    () => {
+      if (chatOpen && user && accessToken) {
+        loadChatHistory();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [chatOpen, user, accessToken]
+  );
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -52,7 +56,7 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
         `${serverUrl}/chat/history?token=${encodeURIComponent(accessToken)}&hotelId=${hotelId}`,
         {
           headers: {
-            'Authorization': `Bearer ${publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
           },
         }
       );
@@ -91,7 +95,7 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${publicAnonKey}`,
+            Authorization: `Bearer ${publicAnonKey}`,
           },
           body: JSON.stringify({
             hotelId,
@@ -103,7 +107,7 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Add concierge response
         if (data.reply) {
           const conciergeMessage: Message = {
@@ -112,9 +116,9 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
             isUser: false,
             timestamp: new Date().toISOString(),
           };
-          
+
           setMessages((prev) => [...prev, conciergeMessage]);
-          
+
           // If chat is closed, increment unread counter
           if (!chatOpen) {
             setUnreadMessages((prev) => prev + 1);
@@ -193,7 +197,7 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
                 </p>
               </div>
             )}
-            
+
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -207,25 +211,32 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-                  <span className="text-xs opacity-70 mt-1 block">
-                    {formatTime(msg.timestamp)}
-                  </span>
+                  <span className="text-xs opacity-70 mt-1 block">{formatTime(msg.timestamp)}</span>
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="mb-4 flex justify-start">
                 <div className="bg-secondary rounded-lg p-3 max-w-[80%]">
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    <div
+                      className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: '0ms' }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: '150ms' }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: '300ms' }}
+                    ></div>
                   </div>
                 </div>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -237,9 +248,7 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={
-                  language === 'ru' ? 'Введите сообщение...' : 'Type a message...'
-                }
+                placeholder={language === 'ru' ? 'Введите сообщение...' : 'Type a message...'}
                 className="flex-1 px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground placeholder:text-muted-foreground"
                 disabled={isLoading}
               />

@@ -1,14 +1,26 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Star, MapPin, Wifi, UtensilsCrossed, Dumbbell, Wind, Coffee, Waves, Baby, Car, ArrowLeft, ChevronLeft, ChevronRight, Heart, X, Maximize2, Users, BedDouble } from 'lucide-react';
+import {
+  Star,
+  MapPin,
+  Wifi,
+  UtensilsCrossed,
+  Dumbbell,
+  Waves,
+  Car,
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Maximize2,
+  Users,
+  BedDouble,
+  X,
+} from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ConciergeChat } from '../components/ConciergeChat';
-
-interface HotelDetailPageProps {
-  language: 'ru' | 'en';
-}
 
 interface Room {
   id: number;
@@ -76,12 +88,12 @@ export function HotelDetailPage() {
             onClick={() => setIsFavorite(!isFavorite)}
             className="p-3 rounded-full bg-secondary hover:bg-secondary/80 transition-all"
           >
-            <Heart 
+            <Heart
               className={`w-6 h-6 transition-all ${
-                isFavorite 
-                  ? 'fill-red-500 text-red-500' 
+                isFavorite
+                  ? 'fill-red-500 text-red-500'
                   : 'text-muted-foreground hover:text-red-500'
-              }`} 
+              }`}
             />
           </button>
         </div>
@@ -154,17 +166,17 @@ export function HotelDetailPage() {
         <div className="bg-card border border-border rounded-lg p-6">
           <div className="flex items-center gap-3 mb-4">
             <UtensilsCrossed className="w-6 h-6 text-primary" />
-            <h3 className="text-xl text-foreground">
-              {language === 'ru' ? 'Питание' : 'Dining'}
-            </h3>
+            <h3 className="text-xl text-foreground">{language === 'ru' ? 'Питание' : 'Dining'}</h3>
           </div>
           <ul className="space-y-2">
-            {(language === 'ru' ? hotel.amenities.dining : hotel.amenities.diningEn).map((item, i) => (
-              <li key={i} className="text-muted-foreground flex items-start gap-2">
-                <span className="text-primary mt-1">•</span>
-                <span>{item}</span>
-              </li>
-            ))}
+            {(language === 'ru' ? hotel.amenities.dining : hotel.amenities.diningEn).map(
+              (item, i) => (
+                <li key={i} className="text-muted-foreground flex items-start gap-2">
+                  <span className="text-primary mt-1">•</span>
+                  <span>{item}</span>
+                </li>
+              )
+            )}
           </ul>
         </div>
 
@@ -176,12 +188,14 @@ export function HotelDetailPage() {
             </h3>
           </div>
           <ul className="space-y-2">
-            {(language === 'ru' ? hotel.amenities.pools : hotel.amenities.poolsEn).map((item, i) => (
-              <li key={i} className="text-muted-foreground flex items-start gap-2">
-                <span className="text-primary mt-1">•</span>
-                <span>{item}</span>
-              </li>
-            ))}
+            {(language === 'ru' ? hotel.amenities.pools : hotel.amenities.poolsEn).map(
+              (item, i) => (
+                <li key={i} className="text-muted-foreground flex items-start gap-2">
+                  <span className="text-primary mt-1">•</span>
+                  <span>{item}</span>
+                </li>
+              )
+            )}
           </ul>
         </div>
 
@@ -193,12 +207,14 @@ export function HotelDetailPage() {
             </h3>
           </div>
           <ul className="space-y-2">
-            {(language === 'ru' ? hotel.amenities.transport : hotel.amenities.transportEn).map((item, i) => (
-              <li key={i} className="text-muted-foreground flex items-start gap-2">
-                <span className="text-primary mt-1">•</span>
-                <span>{item}</span>
-              </li>
-            ))}
+            {(language === 'ru' ? hotel.amenities.transport : hotel.amenities.transportEn).map(
+              (item, i) => (
+                <li key={i} className="text-muted-foreground flex items-start gap-2">
+                  <span className="text-primary mt-1">•</span>
+                  <span>{item}</span>
+                </li>
+              )
+            )}
           </ul>
         </div>
 
@@ -210,12 +226,14 @@ export function HotelDetailPage() {
             </h3>
           </div>
           <ul className="space-y-2">
-            {(language === 'ru' ? hotel.amenities.sports : hotel.amenities.sportsEn).map((item, i) => (
-              <li key={i} className="text-muted-foreground flex items-start gap-2">
-                <span className="text-primary mt-1">•</span>
-                <span>{item}</span>
-              </li>
-            ))}
+            {(language === 'ru' ? hotel.amenities.sports : hotel.amenities.sportsEn).map(
+              (item, i) => (
+                <li key={i} className="text-muted-foreground flex items-start gap-2">
+                  <span className="text-primary mt-1">•</span>
+                  <span>{item}</span>
+                </li>
+              )
+            )}
           </ul>
         </div>
       </div>
@@ -229,12 +247,14 @@ export function HotelDetailPage() {
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(language === 'ru' ? hotel.amenities.nearby : hotel.amenities.nearbyEn).map((item, i) => (
-            <div key={i} className="text-muted-foreground flex items-center gap-2">
-              <span className="text-primary">•</span>
-              <span>{item}</span>
-            </div>
-          ))}
+          {(language === 'ru' ? hotel.amenities.nearby : hotel.amenities.nearbyEn).map(
+            (item, i) => (
+              <div key={i} className="text-muted-foreground flex items-center gap-2">
+                <span className="text-primary">•</span>
+                <span>{item}</span>
+              </div>
+            )
+          )}
         </div>
       </div>
 
@@ -250,11 +270,7 @@ export function HotelDetailPage() {
               className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
               onClick={() => setSelectedRoom(room)}
             >
-              <img
-                src={room.image}
-                alt={room.name}
-                className="w-full h-48 object-cover"
-              />
+              <img src={room.image} alt={room.name} className="w-full h-48 object-cover" />
               <div className="p-4">
                 <h3 className="text-lg text-foreground mb-2">
                   {language === 'ru' ? room.name : room.nameEn}
@@ -266,7 +282,9 @@ export function HotelDetailPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4" />
-                    <span>{room.capacity} {language === 'ru' ? 'гостя' : 'guests'}</span>
+                    <span>
+                      {room.capacity} {language === 'ru' ? 'гостя' : 'guests'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <BedDouble className="w-4 h-4" />
@@ -314,7 +332,9 @@ export function HotelDetailPage() {
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Users className="w-5 h-5" />
-                    <span>{selectedRoom.capacity} {language === 'ru' ? 'гостя' : 'guests'}</span>
+                    <span>
+                      {selectedRoom.capacity} {language === 'ru' ? 'гостя' : 'guests'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <BedDouble className="w-5 h-5" />
@@ -327,12 +347,14 @@ export function HotelDetailPage() {
                   {language === 'ru' ? 'Удобства' : 'Amenities'}
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
-                  {(language === 'ru' ? selectedRoom.amenities : selectedRoom.amenitiesEn).map((amenity, i) => (
-                    <div key={i} className="flex items-center gap-2 text-muted-foreground">
-                      <Wifi className="w-4 h-4 text-primary" />
-                      <span>{amenity}</span>
-                    </div>
-                  ))}
+                  {(language === 'ru' ? selectedRoom.amenities : selectedRoom.amenitiesEn).map(
+                    (amenity, i) => (
+                      <div key={i} className="flex items-center gap-2 text-muted-foreground">
+                        <Wifi className="w-4 h-4 text-primary" />
+                        <span>{amenity}</span>
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between pt-6 border-t border-border">
@@ -342,7 +364,7 @@ export function HotelDetailPage() {
                     {language === 'ru' ? 'за ночь' : 'per night'}
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => navigate(`/hotel/${id}/book`)}
                   className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
                 >

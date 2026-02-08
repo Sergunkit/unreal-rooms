@@ -17,7 +17,7 @@ interface Hotel {
 }
 
 // Convert hotelData object to array
-const mockHotels: Hotel[] = Object.values(hotelData).map(hotel => ({
+const mockHotels: Hotel[] = Object.values(hotelData).map((hotel) => ({
   id: hotel.id,
   name: hotel.name,
   nameEn: hotel.nameEn,
@@ -43,10 +43,11 @@ export function HomePage({ language }: HomePageProps) {
 
   const filteredAndSortedHotels = useMemo(() => {
     let filtered = mockHotels.filter((hotel) => {
-      const nameMatch = language === 'ru' 
-        ? hotel.name.toLowerCase().includes(searchQuery.toLowerCase())
-        : hotel.nameEn.toLowerCase().includes(searchQuery.toLowerCase());
-      
+      const nameMatch =
+        language === 'ru'
+          ? hotel.name.toLowerCase().includes(searchQuery.toLowerCase())
+          : hotel.nameEn.toLowerCase().includes(searchQuery.toLowerCase());
+
       const priceMatch = hotel.price >= minPrice && hotel.price <= maxPrice;
       const starsMatch = selectedStars.length === 0 || selectedStars.includes(hotel.stars);
       const ratingMatch = hotel.rating >= minRating;
@@ -131,8 +132,8 @@ export function HomePage({ language }: HomePageProps) {
                 {language === 'ru' ? 'Ничего не найдено' : 'No hotels found'}
               </h3>
               <p className="text-muted-foreground">
-                {language === 'ru' 
-                  ? 'Попробуйте изменить параметры поиска' 
+                {language === 'ru'
+                  ? 'Попробуйте изменить параметры поиска'
                   : 'Try changing your search parameters'}
               </p>
             </div>

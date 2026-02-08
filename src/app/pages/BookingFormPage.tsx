@@ -1,15 +1,40 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { ArrowLeft, Users, BedDouble, Calendar, UtensilsCrossed, Car, Clock, CreditCard, Wallet, Tag, Sparkles } from 'lucide-react';
+import {
+  ArrowLeft,
+  Users,
+  BedDouble,
+  Calendar,
+  UtensilsCrossed,
+  Car,
+  Clock,
+  CreditCard,
+  Wallet,
+  Tag,
+  Sparkles,
+} from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/app/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/app/components/ui/select';
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { Calendar as CalendarComponent } from '@/app/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/app/components/ui/dialog';
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 
@@ -48,7 +73,7 @@ const mealTypes = [
 ];
 
 export function BookingFormPage({ language }: BookingFormPageProps) {
-  const { id } = useParams();
+  useParams();
   const navigate = useNavigate();
 
   // Form state
@@ -67,6 +92,7 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
   const [appliedPromo, setAppliedPromo] = useState('');
   const [discount, setDiscount] = useState(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [roomNumber] = useState(() => Math.floor(Math.random() * 900 + 100));
 
   const t = {
     title: language === 'ru' ? 'Бронирование номера' : 'Room Booking',
@@ -93,8 +119,14 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
     back: language === 'ru' ? 'Назад' : 'Back',
     continue: language === 'ru' ? 'Продолжить' : 'Continue',
     confirmTitle: language === 'ru' ? 'Подтверждение бронирования' : 'Booking Confirmation',
-    confirmDesc: language === 'ru' ? 'Пожалуйста, проверьте детали вашего бронирования' : 'Please review your booking details',
-    warning: language === 'ru' ? '⚠️ Отменить данное бронирование невозможно' : '⚠️ This booking cannot be cancelled',
+    confirmDesc:
+      language === 'ru'
+        ? 'Пожалуйста, проверьте детали вашего бронирования'
+        : 'Please review your booking details',
+    warning:
+      language === 'ru'
+        ? '⚠️ Отменить данное бронирование невозможно'
+        : '⚠️ This booking cannot be cancelled',
     cancel: language === 'ru' ? 'Отменить' : 'Cancel',
     confirm: language === 'ru' ? 'Подтвердить' : 'Confirm',
     room: language === 'ru' ? 'Номер' : 'Room',
@@ -110,8 +142,8 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
   };
 
   const calculateTotal = () => {
-    const selectedRoom = roomTypes.find(r => r.value === roomType);
-    const selectedMeal = mealTypes.find(m => m.value === mealType);
+    const selectedRoom = roomTypes.find((r) => r.value === roomType);
+    const selectedMeal = mealTypes.find((m) => m.value === mealType);
     const nights = calculateNights();
 
     let total = 0;
@@ -127,8 +159,8 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
       total += 3000 * rooms;
     }
 
-    selectedServices.forEach(serviceId => {
-      const service = additionalServices.find(s => s.id === serviceId);
+    selectedServices.forEach((serviceId) => {
+      const service = additionalServices.find((s) => s.id === serviceId);
       if (service) {
         total += service.price;
       }
@@ -139,19 +171,17 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
   };
 
   const handleServiceToggle = (serviceId: string) => {
-    setSelectedServices(prev =>
-      prev.includes(serviceId)
-        ? prev.filter(id => id !== serviceId)
-        : [...prev, serviceId]
+    setSelectedServices((prev) =>
+      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
     );
   };
 
   const handleApplyPromo = () => {
     // Mock promo codes
     const validPromos: { [key: string]: number } = {
-      'UNREAL10': 10,
-      'UNREAL20': 20,
-      'MYSTERY15': 15,
+      UNREAL10: 10,
+      UNREAL20: 20,
+      MYSTERY15: 15,
     };
 
     const upperPromo = promoCode.toUpperCase();
@@ -166,7 +196,11 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
 
   const handleContinue = () => {
     if (!checkInDate || !checkOutDate) {
-      alert(language === 'ru' ? 'Пожалуйста, выберите даты заезда и выезда' : 'Please select check-in and check-out dates');
+      alert(
+        language === 'ru'
+          ? 'Пожалуйста, выберите даты заезда и выезда'
+          : 'Please select check-in and check-out dates'
+      );
       return;
     }
     setShowConfirmDialog(true);
@@ -175,7 +209,9 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
   const handleConfirmBooking = () => {
     // Here you would typically send the booking to a backend
     setShowConfirmDialog(false);
-    alert(language === 'ru' ? 'Бронирование успешно подтверждено!' : 'Booking confirmed successfully!');
+    alert(
+      language === 'ru' ? 'Бронирование успешно подтверждено!' : 'Booking confirmed successfully!'
+    );
     navigate('/bookings');
   };
 
@@ -250,9 +286,10 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {roomTypes.map(type => (
+                      {roomTypes.map((type) => (
                         <SelectItem key={type.value} value={type.value}>
-                          {language === 'ru' ? type.label : type.labelEn} - ₽{type.basePrice.toLocaleString()}
+                          {language === 'ru' ? type.label : type.labelEn} - ₽
+                          {type.basePrice.toLocaleString()}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -332,7 +369,7 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {mealTypes.map(meal => (
+                      {mealTypes.map((meal) => (
                         <SelectItem key={meal.value} value={meal.value}>
                           {language === 'ru' ? meal.label : meal.labelEn}
                           {meal.price > 0 && ` - ₽${meal.price.toLocaleString()}`}
@@ -376,7 +413,7 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
                     {t.additionalServices}
                   </Label>
                   <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                    {additionalServices.map(service => (
+                    {additionalServices.map((service) => (
                       <div key={service.id} className="flex items-center space-x-2">
                         <Checkbox
                           id={service.id}
@@ -410,7 +447,10 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
                 {/* Payment Method */}
                 <div className="space-y-3">
                   <Label>{t.paymentMethod}</Label>
-                  <RadioGroup value={paymentMethod} onValueChange={(value: 'cash' | 'card') => setPaymentMethod(value)}>
+                  <RadioGroup
+                    value={paymentMethod}
+                    onValueChange={(value: 'cash' | 'card') => setPaymentMethod(value)}
+                  >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="cash" id="cash" />
                       <Label htmlFor="cash" className="flex items-center gap-2 cursor-pointer">
@@ -431,14 +471,21 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
                 {/* Card Type */}
                 {paymentMethod === 'card' && (
                   <div className="space-y-3">
-                    <RadioGroup value={cardType} onValueChange={(value: 'visa' | 'mastercard') => setCardType(value)}>
+                    <RadioGroup
+                      value={cardType}
+                      onValueChange={(value: 'visa' | 'mastercard') => setCardType(value)}
+                    >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="visa" id="visa" />
-                        <Label htmlFor="visa" className="cursor-pointer">Visa</Label>
+                        <Label htmlFor="visa" className="cursor-pointer">
+                          Visa
+                        </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="mastercard" id="mastercard" />
-                        <Label htmlFor="mastercard" className="cursor-pointer">Mastercard</Label>
+                        <Label htmlFor="mastercard" className="cursor-pointer">
+                          Mastercard
+                        </Label>
                       </div>
                     </RadioGroup>
                   </div>
@@ -477,13 +524,17 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
                   <div className="space-y-2 text-sm text-muted-foreground">
                     {nights > 0 && (
                       <div className="flex justify-between">
-                        <span>{nights} {t.nights}</span>
+                        <span>
+                          {nights} {t.nights}
+                        </span>
                         <span>₽{total.toLocaleString()}</span>
                       </div>
                     )}
                     {discount > 0 && (
                       <div className="flex justify-between text-green-500">
-                        <span>{language === 'ru' ? 'Скидка' : 'Discount'} ({discount}%)</span>
+                        <span>
+                          {language === 'ru' ? 'Скидка' : 'Discount'} ({discount}%)
+                        </span>
                         <span>-₽{discountAmount.toLocaleString()}</span>
                       </div>
                     )}
@@ -536,36 +587,44 @@ export function BookingFormPage({ language }: BookingFormPageProps) {
                   <span className="text-muted-foreground">{t.room}:</span>
                   <span>
                     {language === 'ru'
-                      ? roomTypes.find(r => r.value === roomType)?.label
-                      : roomTypes.find(r => r.value === roomType)?.labelEn}
+                      ? roomTypes.find((r) => r.value === roomType)?.label
+                      : roomTypes.find((r) => r.value === roomType)?.labelEn}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{language === 'ru' ? 'Номер комнаты:' : 'Room number:'}:</span>
-                  <span>#{Math.floor(Math.random() * 900 + 100)}</span>
+                  <span className="text-muted-foreground">
+                    {language === 'ru' ? 'Номер комнаты:' : 'Room number:'}:
+                  </span>
+                  <span>#{roomNumber}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t.checkIn}:</span>
-                  <span>{checkInDate && format(checkInDate, 'PP', { locale: language === 'ru' ? ru : enUS })}</span>
+                  <span>
+                    {checkInDate &&
+                      format(checkInDate, 'PP', { locale: language === 'ru' ? ru : enUS })}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t.checkOut}:</span>
-                  <span>{checkOutDate && format(checkOutDate, 'PP', { locale: language === 'ru' ? ru : enUS })}</span>
+                  <span>
+                    {checkOutDate &&
+                      format(checkOutDate, 'PP', { locale: language === 'ru' ? ru : enUS })}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t.mealType}:</span>
                   <span>
                     {language === 'ru'
-                      ? mealTypes.find(m => m.value === mealType)?.label
-                      : mealTypes.find(m => m.value === mealType)?.labelEn}
+                      ? mealTypes.find((m) => m.value === mealType)?.label
+                      : mealTypes.find((m) => m.value === mealType)?.labelEn}
                   </span>
                 </div>
                 {selectedServices.length > 0 && (
                   <div className="text-sm">
                     <span className="text-muted-foreground">{t.additionalServices}:</span>
                     <ul className="list-disc list-inside mt-1 space-y-1">
-                      {selectedServices.map(serviceId => {
-                        const service = additionalServices.find(s => s.id === serviceId);
+                      {selectedServices.map((serviceId) => {
+                        const service = additionalServices.find((s) => s.id === serviceId);
                         return (
                           <li key={serviceId}>
                             {language === 'ru' ? service?.name : service?.nameEn}

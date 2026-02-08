@@ -14,15 +14,15 @@ export function FavoritesPage({ language }: FavoritesPageProps) {
             {language === 'ru' ? 'Любимые отели' : 'Favorite Hotels'}
           </h1>
         </div>
-        
+
         <div className="flex flex-col items-center justify-center py-20">
           <div className="text-6xl mb-4">❤️</div>
           <h3 className="text-xl text-foreground mb-2">
             {language === 'ru' ? 'Здесь пока пусто' : 'Nothing here yet'}
           </h3>
           <p className="text-muted-foreground text-center max-w-md">
-            {language === 'ru' 
-              ? 'Начните добавлять отели в избранное, чтобы быстро находить их в будущем' 
+            {language === 'ru'
+              ? 'Начните добавлять отели в избранное, чтобы быстро находить их в будущем'
               : 'Start adding hotels to favorites to quickly find them in the future'}
           </p>
         </div>

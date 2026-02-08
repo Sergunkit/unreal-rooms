@@ -23,7 +23,7 @@ export function FilterPanel({
 }: FilterPanelProps) {
   const toggleStar = (star: number) => {
     if (selectedStars.includes(star)) {
-      onStarsChange(selectedStars.filter(s => s !== star));
+      onStarsChange(selectedStars.filter((s) => s !== star));
     } else {
       onStarsChange([...selectedStars, star]);
     }
@@ -33,9 +33,7 @@ export function FilterPanel({
     <div className="bg-card border border-border rounded-xl p-6">
       <div className="flex items-center gap-2 mb-6">
         <SlidersHorizontal className="w-5 h-5 text-primary" />
-        <h3 className="text-foreground">
-          {language === 'ru' ? 'Фильтры' : 'Filters'}
-        </h3>
+        <h3 className="text-foreground">{language === 'ru' ? 'Фильтры' : 'Filters'}</h3>
       </div>
 
       {/* Price Filter */}
@@ -108,7 +106,7 @@ export function FilterPanel({
         </div>
       </div>
 
-      <button 
+      <button
         onClick={() => {
           onPriceChange(0, 1000);
           onStarsChange([]);

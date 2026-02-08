@@ -29,20 +29,20 @@ export function AuthModal({ open, onClose, language }: AuthModalProps) {
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
 
   // Test server health
-  const testServerHealth = async () => {
-    try {
-      const serverUrl = `https://${(window as any).__SUPABASE_PROJECT_ID__}.supabase.co/functions/v1/make-server-4cfee19e`;
-      console.log('Testing server at:', serverUrl);
-      
-      const response = await fetch(`${serverUrl}/health`);
-      const data = await response.json();
-      console.log('Server health:', data);
-      toast.success('Server is online!');
-    } catch (error) {
-      console.error('Server health check failed:', error);
-      toast.error('Server is offline or unreachable');
-    }
-  };
+  // const testServerHealth = async () => {
+  //   try {
+  //     const serverUrl = `https://${(window as any).__SUPABASE_PROJECT_ID__}.supabase.co/functions/v1/make-server-4cfee19e`;
+  //     console.log('Testing server at:', serverUrl);
+  //
+  //     const response = await fetch(`${serverUrl}/health`);
+  //     const data = await response.json();
+  //     console.log('Server health:', data);
+  //     toast.success('Server is online!');
+  //   } catch (error) {
+  //     console.error('Server health check failed:', error);
+  //     toast.error('Server is offline or unreachable');
+  //   }
+  // };
 
   const t = {
     signIn: language === 'ru' ? 'Вход' : 'Sign In',
@@ -55,7 +55,10 @@ export function AuthModal({ open, onClose, language }: AuthModalProps) {
     signUpButton: language === 'ru' ? 'Зарегистрироваться' : 'Sign Up',
     welcomeBack: language === 'ru' ? 'Добро пожаловать!' : 'Welcome Back!',
     joinUs: language === 'ru' ? 'Присоединяйтесь к нам' : 'Join Us',
-    description: language === 'ru' ? 'Войдите или зарегистрируйтесь для бронирования отелей' : 'Sign in or sign up to book hotels',
+    description:
+      language === 'ru'
+        ? 'Войдите или зарегистрируйтесь для бронирования отелей'
+        : 'Sign in or sign up to book hotels',
     signInSuccess: language === 'ru' ? 'Вы успешно вошли!' : 'Successfully signed in!',
     signUpSuccess: language === 'ru' ? 'Регистрация успешна!' : 'Successfully signed up!',
     passwordMismatch: language === 'ru' ? 'Пароли не совпадают' : 'Passwords do not match',
@@ -64,7 +67,7 @@ export function AuthModal({ open, onClose, language }: AuthModalProps) {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!signInEmail || !signInPassword) {
       toast.error(t.fillAllFields);
       return;
@@ -76,8 +79,9 @@ export function AuthModal({ open, onClose, language }: AuthModalProps) {
       toast.success(t.signInSuccess);
       onClose();
       resetForms();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to sign in';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +89,7 @@ export function AuthModal({ open, onClose, language }: AuthModalProps) {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!signUpName || !signUpEmail || !signUpPassword || !signUpConfirmPassword) {
       toast.error(t.fillAllFields);
       return;
@@ -102,8 +106,9 @@ export function AuthModal({ open, onClose, language }: AuthModalProps) {
       toast.success(t.signUpSuccess);
       onClose();
       resetForms();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to sign up');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to sign up';
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -128,9 +133,7 @@ export function AuthModal({ open, onClose, language }: AuthModalProps) {
               unreal rooms
             </span>
           </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            {t.description}
-          </DialogDescription>
+          <DialogDescription className="text-muted-foreground">{t.description}</DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="signin" className="w-full">

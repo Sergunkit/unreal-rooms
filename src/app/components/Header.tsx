@@ -50,7 +50,7 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
         await signOut();
         toast.success(language === 'ru' ? 'Вы вышли из системы' : 'Logged out successfully');
         navigate('/');
-      } catch (error) {
+      } catch {
         toast.error(language === 'ru' ? 'Ошибка при выходе' : 'Error logging out');
       }
     }
@@ -61,10 +61,7 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div 
-              className="flex items-center gap-3 cursor-pointer" 
-              onClick={() => navigate('/')}
-            >
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
               <div className="relative">
                 <KeyRound className="w-8 h-8 text-primary rotate-45 stroke-[1.5]" />
                 <div className="absolute inset-0 blur-xl bg-primary/30 -z-10" />
@@ -96,11 +93,7 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
                 className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all"
                 aria-label="Toggle theme"
               >
-                {theme === 'dark' ? (
-                  <Sun className="w-5 h-5" />
-                ) : (
-                  <Moon className="w-5 h-5" />
-                )}
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </button>
 
               {/* Chat Button (only for logged in users) */}
@@ -120,10 +113,7 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
                   <DropdownMenuTrigger className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all outline-none focus:ring-2 focus:ring-primary/50">
                     <User className="w-5 h-5" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent 
-                    className="bg-card border-border w-56 mr-4"
-                    align="end"
-                  >
+                  <DropdownMenuContent className="bg-card border-border w-56 mr-4" align="end">
                     <div className="px-3 py-2 text-sm">
                       <p className="font-medium text-foreground">{user.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
@@ -134,7 +124,7 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
                         {index === menuItems[language].length - 1 && (
                           <DropdownMenuSeparator className="bg-border" />
                         )}
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="text-foreground focus:bg-primary/20 focus:text-primary cursor-pointer flex items-center gap-3 px-3 py-2"
                           onClick={() => handleMenuClick(item.path)}
                         >
@@ -159,11 +149,7 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
         </div>
       </header>
 
-      <AuthModal 
-        open={showAuthModal} 
-        onClose={() => setShowAuthModal(false)}
-        language={language}
-      />
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} language={language} />
     </>
   );
 }

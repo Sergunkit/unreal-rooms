@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshAccessToken = async () => {
     const currentRefreshToken = localStorage.getItem('refresh_token');
-    
+
     if (!currentRefreshToken) {
       console.error('No refresh token available');
       await handleTokenExpiration();
@@ -50,12 +50,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       console.log('Refreshing access token...');
-      
+
       const response = await fetch(`${serverUrl}/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
+          Authorization: `Bearer ${publicAnonKey}`,
         },
         body: JSON.stringify({ refreshToken: currentRefreshToken }),
       });
@@ -75,11 +75,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Update access token and expiration
-      const newExpiresAt = Date.now() + (data.expiresIn * 1000);
-      
+      const newExpiresAt = Date.now() + data.expiresIn * 1000;
+
       setAccessToken(data.accessToken);
       setTokenExpiresAt(newExpiresAt);
-      
+
       localStorage.setItem('access_token', data.accessToken);
       localStorage.setItem('token_expires_at', newExpiresAt.toString());
 
@@ -96,12 +96,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Token (first 20 chars):', token.substring(0, 20) + '...');
       console.log('Token length:', token.length);
       console.log('Server URL:', serverUrl);
-      
+
       // Pass token as query parameter to avoid Supabase JWT validation
       // But still need Authorization header for Supabase Edge Functions middleware
       const response = await fetch(`${serverUrl}/profile?token=${encodeURIComponent(token)}`, {
         headers: {
-          'Authorization': `Bearer ${publicAnonKey}`,
+          Authorization: `Bearer ${publicAnonKey}`,
         },
       });
 
@@ -115,16 +115,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const errorText = await response.text();
         console.error('Profile fetch failed - Status:', response.status);
         console.error('Profile fetch failed - Response:', errorText);
-        
+
         let errorData;
         try {
           errorData = JSON.parse(errorText);
-        } catch (e) {
+        } catch {
           errorData = { error: errorText };
         }
-        
+
         console.error('Failed to fetch user profile:', errorData);
-        
+
         // If token expired, try to refresh
         if (response.status === 401) {
           console.log('Token expired, attempting refresh...');
@@ -155,7 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const storedAccessToken = localStorage.getItem('access_token');
       const storedRefreshToken = localStorage.getItem('refresh_token');
       const storedExpiresAt = localStorage.getItem('token_expires_at');
-      
+
       if (storedAccessToken && storedRefreshToken && storedExpiresAt) {
         const expiresAt = parseInt(storedExpiresAt);
         const now = Date.now();
@@ -185,6 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     checkServerVersion();
     checkSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Setup auto-refresh when access token is set
@@ -204,19 +205,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const expiresIn = tokenExpiresAt - now;
     const refreshIn = Math.max(expiresIn - 60 * 1000, 0); // Refresh 1 min before expiry
 
-    console.log(`⏰ Access token expires in ${Math.floor(expiresIn / 1000)}s, will refresh in ${Math.floor(refreshIn / 1000)}s`);
+    console.log(
+      `⏰ Access token expires in ${Math.floor(expiresIn / 1000)}s, will refresh in ${Math.floor(refreshIn / 1000)}s`
+    );
 
     refreshTimerRef.current = window.setTimeout(() => {
       console.log('🔄 Auto-refreshing access token...');
       refreshAccessToken();
     }, refreshIn);
-    
+
     return () => {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, tokenExpiresAt, refreshToken]);
 
   const signUp = async (email: string, password: string, name: string) => {
@@ -225,7 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
+          Authorization: `Bearer ${publicAnonKey}`,
         },
         body: JSON.stringify({ email, password, name }),
       });
@@ -248,13 +252,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Attempting sign in for:', email);
       console.log('Server URL:', serverUrl);
-      
+
       // Use server-side sign in
       const response = await fetch(`${serverUrl}/signin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
+          Authorization: `Bearer ${publicAnonKey}`,
         },
         body: JSON.stringify({ email, password }),
       });
@@ -265,7 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const contentType = response.headers.get('content-type');
       const responseText = await response.text();
       console.log('Sign in raw response:', responseText);
-      
+
       if (contentType && contentType.includes('application/json')) {
         try {
           data = JSON.parse(responseText);
@@ -277,7 +281,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Non-JSON response:', responseText);
         throw new Error(`Server error: ${responseText.substring(0, 100)}`);
       }
-      
+
       console.log('Sign in response data:', data);
 
       if (!response.ok) {
@@ -289,18 +293,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Calculate expiration time
-      const expiresAt = Date.now() + (data.expiresIn * 1000);
+      const expiresAt = Date.now() + data.expiresIn * 1000;
 
       // Store tokens in localStorage
       localStorage.setItem('access_token', data.accessToken);
       localStorage.setItem('refresh_token', data.refreshToken);
       localStorage.setItem('token_expires_at', expiresAt.toString());
-      
+
       setAccessToken(data.accessToken);
       setRefreshToken(data.refreshToken);
       setTokenExpiresAt(expiresAt);
       setUser(data.user);
-      
+
       console.log('✅ Sign in successful, tokens stored');
       console.log(`Access token expires in ${data.expiresIn}s`);
     } catch (error) {
@@ -312,7 +316,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         throw new Error(error.message);
       }
@@ -332,14 +336,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Pass token as query parameter
       // But still need Authorization header for Supabase Edge Functions middleware
-      const response = await fetch(`${serverUrl}/profile?token=${encodeURIComponent(accessToken)}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
-        body: JSON.stringify({ name }),
-      });
+      const response = await fetch(
+        `${serverUrl}/profile?token=${encodeURIComponent(accessToken)}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${publicAnonKey}`,
+          },
+          body: JSON.stringify({ name }),
+        }
+      );
 
       const data = await response.json();
 
