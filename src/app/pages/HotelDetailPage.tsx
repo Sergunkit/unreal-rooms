@@ -16,6 +16,9 @@ import {
   Users,
   BedDouble,
   X,
+  Sparkles,
+  MessageSquare,
+  Search,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
@@ -43,6 +46,8 @@ export function HotelDetailPage() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showLostFoundModal, setShowLostFoundModal] = useState(false);
 
   const hotel = hotelData[id as keyof typeof hotelData];
 
@@ -66,6 +71,69 @@ export function HotelDetailPage() {
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
+
+  // Mock feedback data
+  const feedbacks = [
+    {
+      id: 1,
+      author: 'John Doe',
+      text: 'Отличное место! Персонал очень вежливый и внимательный. Рекомендую всем!',
+    },
+    {
+      id: 2,
+      author: 'Sarah Smith',
+      text: 'Прекрасный вид, удобные номера и вкусный завтрак. Спасибо за отличный отпуск!',
+    },
+    {
+      id: 3,
+      author: 'Michael Brown',
+      text: 'Чистота на высшем уровне. Все удобства работают идеально. Посещу еще раз!',
+    },
+    {
+      id: 4,
+      author: 'Emma Wilson',
+      text: 'Уютная атмосфера, профессиональный сервис. Было приятно остановиться здесь.',
+    },
+    {
+      id: 5,
+      author: 'David Johnson',
+      text: 'Отель превзошел все мои ожидания. Обязательно вернусь с семьей!',
+    },
+  ];
+
+  // Mock lost & found items
+  const lostFoundItems = [
+    {
+      id: 1,
+      nameRu: 'Черный кошелек',
+      nameEn: 'Black wallet',
+      image: '🎒',
+    },
+    {
+      id: 2,
+      nameRu: 'Солнечные очки',
+      nameEn: 'Sunglasses',
+      image: '🕶️',
+    },
+    {
+      id: 3,
+      nameRu: 'Серебряная ручка',
+      nameEn: 'Silver pen',
+      image: '✒️',
+    },
+    {
+      id: 4,
+      nameRu: 'Шарф',
+      nameEn: 'Scarf',
+      image: '🧣',
+    },
+    {
+      id: 5,
+      nameRu: 'Зонт',
+      nameEn: 'Umbrella',
+      image: '☂️',
+    },
+  ];
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -370,6 +438,117 @@ export function HotelDetailPage() {
                 >
                   {language === 'ru' ? 'Забронировать' : 'Book Now'}
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback and Lost & Found */}
+      <div className="mb-8 grid grid-cols-2 gap-6">
+        {/* Feedback Button */}
+        <button
+          onClick={() => setShowFeedbackModal(true)}
+          className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all cursor-pointer text-left flex items-center gap-3"
+        >
+          <MessageSquare className="w-6 h-6 text-primary flex-shrink-0" />
+          <div className="flex-1">
+            <h3 className="text-xl text-foreground font-medium">
+              {language === 'ru' ? 'Отзывы' : 'Feedback'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {language === 'ru' ? 'Смотреть отзывы' : 'View reviews'}
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-primary/50 flex-shrink-0" />
+        </button>
+
+        {/* Lost & Found Button */}
+        <button
+          onClick={() => setShowLostFoundModal(true)}
+          className="bg-card border border-border rounded-lg p-6 hover:border-primary/50 transition-all cursor-pointer text-left flex items-center gap-3"
+        >
+          <Search className="w-6 h-6 text-primary flex-shrink-0" />
+          <div className="flex-1">
+            <h3 className="text-xl text-foreground font-medium">
+              {language === 'ru' ? 'Потеряшки' : 'Lost & Found'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {language === 'ru' ? 'Поиск предметов' : 'Find items'}
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-primary/50 flex-shrink-0" />
+        </button>
+      </div>
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <MessageSquare className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl text-foreground font-medium">
+                  {language === 'ru' ? 'Отзывы' : 'Feedback'}
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowFeedbackModal(false)}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-6">
+              <div className="space-y-6">
+                {feedbacks.map((feedback, index) => (
+                  <div key={feedback.id}>
+                    <p className="text-sm font-medium text-foreground mb-2">{feedback.author}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{feedback.text}</p>
+                    {index < feedbacks.length - 1 && (
+                      <div className="flex items-center justify-center my-6">
+                        <Sparkles className="w-5 h-5 text-primary/50" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lost & Found Modal */}
+      {showLostFoundModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Search className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl text-foreground font-medium">
+                  {language === 'ru' ? 'Потеряшки' : 'Lost & Found'}
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowLostFoundModal(false)}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-6">
+              <div className="grid grid-cols-2 gap-4">
+                {lostFoundItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-secondary/50 rounded-lg p-4 hover:bg-secondary transition-colors cursor-pointer"
+                  >
+                    <div className="text-5xl mb-3 text-center">{item.image}</div>
+                    <h4 className="text-sm font-medium text-foreground">
+                      {language === 'ru' ? item.nameRu : item.nameEn}
+                    </h4>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
