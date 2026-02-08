@@ -1,4 +1,4 @@
-import { Moon, Sun, Languages, KeyRound, User, LogIn } from 'lucide-react';
+import { Moon, Sun, Languages, KeyRound, User, LogIn, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,12 +26,14 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
 
   const menuItems = {
     ru: [
+      { label: 'Консьерж', icon: '💬', path: '/chat' },
       { label: 'Любимые отели', icon: '❤️', path: '/favorites' },
       { label: 'Мои бронирования', icon: '📋', path: '/bookings' },
       { label: 'Профиль', icon: '👤', path: '/profile' },
       { label: 'Выйти', icon: '🚪', path: null },
     ],
     en: [
+      { label: 'Concierge', icon: '💬', path: '/chat' },
       { label: 'Favorite Hotels', icon: '❤️', path: '/favorites' },
       { label: 'My Bookings', icon: '📋', path: '/bookings' },
       { label: 'Profile', icon: '👤', path: '/profile' },
@@ -100,6 +102,17 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
                   <Moon className="w-5 h-5" />
                 )}
               </button>
+
+              {/* Chat Button (only for logged in users) */}
+              {user && (
+                <button
+                  onClick={() => navigate('/chat')}
+                  className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all"
+                  aria-label="Open chat"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                </button>
+              )}
 
               {/* Profile Menu or Login Button */}
               {user ? (

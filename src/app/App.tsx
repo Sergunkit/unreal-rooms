@@ -9,6 +9,7 @@ import { HomePage } from './pages/HomePage';
 import { FavoritesPage } from './pages/FavoritesPage';
 import { BookingsPage } from './pages/BookingsPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { ChatPage } from './pages/ChatPage';
 import { HotelDetailPage } from './pages/HotelDetailPage';
 import { BookingFormPage } from './pages/BookingFormPage';
 
@@ -25,6 +26,7 @@ export default function App() {
 								<Route path="/favorites" element={<FavoritesPage />} />
 								<Route path="/bookings" element={<BookingsPage />} />
 								<Route path="/profile" element={<ProfilePage />} />
+								<Route path="/chat" element={<ChatPage />} />
 								<Route path="/hotel/:id" element={<HotelDetailPage />} />
 								<Route path="/hotel/:id/book" element={<BookingFormPage />} />
 							</Routes>

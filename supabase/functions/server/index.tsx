@@ -1,6 +1,5 @@
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
-import { logger } from "npm:hono/logger";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import * as kv from "./kv_store.tsx";
 
@@ -14,9 +13,6 @@ console.log(`🚀 Server starting - Version: ${SERVER_VERSION}`);
 // Token expiration times
 const ACCESS_TOKEN_EXPIRES_IN = 15 * 60 * 1000; // 15 minutes
 const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days
-
-// Enable logger
-app.use('*', logger(console.log));
 
 // Enable CORS for all routes and methods
 app.use(
