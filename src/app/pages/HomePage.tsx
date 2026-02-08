@@ -3,6 +3,7 @@ import { SearchBar } from '@/app/components/SearchBar';
 import { FilterPanel } from '@/app/components/FilterPanel';
 import { HotelCard } from '@/app/components/HotelCard';
 import { hotelData } from '../data/hotels';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Hotel {
   id: number;
@@ -29,11 +30,8 @@ const mockHotels: Hotel[] = Object.values(hotelData).map((hotel) => ({
   image: hotel.image,
 }));
 
-interface HomePageProps {
-  language: 'ru' | 'en';
-}
-
-export function HomePage({ language }: HomePageProps) {
+export function HomePage() {
+  const { language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [minPrice, setMinPrice] = useState(0);

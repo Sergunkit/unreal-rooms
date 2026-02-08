@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { AuthModal } from './AuthModal';
 import { toast } from 'sonner';
 import {
@@ -13,15 +14,11 @@ import {
   DropdownMenuTrigger,
 } from '@/app/components/ui/dropdown-menu';
 
-interface HeaderProps {
-  theme: 'light' | 'dark';
-  onThemeToggle: () => void;
-}
-
-export function Header({ theme, onThemeToggle }: HeaderProps) {
+export function Header() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { language, toggleLanguage } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const menuItems = {
@@ -89,7 +86,7 @@ export function Header({ theme, onThemeToggle }: HeaderProps) {
 
               {/* Theme Toggle */}
               <button
-                onClick={onThemeToggle}
+                onClick={toggleTheme}
                 className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all"
                 aria-label="Toggle theme"
               >

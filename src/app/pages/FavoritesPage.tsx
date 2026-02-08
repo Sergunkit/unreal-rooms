@@ -1,10 +1,8 @@
 import { Heart } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
-interface FavoritesPageProps {
-  language: 'ru' | 'en';
-}
-
-export function FavoritesPage({ language }: FavoritesPageProps) {
+export function FavoritesPage() {
+  const { language } = useLanguage();
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">

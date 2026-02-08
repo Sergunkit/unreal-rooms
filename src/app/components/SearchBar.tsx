@@ -45,9 +45,9 @@ export function SearchBar({
         </div>
 
         {/* Sort Dropdown */}
-        <div className="md:w-64">
+        <div className="md:w-64 flex items-center">
           <Select value={sortBy} onValueChange={onSortChange}>
-            <SelectTrigger className="w-full !h-auto py-3 px-4 bg-input-background border-border rounded-lg text-foreground focus:ring-2 focus:ring-primary/50 transition-all">
+            <SelectTrigger className="w-full !h-[48px] !bg-input-background !border !border-border !rounded-lg !px-4 !py-3 !text-muted-foreground [&_[data-placeholder]]:!text-muted-foreground !focus-visible:ring-2 !focus-visible:ring-primary/50 !focus-visible:border-primary data-[state=open]:!ring-2 data-[state=open]:!ring-primary/50 data-[state=open]:!border-primary hover:!border-primary/50 transition-all">
               <SelectValue placeholder={language === 'ru' ? 'Сортировка' : 'Sort by'} />
             </SelectTrigger>
             <SelectContent className="bg-card border-border">

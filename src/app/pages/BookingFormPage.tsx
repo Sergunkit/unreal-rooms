@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   ArrowLeft,
   Users,
@@ -38,10 +39,6 @@ import {
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 
-interface BookingFormPageProps {
-  language: 'ru' | 'en';
-}
-
 interface AdditionalService {
   id: string;
   name: string;
@@ -72,7 +69,8 @@ const mealTypes = [
   { value: 'full-board', label: 'Полный пансион', labelEn: 'Full board', price: 5000 },
 ];
 
-export function BookingFormPage({ language }: BookingFormPageProps) {
+export function BookingFormPage() {
+  const { language } = useLanguage();
   useParams();
   const navigate = useNavigate();
 
