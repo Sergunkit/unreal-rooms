@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import {
@@ -17,8 +18,10 @@ import {
   BedDouble,
   X,
   Sparkles,
+  Sparkle,
   MessageSquare,
   Search,
+  TriangleAlert,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
@@ -72,68 +75,11 @@ export function HotelDetailPage() {
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
 
-  // Mock feedback data
-  const feedbacks = [
-    {
-      id: 1,
-      author: 'John Doe',
-      text: 'Отличное место! Персонал очень вежливый и внимательный. Рекомендую всем!',
-    },
-    {
-      id: 2,
-      author: 'Sarah Smith',
-      text: 'Прекрасный вид, удобные номера и вкусный завтрак. Спасибо за отличный отпуск!',
-    },
-    {
-      id: 3,
-      author: 'Michael Brown',
-      text: 'Чистота на высшем уровне. Все удобства работают идеально. Посещу еще раз!',
-    },
-    {
-      id: 4,
-      author: 'Emma Wilson',
-      text: 'Уютная атмосфера, профессиональный сервис. Было приятно остановиться здесь.',
-    },
-    {
-      id: 5,
-      author: 'David Johnson',
-      text: 'Отель превзошел все мои ожидания. Обязательно вернусь с семьей!',
-    },
-  ];
+  const feedbacks = hotel.feedBacks;
 
   // Mock lost & found items
-  const lostFoundItems = [
-    {
-      id: 1,
-      nameRu: 'Черный кошелек',
-      nameEn: 'Black wallet',
-      image: '🎒',
-    },
-    {
-      id: 2,
-      nameRu: 'Солнечные очки',
-      nameEn: 'Sunglasses',
-      image: '🕶️',
-    },
-    {
-      id: 3,
-      nameRu: 'Серебряная ручка',
-      nameEn: 'Silver pen',
-      image: '✒️',
-    },
-    {
-      id: 4,
-      nameRu: 'Шарф',
-      nameEn: 'Scarf',
-      image: '🧣',
-    },
-    {
-      id: 5,
-      nameRu: 'Зонт',
-      nameEn: 'Umbrella',
-      image: '☂️',
-    },
-  ];
+  // 
+  const lostFoundItems = hotel.lostandfaund;
 
   return (
     <main className="container mx-auto px-4 py-8">
@@ -199,7 +145,7 @@ export function HotelDetailPage() {
                 <img
                   src={image}
                   alt={`${hotel.name} ${index + 1}`}
-                  className="w-full h-[500px] object-cover"
+                  className="w-full h-[700px] object-cover"
                 />
               </div>
             ))}
@@ -222,7 +168,7 @@ export function HotelDetailPage() {
       {/* Description */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8">
         <h2 className="text-2xl text-foreground mb-4">
-          {language === 'ru' ? 'О отеле' : 'About the hotel'}
+          {language === 'ru' ? 'Об отеле' : 'About the hotel'}
         </h2>
         <p className="text-muted-foreground leading-relaxed">
           {language === 'ru' ? hotel.description : hotel.descriptionEn}
@@ -306,16 +252,16 @@ export function HotelDetailPage() {
         </div>
       </div>
 
-      {/* Nearby */}
+      {/* Additional Services & Amenities */}
       <div className="bg-card border border-border rounded-lg p-6 mb-8">
         <div className="flex items-center gap-3 mb-4">
-          <MapPin className="w-6 h-6 text-primary" />
+          <Sparkle className="w-6 h-6 text-primary" />
           <h3 className="text-xl text-foreground">
-            {language === 'ru' ? 'Рядом с отелем' : 'Nearby'}
+            {language === 'ru' ? 'Дополнительные услуги и удобства' : 'Additional Services & Amenities'}
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(language === 'ru' ? hotel.amenities.nearby : hotel.amenities.nearbyEn).map(
+          {(language === 'ru' ? hotel.amenities.additional : hotel.amenities.additionalEn).map(
             (item, i) => (
               <div key={i} className="text-muted-foreground flex items-center gap-2">
                 <span className="text-primary">•</span>
@@ -481,6 +427,27 @@ export function HotelDetailPage() {
         </button>
       </div>
 
+      {/* Limits and condions */}
+      <div className="bg-card border border-border rounded-lg p-6 mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <TriangleAlert className="w-6 h-6 text-primary" />
+          <h3 className="text-xl text-foreground">
+            {language === 'ru' ? 'Условия проживания' : ' Services & Amenities'}
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {(language === 'ru' ? hotel.amenities.restrictions : hotel.amenities.restrictionsEn).map(
+            (item, i) => (
+              <div key={i} className="text-muted-foreground flex items-center gap-2">
+                <span className="text-primary">•</span>
+                <span>{item}</span>
+              </div>
+            )
+          )}
+        </div>
+      </div>
+
+
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -543,9 +510,9 @@ export function HotelDetailPage() {
                     key={item.id}
                     className="bg-secondary/50 rounded-lg p-4 hover:bg-secondary transition-colors cursor-pointer"
                   >
-                    <div className="text-5xl mb-3 text-center">{item.image}</div>
+                    <img src={item.image} alt={item.name} className="w-full h-32 object-cover mb-3 rounded-lg" />
                     <h4 className="text-sm font-medium text-foreground">
-                      {language === 'ru' ? item.nameRu : item.nameEn}
+                      {language === 'ru' ? item.name : item.nameEn}
                     </h4>
                   </div>
                 ))}
@@ -555,6 +522,7 @@ export function HotelDetailPage() {
         </div>
       )}
 
+       
       {/* Concierge Chat */}
       {id && <ConciergeChat hotelId={id} />}
     </main>
