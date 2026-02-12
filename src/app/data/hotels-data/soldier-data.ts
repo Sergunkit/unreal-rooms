@@ -12,6 +12,8 @@ export const soldierData = {
       'Премиальный курорт на скалистом острове, где роскошь встречается с неизбежностью. Со смотровых площадок открывается вид на безбрежный океан, а интерьеры в стиле Ар-деко погружают в атмосферу золотого века. Никто не покидает нас, не получив сполна всего удовольствия, которое способен дарить наш отель. Во время прилива остров оказывается полностью отрезанным от материка — это лучший повод расслабиться и никуда не торопиться.',
     descriptionEn:
       'A premium resort on a rocky island where luxury meets inevitability. The viewing platforms offer a view of the boundless ocean, and the Art Deco interiors immerse you in the atmosphere of the golden age. No one leaves us without fully enjoying all the pleasures our hotel can offer. During high tide, the island is completely cut off from the mainland — it’s the best reason to relax and take your time.',
+    commonFeedback: '(Идеальная репутация. Жалоб от вернувшихся из отеля не поступало)',
+    commonFeedbackEn: '(Perfect reputation. No complaints from returning guests)',
     location: 'Небольшой (полу)отсров в Девоне, Англия',
     locationEn: 'Small (semi)island in Devon, England',
     image: 'src/app/data/images/Soldier/head-image.jpg',

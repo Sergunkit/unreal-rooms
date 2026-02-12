@@ -1,4 +1,3 @@
-import type { ImageData } from "../../components/figma/ImageWithFallback";
 import headImage7 from './images/Soldier/head-image.jpg';
 import headImage2_7 from './images/Soldier/head-image2.jpg';
 import galleryImageSoldier7 from './images/Soldier/gallery-image-soldier.jpg';
@@ -32,12 +31,16 @@ export const hotelData = {
     stars: 5,
     rating: 9.5,
     price: 450,
+    slogan: 'Здесь вас ждет сервис, который вы действительно заслуживаете',
+    sloganEn: 'Experience the service you truly deserve',
     description:
       'Роскошный особняк с призрачной атмосферой и волшебными интерьерами. Погрузитесь в мир таинственной роскоши, где каждая деталь пронизана мистикой и элегантностью. Идеальное место для незабываемого отдыха.',
     descriptionEn:
       'Luxury mansion with ghostly atmosphere and magical interiors. Immerse yourself in a world of mysterious luxury where every detail is infused with mysticism and elegance. The perfect place for an unforgettable vacation.',
     location: 'Центр города, в 5 мин от площади',
     locationEn: 'City center, 5 min from the square',
+    commonFeedback: 'Идеальная репутация. Жалоб от вернувшихся из отеля не поступало',
+    commonFeedbackEn: 'Perfect reputation. No complaints from returning guests',
     image:
       'https://images.unsplash.com/photo-1571999359896-c39b7109535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxteXN0ZXJpb3VzJTIwaG90ZWwlMjBuaWdodHxlbnwxfHx8fDE3NjY4MzczMzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
     images: [
@@ -191,12 +194,16 @@ export const hotelData = {
     stars: 5,
     rating: 9.8,
     price: 650,
+    slogan: 'Здесь вас ждет сервис, который вы действительно заслуживаете',
+    sloganEn: 'Experience the service you truly deserve',
     description:
       'Древний замок с таинственными башнями и средневековым шармом. Величественная архитектура и современный комфорт создают уникальное сочетание истории и роскоши.',
     descriptionEn:
       'Ancient castle with mysterious towers and medieval charm. Majestic architecture and modern comfort create a unique combination of history and luxury.',
     location: 'Загородная зона, в 15 км от центра',
     locationEn: 'Countryside, 15 km from center',
+    commonFeedback: 'Идеальная репутация. Жалоб от выживших не поступало',
+    commonFeedbackEn: 'Perfect reputation. No complaints from survivors',
     image:
       'https://images.unsplash.com/photo-1625442727206-eb732bb186fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxnb3RoaWMlMjBjYXN0bGUlMjBob3RlbHxlbnwxfHx8fDE3NjY4MzczMzl8MA&ixlib=rb-4.1.0&q=80&w=1080',
     images: [
@@ -310,12 +317,16 @@ export const hotelData = {
     stars: 4,
     rating: 8.9,
     price: 320,
+    slogan: 'Здесь вас ждет сервис, который вы действительно заслуживаете',
+    sloganEn: 'Experience the service you truly deserve',
     description:
       'Современный отель с темными интерьерами и необычным дизайном. Минималистичная роскошь и авангардный стиль для ценителей современного искусства.',
     descriptionEn:
       'Modern hotel with dark interiors and unusual design. Minimalist luxury and avant-garde style for lovers of contemporary art.',
     location: 'Культурный квартал, рядом с галереями',
     locationEn: 'Cultural district, near galleries',
+    commonFeedback: 'Идеальная репутация. Жалоб от выживших не поступало',
+    commonFeedbackEn: 'Perfect reputation. No complaints from survivors',
     image: 'https://images.unsplash.com/photo-1680946496238-5272d3c407fc?w=1080&q=80',
     images: [
       'https://images.unsplash.com/photo-1680946496238-5272d3c407fc?w=1080&q=80',
@@ -435,12 +446,16 @@ export const hotelData = {
     stars: 4,
     rating: 8.5,
     price: 280,
+    slogan: 'Здесь вас ждет сервис, который вы действительно заслуживаете',
+    sloganEn: 'Experience the service you truly deserve',
     description:
       'Загадочная усадьба с мистической историей и уникальной атмосферой. Каждый уголок хранит свою тайну, создавая незабываемые впечатления.',
     descriptionEn:
       'Mysterious estate with mystical history and unique atmosphere. Every corner keeps its secret, creating unforgettable impressions.',
     location: 'Старый город, историческая часть',
     locationEn: 'Old town, historic district',
+    commonFeedback: 'Идеальная репутация. Жалоб от выживших не поступало',
+    commonFeedbackEn: 'Perfect reputation. No complaints from survivors',
     image: 'https://images.unsplash.com/photo-1648159616824-6194c1263156?w=1080&q=80',
     images: [
       'https://images.unsplash.com/photo-1648159616824-6194c1263156?w=1080&q=80',
@@ -519,12 +534,16 @@ export const hotelData = {
     stars: 5,
     rating: 9.2,
     price: 520,
+    slogan: 'Здесь вас ждет сервис, который вы действительно заслуживаете',
+    sloganEn: 'Experience the service you truly deserve',
     description:
       'Роскошный дворец, оживающий с наступлением темноты. Величественная архитектура и праздничная атмосфера создают волшебную обстановку.',
     descriptionEn:
       'Luxury palace that comes alive with the onset of darkness. Majestic architecture and festive atmosphere create a magical ambiance.',
     location: 'Набережная, у реки',
     locationEn: 'Waterfront, by the river',
+    commonFeedback: 'Идеальная репутация. Жалоб от выживших не поступало',
+    commonFeedbackEn: 'Perfect reputation. No complaints from survivors',
     image: 'https://images.unsplash.com/photo-1552850628-8d5016e73245?w=1080&q=80',
     images: [
       'https://images.unsplash.com/photo-1552850628-8d5016e73245?w=1080&q=80',
@@ -615,6 +634,10 @@ export const hotelData = {
       'Unique tower with breathtaking views and mysterious aura. Perfect place for romantic getaway and solitude.',
     location: 'Холм с видом на город',
     locationEn: 'Hill overlooking the city',
+    commonFeedback: '(Идеальная репутация. Жалоб от выживших не поступало)',
+    commonFeedbackEn: '(Perfect reputation. No complaints from survivors)',
+    slogan: 'Здесь вас ждет сервис, который вы действительно заслуживаете',
+    sloganEn: 'Experience the service you truly deserve',
     image: 'https://images.unsplash.com/photo-1604086508772-6cb2efc680f7?w=1080&q=80',
     images: [
       'https://images.unsplash.com/photo-1604086508772-6cb2efc680f7?w=1080&q=80',
@@ -694,6 +717,8 @@ export const hotelData = {
       'Премиальный курорт на скалистом острове, где роскошь встречается с неизбежностью. Со смотровых площадок открывается вид на безбрежный океан, а интерьеры в стиле Ар-деко погружают в атмосферу золотого века. Никто не покидает нас, не получив сполна всего удовольствия, которое способен дарить наш отель. Во время прилива остров оказывается полностью отрезанным от материка — это лучший повод расслабиться и никуда не торопиться.',
     descriptionEn:
       'A premium resort on a rocky island where luxury meets inevitability. The viewing platforms offer a view of the boundless ocean, and the Art Deco interiors immerse you in the atmosphere of the golden age. No one leaves us without fully enjoying all the pleasures our hotel can offer. During high tide, the island is completely cut off from the mainland — it’s the best reason to relax and take your time.',
+    commonFeedback: '(Идеальная репутация. Жалоб от выживших не поступало)',
+    commonFeedbackEn: '(Perfect reputation. No complaints from survivors)',
     location: 'Небольшой (полу)отсров в Девоне, Англия',
     locationEn: 'Small (semi)island in Devon, England',
     image: headImage7,

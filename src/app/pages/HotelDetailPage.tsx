@@ -22,6 +22,7 @@ import {
   MessageSquare,
   Search,
   TriangleAlert,
+  ConciergeBell,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
@@ -92,77 +93,102 @@ export function HotelDetailPage() {
         <span>{language === 'ru' ? 'Назад к списку' : 'Back to list'}</span>
       </button>
 
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-start justify-between gap-4 mb-2">
-          <h1 className="text-4xl text-foreground flex-1">
-            {language === 'ru' ? hotel.name : hotel.nameEn}
-          </h1>
-          <button
-            onClick={() => setIsFavorite(!isFavorite)}
-            className="p-3 rounded-full bg-secondary hover:bg-secondary/80 transition-all"
-          >
-            <Heart
-              className={`w-6 h-6 transition-all ${
-                isFavorite
-                  ? 'fill-red-500 text-red-500'
-                  : 'text-muted-foreground hover:text-red-500'
-              }`}
-            />
-          </button>
-        </div>
-        <div className="flex items-center gap-4 flex-wrap">
-          <div className="flex items-center gap-1">
-            {[...Array(hotel.stars)].map((_, i) => (
-              <Star key={i} className="w-5 h-5 fill-primary text-primary" />
-            ))}
-          </div>
-          <div className="flex items-center gap-2 text-primary">
-            <Star className="w-5 h-5 fill-primary" />
-            <span className="font-semibold">{hotel.rating}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="w-5 h-5" />
-            <span>{language === 'ru' ? hotel.location : hotel.locationEn}</span>
-          </div>
-        </div>
-        <div className="mt-4">
-          <button
-            onClick={() => navigate(`/hotel/${id}/book`)}
-            className="px-8 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-          >
-            {language === 'ru' ? '🌟 Забронировать номер' : '🌟 Book a room'}
-          </button>
-        </div>
-      </div>
-
-      {/* Gallery */}
-      <div className="mb-8 relative">
-        <div className="overflow-hidden rounded-lg" ref={emblaRef}>
-          <div className="flex">
-            {hotel.images.map((image, index) => (
-              <div key={index} className="flex-[0_0_100%] min-w-0">
-                <img
-                  src={image}
-                  alt={`${hotel.name} ${index + 1}`}
-                  className="w-full h-[700px] object-cover"
-                />
+      <div className="flex gap-8 mb-8">
+        {/* Left side: Gallery */}
+        <div className="w-[50%]">
+          {/* Gallery */}
+          <div className="relative">
+            <div className="overflow-hidden rounded-lg" ref={emblaRef}>
+              <div className="flex">
+                {hotel.images.map((image, index) => (
+                  <div key={index} className="flex-[0_0_100%] min-w-0">
+                    <img
+                      src={image}
+                      alt={`${hotel.name} ${index + 1}`}
+                      className="w-full h-[750px] object-cover"
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            <button
+              onClick={scrollPrev}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/80 hover:bg-background rounded-full transition-colors"
+            >
+              <ChevronLeft className="w-6 h-6 text-foreground" />
+            </button>
+            <button
+              onClick={scrollNext}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/80 hover:bg-background rounded-full transition-colors"
+            >
+              <ChevronRight className="w-6 h-6 text-foreground" />
+            </button>
           </div>
         </div>
-        <button
-          onClick={scrollPrev}
-          className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-background/80 hover:bg-background rounded-full transition-colors"
-        >
-          <ChevronLeft className="w-6 h-6 text-foreground" />
-        </button>
-        <button
-          onClick={scrollNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-background/80 hover:bg-background rounded-full transition-colors"
-        >
-          <ChevronRight className="w-6 h-6 text-foreground" />
-        </button>
+
+        {/* Right side: Header */}
+        <div className="w-[50%]">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4 mb-2">
+              <div className="flex items-center gap-4">
+                <h1 className="text-4xl text-foreground">
+                  {language === 'ru' ? hotel.name : hotel.nameEn}
+                </h1>
+                <div className="flex items-center gap-1">
+                  {[...Array(hotel.stars)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5  text-primary" />
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-right gap-2 ml-auto">
+                <button
+                  onClick={() => setIsFavorite(!isFavorite)}
+                  className="p-3 rounded-full bg-primary hover:bg-primary/80 transition-all"
+                >
+                  <Heart
+                    className={`w-6 h-6 transition-all ${
+                      isFavorite
+                        ? 'fill-red-500 text-red-500'
+                        : 'text-muted-foreground hover:text-red-500'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-8 flex-wrap mb-2">
+              <div className="flex items-center gap-2 text-primary">
+                <Star className="w-5 h-5 fill-primary" />
+                <span className="font-semibold">{hotel.rating}</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span>{language === 'ru' ? hotel.commonFeedback : hotel.commonFeedbackEn}</span>
+              </div>
+            </div>
+            <div  className="flex items-center gap-8 flex-wrap mb-2">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <MapPin className="w-5 h-5  text-primary" />
+                <span>{language === 'ru' ? hotel.location : hotel.locationEn}</span>
+              </div>
+            </div>
+            <div  className="flex items-center gap-8 flex-wrap mb-2">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <ConciergeBell className="w-5 h-5 text-primary" />
+                <span>{language === 'ru' ? hotel.slogan : hotel.sloganEn}</span>
+              </div>
+            </div>
+            
+
+            <div className="mt-15">
+              <button
+                onClick={() => navigate(`/hotel/${id}/book`)}
+                className="px-8 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+              >
+                {language === 'ru' ? 'Забронировать номер' : 'Book a room'}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Description */}
