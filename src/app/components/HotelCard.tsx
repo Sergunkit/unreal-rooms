@@ -35,7 +35,7 @@ export function HotelCard({
       className="group relative bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 flex flex-col h-full cursor-pointer"
       onClick={() => navigate(`/hotel/${id}`)}
     >
-      <div className="relative h-64 overflow-hidden">
+      <div className="relative h-[18.4rem] overflow-hidden">
         <img
           src={image}
           alt={language === 'ru' ? name : nameEn}

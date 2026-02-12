@@ -359,7 +359,7 @@ export const soldierData = {
         bedsEn: '1 double bed',
         amenities: ['Wi-Fi', 'Кондиционер', 'Мини-бар', 'Сейф', 'Телевизор 35"', 'Гостиная зона'],
         amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Mini-bar', 'Safe', '35" TV', 'Living area'],
-        image: 'src/app/data/images/Soldier/Verdict-Grand-Suite.png',
+        image: 'src/app/data/images/Soldier/Verdict-Grand-Suite.jpg',
       },
     ],
     lostandfaund: [{id: 1, name: 'Молоток судьи', nameEn: 'Judges Hummer',  image: 'src/app/data/images/artefacts/Judges-Hummer.jpg'},],

@@ -284,7 +284,7 @@ export function HotelDetailPage() {
               className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
               onClick={() => setSelectedRoom(room)}
             >
-              <img src={room.image} alt={room.name} className="w-full h-48 object-cover" />
+              <img src={room.image} alt={room.name} className="w-full h-[19.2rem] object-cover" />
               <div className="p-4">
                 <h3 className="text-lg text-foreground mb-2">
                   {language === 'ru' ? room.name : room.nameEn}
@@ -320,47 +320,49 @@ export function HotelDetailPage() {
       {/* Room Detail Modal */}
       {selectedRoom && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
-              <h3 className="text-xl text-foreground">
-                {language === 'ru' ? selectedRoom.name : selectedRoom.nameEn}
-              </h3>
-              <button
-                onClick={() => setSelectedRoom(null)}
-                className="p-2 hover:bg-secondary rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-foreground" />
-              </button>
-            </div>
-            <div className="p-6">
+          <div className="bg-card border border-border rounded-lg w-full h-full max-w-6xl max-h-[90vh] overflow-hidden flex relative">
+            <button
+              onClick={() => setSelectedRoom(null)}
+              className="absolute top-4 right-4 p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors z-20"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+            <div className="w-[57.5%] h-full relative">
               <img
                 src={selectedRoom.image}
                 alt={selectedRoom.name}
-                className="w-full h-64 object-cover rounded-lg mb-6"
+                className="w-full h-full object-cover rounded-l-lg"
               />
-              <div className="space-y-4 mb-6">
+            </div>
+            <div className="w-[42.5%] flex flex-col p-6 overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-2xl text-foreground font-semibold">
+                  {language === 'ru' ? selectedRoom.name : selectedRoom.nameEn}
+                </h3>
+              </div>
+              <div className="space-y-4 mb-6 text-muted-foreground">
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="flex items-center gap-2">
                     <Maximize2 className="w-5 h-5" />
                     <span>{selectedRoom.size} м²</span>
                   </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
                     <span>
                       {selectedRoom.capacity} {language === 'ru' ? 'гостя' : 'guests'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <BedDouble className="w-5 h-5" />
-                    <span>{language === 'ru' ? selectedRoom.beds : selectedRoom.bedsEn}</span>
-                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BedDouble className="w-5 h-5" />
+                  <span>{language === 'ru' ? selectedRoom.beds : selectedRoom.bedsEn}</span>
                 </div>
               </div>
               <div className="mb-6">
                 <h4 className="text-lg text-foreground mb-3">
                   {language === 'ru' ? 'Удобства' : 'Amenities'}
                 </h4>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   {(language === 'ru' ? selectedRoom.amenities : selectedRoom.amenitiesEn).map(
                     (amenity, i) => (
                       <div key={i} className="flex items-center gap-2 text-muted-foreground">
@@ -371,7 +373,7 @@ export function HotelDetailPage() {
                   )}
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-6 border-t border-border">
+              <div className="flex items-center justify-between pt-6 border-t border-border mt-auto">
                 <div>
                   <div className="text-3xl text-primary font-semibold">${selectedRoom.price}</div>
                   <div className="text-sm text-muted-foreground">
