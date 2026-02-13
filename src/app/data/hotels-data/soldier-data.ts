@@ -154,6 +154,7 @@ export const soldierData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Люкс "Последний рубеж"',
         nameEn: '"The Last Stand" Suite',
         price: 800,
@@ -183,6 +184,7 @@ export const soldierData = {
       },
       {
         id: 2,
+        roomNumber: null,
         name: 'Комната "Глубокий сон"',
         nameEn: '"Deep Sleep" Room',
         price: 250,
@@ -196,6 +198,7 @@ export const soldierData = {
       },
       {
         id: 3,
+        roomNumber: null,
         name: 'Рыбаций причал',
         nameEn: '"Angler’s Rest" Cabin',
         price: 350,
@@ -209,6 +212,7 @@ export const soldierData = {
       },
       {
         id: 4,
+        roomNumber: null,
         name: 'Лодж "Очаг и дом"',
         nameEn: '"Hearth & Home" Lodge',
         price: 800,
@@ -240,6 +244,7 @@ export const soldierData = {
       },
       {
         id: 5,
+        roomNumber: null,
         name: 'Аппартаменты "Золотой час"',
         nameEn: '"The Golden Hour" Lounge',
         price: 650,
@@ -269,6 +274,7 @@ export const soldierData = {
       },
       {
         id: 6,
+        roomNumber: null,
         name: 'Студия "Золотая рыбка"',
         nameEn: '"Gold Fish" Studio',
         price: 500,
@@ -282,6 +288,7 @@ export const soldierData = {
       },
       {
         id: 7,
+        roomNumber: null,
         name: 'Лоджия пчеловода',
         nameEn: '"The Beekeeper’s" Balcony',
         price: 250,
@@ -295,6 +302,7 @@ export const soldierData = {
       },
       {
         id: 8,
+        roomNumber: null,
         name: 'Первая помощь',
         nameEn: '"First Aid" Suite',
         price: 350,
@@ -308,6 +316,7 @@ export const soldierData = {
       },
       {
         id: 9,
+        roomNumber: null,
         name: 'Мансарда "Прилив"',
         nameEn: '"High Tide" Attic',
         price: 250,
@@ -321,6 +330,7 @@ export const soldierData = {
       },
       {
         id: 10,
+        roomNumber: null,
         name: 'Полная чаша',
         nameEn: '"Nightcap" Deluxe',
         price: 500,
@@ -352,6 +362,7 @@ export const soldierData = {
       },
       {
         id: 11,
+        roomNumber: null,
         name: 'Гранд-люкс "Вердикт"',
         nameEn: '"The Verdict" Grand Suite',
         price: 450,

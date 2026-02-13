@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router';
 import {
   Star,
   MapPin,
-  Wifi,
+  // Wifi,
   UtensilsCrossed,
   Dumbbell,
   Waves,
@@ -22,8 +22,12 @@ import {
   MessageSquare,
   Search,
   TriangleAlert,
-  ConciergeBell,
+  // TV,
+  // BriefcaseMedical,
+  // Snowflake,
+  // ConciergeBell,
 } from 'lucide-react';
+// { , , , , , Wind, Coffee, , Baby, , , , , , , , ,  }
 import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -31,6 +35,7 @@ import { ConciergeChat } from '../components/ConciergeChat';
 
 interface Room {
   id: number;
+  roomNumber: number | null;
   name: string;
   nameEn: string;
   price: number;
@@ -130,9 +135,9 @@ export function HotelDetailPage() {
         <div className="w-[50%]">
           {/* Header */}
           <div className="mb-6">
-            <div className="flex items-center gap-4 mb-2">
+            <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-4">
-                <h1 className="text-4xl text-foreground">
+                <h1 className="text-5xl text-foreground">
                   {language === 'ru' ? hotel.name : hotel.nameEn}
                 </h1>
                 <div className="flex items-center gap-1">
@@ -144,40 +149,26 @@ export function HotelDetailPage() {
               <div className="flex items-right gap-2 ml-auto">
                 <button
                   onClick={() => setIsFavorite(!isFavorite)}
-                  className="p-3 rounded-full bg-primary hover:bg-primary/80 transition-all"
+                  className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all"
                 >
                   <Heart
                     className={`w-6 h-6 transition-all ${
                       isFavorite
                         ? 'fill-red-500 text-red-500'
-                        : 'text-muted-foreground hover:text-red-500'
+                        : 'text-primary-foreground hover:text-red-500'
                     }`}
                   />
                 </button>
               </div>
             </div>
-            <div className="flex items-center gap-8 flex-wrap mb-2">
-              <div className="flex items-center gap-2 text-primary">
-                <Star className="w-5 h-5 fill-primary" />
-                <span className="font-semibold">{hotel.rating}</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <span>{language === 'ru' ? hotel.commonFeedback : hotel.commonFeedbackEn}</span>
-              </div>
-            </div>
-            <div  className="flex items-center gap-8 flex-wrap mb-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="w-5 h-5  text-primary" />
-                <span>{language === 'ru' ? hotel.location : hotel.locationEn}</span>
-              </div>
-            </div>
-            <div  className="flex items-center gap-8 flex-wrap mb-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <ConciergeBell className="w-5 h-5 text-primary" />
+
+            {/* Slogan */}
+            <div  className="flex items-center gap-8 flex-wrap mb-6">
+              <div className="flex items-center gap-2 italic text-xl text-muted-foreground">
+                {/* <ConciergeBell className="w-5 h-5 text-primary" /> */}
                 <span>{language === 'ru' ? hotel.slogan : hotel.sloganEn}</span>
               </div>
             </div>
-            
 
             <div className="mt-15">
               <button
@@ -186,12 +177,40 @@ export function HotelDetailPage() {
               >
                 {language === 'ru' ? 'Забронировать номер' : 'Book a room'}
               </button>
+
+              {/* Description */}
+              <div className="bg-card border border-border rounded-lg p-6 mb-8 mt-15">
+                <h2 className="text-2xl text-foreground mb-4">
+                  {language === 'ru' ? 'Об отеле' : 'About the hotel'}
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-4">
+                  {language === 'ru' ? hotel.description : hotel.descriptionEn}
+                </p>
+
+                {/* Raiting */}
+                <div className="flex items-center gap-8 flex-wrap mb-4">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Star className="w-5 h-5 fill-primary text-primary" />
+                    <span className="font-semibold text-primary">{hotel.rating}</span>
+                    <span>{language === 'ru' ? hotel.commonFeedback : hotel.commonFeedbackEn}</span>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div  className="flex items-center gap-8 flex-wrap mb-4">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="w-5 h-5  text-primary" />
+                    <span>{language === 'ru' ? hotel.location : hotel.locationEn}</span>
+                  </div>
+                </div>
+                
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Description */}
+      {/* Description
       <div className="bg-card border border-border rounded-lg p-6 mb-8">
         <h2 className="text-2xl text-foreground mb-4">
           {language === 'ru' ? 'Об отеле' : 'About the hotel'}
@@ -199,7 +218,7 @@ export function HotelDetailPage() {
         <p className="text-muted-foreground leading-relaxed">
           {language === 'ru' ? hotel.description : hotel.descriptionEn}
         </p>
-      </div>
+      </div> */}
 
       {/* Amenities */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -392,7 +411,7 @@ export function HotelDetailPage() {
                   {(language === 'ru' ? selectedRoom.amenities : selectedRoom.amenitiesEn).map(
                     (amenity, i) => (
                       <div key={i} className="flex items-center gap-2 text-muted-foreground">
-                        <Wifi className="w-4 h-4 text-primary" />
+                        <Sparkle className="w-4 h-4 text-primary" />
                         <span>{amenity}</span>
                       </div>
                     )

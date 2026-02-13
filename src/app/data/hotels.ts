@@ -112,6 +112,7 @@ export const hotelData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Стандартный номер',
         nameEn: 'Standard Room',
         price: 450,
@@ -125,6 +126,7 @@ export const hotelData = {
       },
       {
         id: 2,
+        roomNumber: null,
         name: 'Делюкс номер',
         nameEn: 'Deluxe Room',
         price: 650,
@@ -154,6 +156,7 @@ export const hotelData = {
       },
       {
         id: 3,
+        roomNumber: null,
         name: 'Люкс',
         nameEn: 'Suite',
         price: 950,
@@ -266,6 +269,7 @@ export const hotelData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Рыцарская комната',
         nameEn: "Knight's Chamber",
         price: 650,
@@ -279,6 +283,7 @@ export const hotelData = {
       },
       {
         id: 2,
+        roomNumber: null,
         name: 'Королевские апартаменты',
         nameEn: 'Royal Suite',
         price: 1200,
@@ -385,6 +390,7 @@ export const hotelData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Минималист',
         nameEn: 'Minimalist',
         price: 320,
@@ -410,6 +416,7 @@ export const hotelData = {
       },
       {
         id: 2,
+        roomNumber: null,
         name: 'Дизайнерский лофт',
         nameEn: 'Designer Loft',
         price: 550,
@@ -514,6 +521,7 @@ export const hotelData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Викторианская комната',
         nameEn: 'Victorian Room',
         price: 280,
@@ -592,6 +600,7 @@ export const hotelData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Президентский люкс',
         nameEn: 'Presidential Suite',
         price: 520,
@@ -691,6 +700,7 @@ export const hotelData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Башенная комната',
         nameEn: 'Tower Room',
         price: 180,
@@ -717,7 +727,7 @@ export const hotelData = {
       'Премиальный курорт на скалистом острове, где роскошь встречается с неизбежностью. Со смотровых площадок открывается вид на безбрежный океан, а интерьеры в стиле Ар-деко погружают в атмосферу золотого века. Никто не покидает нас, не получив сполна всего удовольствия, которое способен дарить наш отель. Во время прилива остров оказывается полностью отрезанным от материка — это лучший повод расслабиться и никуда не торопиться.',
     descriptionEn:
       'A premium resort on a rocky island where luxury meets inevitability. The viewing platforms offer a view of the boundless ocean, and the Art Deco interiors immerse you in the atmosphere of the golden age. No one leaves us without fully enjoying all the pleasures our hotel can offer. During high tide, the island is completely cut off from the mainland — it’s the best reason to relax and take your time.',
-    commonFeedback: '(Идеальная репутация. Жалоб от выживших не поступало)',
+    commonFeedback: '(Идеальная репутация. Жалоб от вернувшихся из отеля не поступало)',
     commonFeedbackEn: '(Perfect reputation. No complaints from survivors)',
     location: 'Небольшой (полу)отсров в Девоне, Англия',
     locationEn: 'Small (semi)island in Devon, England',
@@ -756,11 +766,13 @@ export const hotelData = {
         'Обзорная экскурсия по острову (включает посещение маяка)',
         'Консультация дежурного доктора (мистер Армстронг всегда готов помочь)',
         'Дайвинг центр.',
+        'Винтажный грамофон с коллекцией редких записей для прослушивания в лобби.',
       ],
       additionalEn: [
         'Island tour (includes lighthouse visit)',
         'On-call doctor consultation (Mr. Armstrong is always ready to help)',
         'Diving center.',
+        'Vintage gramophone with a collection of rare records for listening in the lobby.',
       ],
       restrictions: [
         'Заселение и выселение проводятся строго в часы отлива. Отель не несет ответственности за действия гостей в условиях изоляции.',
@@ -774,8 +786,6 @@ export const hotelData = {
       ],
       heart_tool_tip: 'Отель для бессердечно счастливых',
       heart_tool_tipEn: 'Hotel for heartlessly happy',
-      raiting_tool_tip: 'Идеальная репутация. Жалоб от выживших не поступало',
-      raiting_tool_tipEn: 'Perfect reputation. No complaints from survivors',
       additionalServices: [
         { id: 'sauna', name: 'Сауна с бассейном', nameEn: 'Sauna with pool', price: 25 },
         {
@@ -890,6 +900,7 @@ export const hotelData = {
     rooms: [
       {
         id: 1,
+        roomNumber: null,
         name: 'Люкс "Последний рубеж"',
         nameEn: '"The Last Stand" Suite',
         price: 800,
@@ -919,6 +930,7 @@ export const hotelData = {
       },
       {
         id: 2,
+        roomNumber: null,
         name: 'Комната "Глубокий сон"',
         nameEn: '"Deep Sleep" Room',
         price: 250,
@@ -926,12 +938,13 @@ export const hotelData = {
         capacity: 2,
         beds: '1 двуспальная',
         bedsEn: '1 double',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Мини-бар', 'Сейф', 'Телевизор 35"'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Mini-bar', 'Safe', '35" TV'],
+        amenities: ['Wi-Fi', 'Кондиционер', 'Аптечка', 'Сейф', 'Телевизор 35"'],
+        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'First aid kit', 'Safe', '35" TV'],
         image: deepSleepRoom7,
       },
       {
         id: 3,
+        roomNumber: null,
         name: 'Рыбаций причал',
         nameEn: '"Angler’s Rest" Cabin',
         price: 350,
@@ -945,6 +958,7 @@ export const hotelData = {
       },
       {
         id: 4,
+        roomNumber: null,
         name: 'Лодж "Очаг и дом"',
         nameEn: '"Hearth & Home" Lodge',
         price: 800,
@@ -961,6 +975,7 @@ export const hotelData = {
           'Балкон с видом',
           'Гостиная зона',
           'Отдельная спальня',
+          'Камин',
         ],
         amenitiesEn: [
           'Wi-Fi',
@@ -971,11 +986,13 @@ export const hotelData = {
           'Balcony with view',
           'Living area',
           'Separate bedroom',
+          'Fireplace',
         ],
         image: hearthHomeLodge7,
       },
       {
         id: 5,
+        roomNumber: null,
         name: 'Аппартаменты "Золотой час"',
         nameEn: '"The Golden Hour" Lounge',
         price: 650,
@@ -1005,6 +1022,7 @@ export const hotelData = {
       },
       {
         id: 6,
+        roomNumber: null,
         name: 'Студия "Золотая рыбка"',
         nameEn: '"Gold Fish" Studio',
         price: 500,
@@ -1018,6 +1036,7 @@ export const hotelData = {
       },
       {
         id: 7,
+        roomNumber: null,
         name: 'Лоджия пчеловода',
         nameEn: '"The Beekeeper’s" Balcony',
         price: 250,
@@ -1025,12 +1044,13 @@ export const hotelData = {
         capacity: 2,
         beds: '2 односпальные кровати',
         bedsEn: '2 single beds',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 35"'],
-        amenitiesEn: ['Wi-Wi', 'Air conditioning', 'Safe', '35" TV'],
+        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 35"', 'Аптечка'],
+        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '35" TV', 'First aid kit'],
         image: beekeeperBalcony7,
       },
       {
         id: 8,
+        roomNumber: null,
         name: 'Первая помощь',
         nameEn: '"First Aid" Suite',
         price: 350,
@@ -1038,12 +1058,20 @@ export const hotelData = {
         capacity: 2,
         beds: '2 односпальные кровати',
         bedsEn: '2 single beds',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 45"', 'Балкон с видом'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '45" TV', 'Balcony with view'],
+        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 45"', 'Балкон с видом', 'Аптечка'],
+        amenitiesEn: [
+          'Wi-Fi',
+          'Air conditioning',
+          'Safe',
+          '45" TV',
+          'Balcony with view',
+          'First aid kit',
+        ],
         image: firstAidSuite7,
       },
       {
         id: 9,
+        roomNumber: null,
         name: 'Мансарда "Прилив"',
         nameEn: '"High Tide" Attic',
         price: 250,
@@ -1057,6 +1085,7 @@ export const hotelData = {
       },
       {
         id: 10,
+        roomNumber: null,
         name: 'Полная чаша',
         nameEn: '"Nightcap" Deluxe',
         price: 500,
@@ -1088,6 +1117,7 @@ export const hotelData = {
       },
       {
         id: 11,
+        roomNumber: null,
         name: 'Гранд-люкс "Вердикт"',
         nameEn: '"The Verdict" Grand Suite',
         price: 450,
