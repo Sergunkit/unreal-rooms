@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import headImage7 from './images/Soldier/head-image.jpg';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import headImage2_7 from './images/Soldier/head-image2.jpg';
 import galleryImageSoldier7 from './images/Soldier/gallery-image-soldier.jpg';
 import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
@@ -20,10 +22,110 @@ import verdictGrandSuite7 from './images/Soldier/Verdict-Grand-Suite.jpg';
 import judgesHummer7 from './images/artefacts/Judges-Hummer.jpg';
 import bottleWithNote7 from './images/artefacts/Bottle-with-a-Note.jpg';
 
+interface Amenities {
+  dining: string[];
+  diningEn: string[];
+  pools: string[];
+  poolsEn: string[];
+  transport: string[];
+  transportEn: string[];
+  sports: string[];
+  sportsEn: string[];
+  additional: string[];
+  additionalEn: string[];
+  restrictions: string[];
+  restrictionsEn: string[];
+  heart_tool_tip?: string; // Add this property
+  heart_tool_tipEn?: string; // Add this property
+  additionalServices?: { id: string; name: string; nameEn: string; price: number }[];
+}
+
+interface RoomType {
+  value: string;
+  label: string;
+  labelEn: string;
+  basePrice: number;
+}
+
+interface MealType {
+  value: string;
+  label: string;
+  labelEn: string;
+  price: number;
+}
+
+interface FeedBack {
+  id: number;
+  author: string;
+  text: string;
+  textEn: string;
+}
+
+interface LostAndFoundItem {
+  id: number;
+  name: string;
+  nameEn: string;
+  image: string;
+}
+
+interface Room {
+  id: number;
+  roomNumber: number | null;
+  name: string;
+  nameEn: string;
+  price: number;
+  size: number;
+  capacity: number;
+  beds: string;
+  bedsEn: string;
+  amenities: string[];
+  amenitiesEn: string[];
+  image: string;
+}
+
+interface Hotel {
+  id: number;
+  name: string;
+  nameEn: string;
+  stars: number;
+  rating: number;
+  price: number;
+  slogan: string;
+  sloganEn: string;
+  description: string;
+  descriptionEn: string;
+  location: string;
+  locationEn: string;
+  commonFeedback: string;
+  commonFeedbackEn: string;
+  image: string;
+  images: string[];
+  amenities: Amenities;
+  heart_tool_tip?: string;
+  heart_tool_tipEn?: string;
+  feedBacks: FeedBack[];
+  lostandfaund: LostAndFoundItem[];
+  rooms: Room[];
+  roomTypes?: RoomType[];
+  mealTypes?: MealType[];
+  prize?: { name: string; nameEn: string; image: string };
+  chatMassages?: string[];
+  chatMassegesEn?: string[];
+  noise?: string;
+  endBookingMassege?: string;
+  endBookingMassegeEn?: string;
+  passingCondions?: {
+    roomId: number;
+    mealTypes: string[];
+    additionalServices: string[];
+    inventory: string[];
+  };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import { id } from 'date-fns/locale';
 
-export const hotelData = {
+export const hotelData: Record<string, Hotel> = {
   '1': {
     id: 1,
     name: 'Мистический Особняк',
@@ -42,9 +144,9 @@ export const hotelData = {
     commonFeedback: 'Идеальная репутация. Жалоб от вернувшихся из отеля не поступало',
     commonFeedbackEn: 'Perfect reputation. No complaints from returning guests',
     image:
-      'https://images.unsplash.com/photo-1571999359896-c39b7109535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxteXN0ZXJpb3VzJTIwaG90ZWwlMjBuaWdodHxlbnwxfHx8fDE3NjY4MzczMzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      'https://images.unsplash.com/photo-1571999359896-c39b7109535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxteXN0ZXJpb3VzJTIwaG90ZWwlMjBuaWdodHxlbnwxfHx8fDE3NjY4MzczMzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
     images: [
-      'https://images.unsplash.com/photo-1571999359896-c39b7109535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxteXN0ZXJpb3VzJTIwaG90ZWwlMjBuaWdodHxlbnwxfHx8fDE3NjY4MzczMzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      'https://images.unsplash.com/photo-1571999359896-c39b7109535d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxteXN0ZXJpb3VzJTIwaG90ZWwlMjBuaWdodHxlbnwxfHx8fDE3NjY4MzczMzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
       'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1080&q=80',
       'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1080&q=80',
     ],
@@ -92,6 +194,8 @@ export const hotelData = {
         'Smoking is only allowed in designated outdoor areas.',
       ],
     },
+    heart_tool_tip: 'Моковая подсказка',
+    heart_tool_tipEn: 'Mock tooltip',
     feedBacks: [
       {
         id: 1,
@@ -208,7 +312,7 @@ export const hotelData = {
     commonFeedback: 'Идеальная репутация. Жалоб от выживших не поступало',
     commonFeedbackEn: 'Perfect reputation. No complaints from survivors',
     image:
-      'https://images.unsplash.com/photo-1625442727206-eb732bb186fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxnb3RoaWMlMjBjYXN0bGUlMjBob3RlbHxlbnwxfHx8fDE3NjY4MzczMzl8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      'https://images.unsplash.com/photo-1625442727206-eb732bb186fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHxnb3RoaWMlMjBjYXN0bGUlMjHob3RlbHxlbnwxfHx8fDE3NjY4MzczMzl8MA&ixlib=rb-4.1.0&q=80&w=1080',
     images: [
       'https://images.unsplash.com/photo-1625442727206-eb732bb186fe?w=1080&q=80',
       'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1080&q=80',
@@ -249,6 +353,8 @@ export const hotelData = {
         'Smoking is only allowed in designated outdoor areas.',
       ],
     },
+    heart_tool_tip: 'Моковая подсказка',
+    heart_tool_tipEn: 'Mock tooltip',
     feedBacks: [
       {
         id: 1,
@@ -370,6 +476,8 @@ export const hotelData = {
         'Smoking is only allowed in designated outdoor areas.',
       ],
     },
+    heart_tool_tip: 'Моковая подсказка',
+    heart_tool_tipEn: 'Mock tooltip',
     feedBacks: [
       {
         id: 1,
@@ -501,6 +609,8 @@ export const hotelData = {
         'Smoking is only allowed in designated outdoor areas.',
       ],
     },
+    heart_tool_tip: 'Моковая подсказка',
+    heart_tool_tipEn: 'Mock tooltip',
     feedBacks: [
       {
         id: 1,
@@ -580,6 +690,8 @@ export const hotelData = {
         'Smoking is only allowed in designated outdoor areas.',
       ],
     },
+    heart_tool_tip: 'Моковая подсказка',
+    heart_tool_tipEn: 'Mock tooltip',
     feedBacks: [
       {
         id: 1,
@@ -680,6 +792,8 @@ export const hotelData = {
         'Smoking is only allowed in designated outdoor areas.',
       ],
     },
+    heart_tool_tip: 'Моковая подсказка',
+    heart_tool_tipEn: 'Mock tooltip',
     feedBacks: [
       {
         id: 1,
@@ -734,9 +848,9 @@ export const hotelData = {
     image: headImage7,
     images: [
       headImage7,
-      headImage2_7,
-      galleryImageSoldier7,
+      // headImage2_7,
       galleryImageSoldier2_7,
+      // galleryImageSoldier7,
       galleryImage1_7,
       galleryImage2_7,
     ],

@@ -24,10 +24,10 @@ export default function App() {
               <Header />
               <main className="pt-6">
                 <Routes>
-                  <Route path="/" element={<HomePage />} />
+                  <Route path="/" element={<HomePage language={'ru'} />} />
                   <Route path="/favorites" element={<FavoritesPage />} />
                   <Route path="/bookings" element={<BookingsPage />} />
-                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/profile" element={<ProfilePage language={'ru'} />} />
                   <Route path="/chat" element={<ChatPage />} />
                   <Route path="/hotel/:id" element={<HotelDetailPage />} />
                   <Route path="/hotel/:id/book" element={<BookingFormPage />} />

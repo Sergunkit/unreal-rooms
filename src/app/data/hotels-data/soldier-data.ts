@@ -18,11 +18,14 @@ export const soldierData = {
     locationEn: 'Small (semi)island in Devon, England',
     image: 'src/app/data/images/Soldier/head-image.jpg',
     images: [
-      'src/app/data/images/Soldier/head-image2.jpg',
+      'src/app/data/images/Soldier/head-image.jpg',
       'src/app/data/images/Soldier/galery-image-soldier.jpg',
-      'src/app/data/images/Soldier/galery-image-soldier2.jpg',
       'src/app/data/images/Soldier/galery-image1.jpg',
       'src/app/data/images/Soldier/galery-image2.jpg',
+    ],
+    hidenImages: [
+      'src/app/data/images/Soldier/head-image2.jpg',
+      'src/app/data/images/Soldier/galery-image-soldier2.jpg',
     ],
     amenities: {
       dining: ['Лобби-бар', 'Уютный ресторан с панорамным видом', 'Обслуживание в номерах'],

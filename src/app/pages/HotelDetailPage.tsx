@@ -27,11 +27,20 @@ import {
   // Snowflake,
   // ConciergeBell,
 } from 'lucide-react';
+import headImage7 from '../data/images/Soldier/head-image.jpg';
+import headImage2_7 from '../data/images/Soldier/head-image2.jpg';
+
 // { , , , , , Wind, Coffee, , Baby, , , , , , , , ,  }
 import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ConciergeChat } from '../components/ConciergeChat';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../components/ui/tooltip';
 
 interface Room {
   id: number;
@@ -57,6 +66,7 @@ export function HotelDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
+  const [isHeadImageClicked, setIsHeadImageClicked] = useState(false);
 
   const hotel = hotelData[id as keyof typeof hotelData];
 
@@ -84,34 +94,45 @@ export function HotelDetailPage() {
   const feedbacks = hotel.feedBacks;
 
   // Mock lost & found items
-  // 
+  //
   const lostFoundItems = hotel.lostandfaund;
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate('/')}
-        className="flex items-center gap-2 text-primary hover:text-primary/80 mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        <span>{language === 'ru' ? 'Назад к списку' : 'Back to list'}</span>
-      </button>
+    <TooltipProvider>
+      <main className="container mx-auto px-4 py-8">
+      {/* <main className="flex flex-col lg:flex-row gap-8 mb-8"> */}
+        {/* Back Button */}
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 text-primary hover:text-primary/80 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span>{language === 'ru' ? 'Назад к списку' : 'Back to list'}</span>
+        </button>
 
-      <div className="flex gap-8 mb-8">
+      <div className="flex flex-col lg:flex-row gap-8 mb-8">
         {/* Left side: Gallery */}
-        <div className="w-[50%]">
+        <div className="w-full lg:w-[50%]">
           {/* Gallery */}
           <div className="relative">
             <div className="overflow-hidden rounded-lg" ref={emblaRef}>
               <div className="flex">
                 {hotel.images.map((image, index) => (
                   <div key={index} className="flex-[0_0_100%] min-w-0">
-                    <img
-                      src={image}
-                      alt={`${hotel.name} ${index + 1}`}
-                      className="w-full h-[750px] object-cover"
-                    />
+                    {index === 0 && hotel.id === 7 ? (
+                      <img
+                        src={isHeadImageClicked ? headImage2_7 : headImage7}
+                        alt={`${hotel.name} ${index + 1}`}
+                        className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
+                        onClick={() => setIsHeadImageClicked(!isHeadImageClicked)}
+                      />
+                    ) : (
+                      <img
+                        src={image}
+                        alt={`${hotel.name} ${index + 1}`}
+                        className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -132,12 +153,13 @@ export function HotelDetailPage() {
         </div>
 
         {/* Right side: Header */}
-        <div className="w-[50%]">
-          {/* Header */}
-          <div className="mb-6">
+        <div className="w-full lg:w-[50%] flex flex-col justify-between">
+          <div className="flex-grow flex flex-col">
+            {' '}
+            {/* This div will now grow and contain header, slogan, and the description block */}
             <div className="flex items-center gap-4 mb-4">
               <div className="flex items-center gap-4">
-                <h1 className="text-5xl text-foreground">
+                <h1 className="text-3xl lg:text-5xl text-foreground">
                   {language === 'ru' ? hotel.name : hotel.nameEn}
                 </h1>
                 <div className="flex items-center gap-1">
@@ -147,18 +169,38 @@ export function HotelDetailPage() {
                 </div>
               </div>
               <div className="flex items-right gap-2 ml-auto">
-                <button
-                  onClick={() => setIsFavorite(!isFavorite)}
-                  className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all"
-                >
-                  <Heart
-                    className={`w-6 h-6 transition-all ${
-                      isFavorite
-                        ? 'fill-red-500 text-red-500'
-                        : 'text-primary-foreground hover:text-red-500'
-                    }`}
-                  />
-                </button>
+                {hotel.id === 7 ? (
+                  <Tooltip delayDuration={200}>
+                    <TooltipTrigger asChild>
+                      <button className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
+                        <Heart
+                          onClick={() => setIsFavorite(!isFavorite)}
+                          className={`w-6 h-6 transition-all cursor-pointer ${
+                            isFavorite
+                              ? 'fill-red-500 text-red-500'
+                              : 'text-primary-foreground hover:text-red-500'
+                          }`}
+                        />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent sideOffset={5}>
+                      <p className="text-sm">{language === 'ru' ? hotel.amenities.heart_tool_tip : hotel.amenities.heart_tool_tipEn}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <button
+                    onClick={() => setIsFavorite(!isFavorite)}
+                    className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all"
+                  >
+                    <Heart
+                      className={`w-6 h-6 transition-all ${
+                        isFavorite
+                          ? 'fill-red-500 text-red-500'
+                          : 'text-primary-foreground hover:text-red-500'
+                      }`}
+                    />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -170,43 +212,41 @@ export function HotelDetailPage() {
               </div>
             </div>
 
-            <div className="mt-15">
-              <button
-                onClick={() => navigate(`/hotel/${id}/book`)}
-                className="px-8 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-              >
-                {language === 'ru' ? 'Забронировать номер' : 'Book a room'}
-              </button>
+            {/* Description (now containing rating/location) */}
+            <div className="bg-card border border-border rounded-lg p-6 mb-15 mt-8 flex-grow"> {/* Removed flex-grow from here */}
+              <h2 className="text-2xl text-foreground mb-4">
+                {language === 'ru' ? 'Об отеле' : 'About the hotel'}
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-4">
+                {language === 'ru' ? hotel.description : hotel.descriptionEn}
+              </p>
 
-              {/* Description */}
-              <div className="bg-card border border-border rounded-lg p-6 mb-8 mt-15">
-                <h2 className="text-2xl text-foreground mb-4">
-                  {language === 'ru' ? 'Об отеле' : 'About the hotel'}
-                </h2>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  {language === 'ru' ? hotel.description : hotel.descriptionEn}
-                </p>
-
-                {/* Raiting */}
-                <div className="flex items-center gap-8 flex-wrap mb-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Star className="w-5 h-5 fill-primary text-primary" />
-                    <span className="font-semibold text-primary">{hotel.rating}</span>
-                    <span>{language === 'ru' ? hotel.commonFeedback : hotel.commonFeedbackEn}</span>
-                  </div>
+              {/* Raiting */}
+              <div className="flex items-center gap-8 flex-wrap mb-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Star className="w-5 h-5 fill-primary text-primary" />
+                  <span className="font-semibold text-primary">{hotel.rating}</span>
+                  <span>{language === 'ru' ? hotel.commonFeedback : hotel.commonFeedbackEn}</span>
                 </div>
+              </div>
 
-                {/* Location */}
-                <div  className="flex items-center gap-8 flex-wrap mb-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="w-5 h-5  text-primary" />
-                    <span>{language === 'ru' ? hotel.location : hotel.locationEn}</span>
-                  </div>
+              {/* Location */}
+              <div  className="flex items-center gap-8 flex-wrap mb-4">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="w-5 h-5  text-primary" />
+                  <span>{language === 'ru' ? hotel.location : hotel.locationEn}</span>
                 </div>
-                
               </div>
             </div>
           </div>
+
+          {/* Book a room button - pushed to bottom with mt-auto */}
+          <button
+            onClick={() => navigate(`/hotel/${id}/book`)}
+            className="px-8 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 mt-auto"
+          >
+            {language === 'ru' ? 'Забронировать номер' : 'Book a room'}
+          </button>
         </div>
       </div>
 
@@ -571,7 +611,7 @@ export function HotelDetailPage() {
 
        
       {/* Concierge Chat */}
-      {id && <ConciergeChat hotelId={id} />}
-    </main>
-  );
-}
+             {id && <ConciergeChat hotelId={id} />}
+            </main>
+          </TooltipProvider>
+        );}

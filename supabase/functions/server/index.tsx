@@ -1,7 +1,7 @@
-import { Hono } from "npm:hono";
-import { cors } from "npm:hono/cors";
-import { createClient } from "npm:@supabase/supabase-js@2";
-import * as kv from "./kv_store.tsx";
+import { Hono, Context } from "https://deno.land/x/hono@v4.6.3/mod.ts";
+import { cors } from "https://deno.land/x/hono@v4.6.3/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js";
+import * as kv from "./kv_store.ts";
 
 const app = new Hono();
 
@@ -12,7 +12,7 @@ console.log(`🚀 Server starting - Version: ${SERVER_VERSION}`);
 
 // Token expiration times
 const ACCESS_TOKEN_EXPIRES_IN = 15 * 60 * 1000; // 15 minutes
-const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 60 * 1000; // 7 days
+const REFRESH_TOKEN_EXPIRES_IN = 7 * 24 * 60 * 1000; // 7 days
 
 // Enable CORS for all routes and methods
 app.use(
@@ -32,12 +32,12 @@ function generateToken(): string {
 }
 
 // Health check endpoint
-app.get("/make-server-4cfee19e/health", (c) => {
+app.get("/make-server-4cfee19e/health", (c: Context) => {
   return c.json({ status: "ok", version: SERVER_VERSION });
 });
 
 // Sign up endpoint
-app.post("/make-server-4cfee19e/signup", async (c) => {
+app.post("/make-server-4cfee19e/signup", async (c: Context) => {
   try {
     const { email, password, name } = await c.req.json();
 
@@ -64,6 +64,11 @@ app.post("/make-server-4cfee19e/signup", async (c) => {
       return c.json({ error: error.message }, 400);
     }
 
+    if (!data.user) {
+      console.log(`No user returned from Supabase during signup`);
+      return c.json({ error: "Failed to create user" }, 400);
+    }
+
     // Store additional user info in KV store
     await kv.set(`user:${data.user.id}`, {
       id: data.user.id,
@@ -83,14 +88,14 @@ app.post("/make-server-4cfee19e/signup", async (c) => {
         name: name || ''
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(`Server error during signup: ${error}`);
     return c.json({ error: "Internal server error during signup" }, 500);
   }
 });
 
 // Sign in endpoint - returns access and refresh tokens
-app.post("/make-server-4cfee19e/signin", async (c) => {
+app.post("/make-server-4cfee19e/signin", async (c: Context) => {
   try {
     const { email, password } = await c.req.json();
 
@@ -167,14 +172,14 @@ app.post("/make-server-4cfee19e/signin", async (c) => {
         name: userData?.name || data.user.user_metadata?.name || ''
       }
     });
-  } catch (error) {
-    console.log(`Server error during signin: ${error.message || error}`);
+  } catch (error: unknown) {
+    console.log(`Server error during signin: ${error}`);
     return c.json({ error: "Internal server error during signin" }, 500);
   }
 });
 
 // Refresh token endpoint - exchanges refresh token for new access token
-app.post("/make-server-4cfee19e/refresh", async (c) => {
+app.post("/make-server-4cfee19e/refresh", async (c: Context) => {
   try {
     const { refreshToken } = await c.req.json();
 
@@ -219,14 +224,14 @@ app.post("/make-server-4cfee19e/refresh", async (c) => {
       accessToken: newAccessToken,
       expiresIn: ACCESS_TOKEN_EXPIRES_IN / 1000 // in seconds
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(`Server error during token refresh: ${error}`);
     return c.json({ error: "Internal server error during token refresh" }, 500);
   }
 });
 
 // Get current user profile - using query parameter for token
-app.get("/make-server-4cfee19e/profile", async (c) => {
+app.get("/make-server-4cfee19e/profile", async (c: Context) => {
   console.log('=== PROFILE ENDPOINT CALLED (v4.0) ===');
   console.log('Request URL:', c.req.url);
   console.log('Query params:', c.req.query());
@@ -242,8 +247,9 @@ app.get("/make-server-4cfee19e/profile", async (c) => {
       return c.json({ code: 401, message: "Missing authentication token" }, 401);
     }
 
-    console.log(`Profile request - Token (first 20 chars): ${token.substring(0, 20)}...`);
-    console.log(`Profile request - Token length: ${token.length}`);
+    const tokenStr = String(token);
+    console.log(`Profile request - Token (first 20 chars): ${tokenStr.substring(0, 20)}...`);
+    console.log(`Profile request - Token length: ${tokenStr.length}`);
 
     // Get session from KV store
     console.log(`Profile request - Looking up session: session:${token}`);
@@ -292,14 +298,14 @@ app.get("/make-server-4cfee19e/profile", async (c) => {
       name: userData.name || '',
       createdAt: userData.createdAt
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(`Server error while fetching profile: ${error}`);
     return c.json({ error: "Internal server error while fetching profile" }, 500);
   }
 });
 
 // Update user profile - using query parameter for token
-app.put("/make-server-4cfee19e/profile", async (c) => {
+app.put("/make-server-4cfee19e/profile", async (c: Context) => {
   try {
     // Get token from query parameter
     const token = c.req.query('token');
@@ -346,7 +352,7 @@ app.put("/make-server-4cfee19e/profile", async (c) => {
         name: name || ''
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(`Server error while updating profile: ${error}`);
     return c.json({ error: "Internal server error while updating profile" }, 500);
   }
@@ -355,7 +361,7 @@ app.put("/make-server-4cfee19e/profile", async (c) => {
 // Chat endpoints
 
 // Get chat history for a specific hotel
-app.get("/make-server-4cfee19e/chat/history", async (c) => {
+app.get("/make-server-4cfee19e/chat/history", async (c: Context) => {
   try {
     const token = c.req.query('token');
     const hotelId = c.req.query('hotelId');
@@ -381,14 +387,14 @@ app.get("/make-server-4cfee19e/chat/history", async (c) => {
     return c.json({
       messages: chatData?.messages || []
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(`Server error while fetching chat history: ${error}`);
     return c.json({ error: "Internal server error" }, 500);
   }
 });
 
 // Send a chat message
-app.post("/make-server-4cfee19e/chat/send", async (c) => {
+app.post("/make-server-4cfee19e/chat/send", async (c: Context) => {
   try {
     const token = c.req.query('token');
     
@@ -441,7 +447,7 @@ app.post("/make-server-4cfee19e/chat/send", async (c) => {
       reply: aiResponse,
       messageId: conciergeMessage.id
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(`Server error while sending chat message: ${error}`);
     return c.json({ error: "Internal server error" }, 500);
   }
