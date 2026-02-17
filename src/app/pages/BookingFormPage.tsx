@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useGame } from '../contexts/GameContext';
+import { hotelData } from '../data/hotels';
 import {
   ArrowLeft,
   Users,
@@ -39,48 +41,90 @@ import {
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 
-interface AdditionalService {
+interface HotelAdditionalService {
   id: string;
   name: string;
   nameEn: string;
   price: number;
 }
 
-const additionalServices: AdditionalService[] = [
-  { id: 'spa', name: 'СПА-процедуры', nameEn: 'SPA treatments', price: 5000 },
-  { id: 'massage', name: 'Массаж', nameEn: 'Massage', price: 3500 },
-  { id: 'excursion', name: 'Экскурсия', nameEn: 'Excursion', price: 2500 },
-  { id: 'breakfast-in-room', name: 'Завтрак в номер', nameEn: 'Breakfast in room', price: 1500 },
-  { id: 'late-checkout', name: 'Поздний выезд', nameEn: 'Late checkout', price: 2000 },
-  { id: 'airport-meeting', name: 'Встреча в аэропорту', nameEn: 'Airport pickup', price: 3000 },
-];
+interface HotelRoomType {
+  value: string;
+  label: string;
+  labelEn: string;
+  basePrice: number;
+}
 
-const roomTypes = [
-  { value: 'standard', label: 'Стандартный', labelEn: 'Standard', basePrice: 8000 },
-  { value: 'deluxe', label: 'Делюкс', labelEn: 'Deluxe', basePrice: 12000 },
-  { value: 'suite', label: 'Люкс', labelEn: 'Suite', basePrice: 18000 },
-  { value: 'premium', label: 'Премиум', labelEn: 'Premium', basePrice: 25000 },
-];
-
-const mealTypes = [
-  { value: 'no-meal', label: 'Без питания', labelEn: 'No meals', price: 0 },
-  { value: 'breakfast', label: 'Завтрак', labelEn: 'Breakfast', price: 1500 },
-  { value: 'half-board', label: 'Полупансион', labelEn: 'Half board', price: 3000 },
-  { value: 'full-board', label: 'Полный пансион', labelEn: 'Full board', price: 5000 },
-];
+interface HotelMealType {
+  value: string;
+  label: string;
+  labelEn: string;
+  price: number;
+}
 
 export function BookingFormPage() {
   const { language } = useLanguage();
-  useParams();
+  const { id: hotelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { setCurrentBooking, addVisitedHotel } = useGame();
+
+  // Get hotel data from hotels.ts
+  const hotel = hotelId ? hotelData[hotelId] : null;
+  const hotelAdditionalServices: HotelAdditionalService[] =
+    hotel?.amenities?.additionalServices || [];
+  const hotelRoomTypes: HotelRoomType[] = hotel?.roomTypes || [];
+  const hotelMealTypes: HotelMealType[] = hotel?.mealTypes || [];
+
+  // Fallback data if hotel data is not available
+  const additionalServices: HotelAdditionalService[] =
+    hotelAdditionalServices.length > 0
+      ? hotelAdditionalServices
+      : [
+          { id: 'spa', name: 'СПА-процедуры', nameEn: 'SPA treatments', price: 5000 },
+          { id: 'massage', name: 'Массаж', nameEn: 'Massage', price: 3500 },
+          { id: 'excursion', name: 'Экскурсия', nameEn: 'Excursion', price: 2500 },
+          {
+            id: 'breakfast-in-room',
+            name: 'Завтрак в номер',
+            nameEn: 'Breakfast in room',
+            price: 1500,
+          },
+          { id: 'late-checkout', name: 'Поздний выезд', nameEn: 'Late checkout', price: 2000 },
+          {
+            id: 'airport-meeting',
+            name: 'Встреча в аэропорту',
+            nameEn: 'Airport pickup',
+            price: 3000,
+          },
+        ];
+
+  const roomTypes: HotelRoomType[] =
+    hotelRoomTypes.length > 0
+      ? hotelRoomTypes
+      : [
+          { value: 'standard', label: 'Стандартный', labelEn: 'Standard', basePrice: 8000 },
+          { value: 'deluxe', label: 'Делюкс', labelEn: 'Deluxe', basePrice: 12000 },
+          { value: 'suite', label: 'Люкс', labelEn: 'Suite', basePrice: 18000 },
+          { value: 'premium', label: 'Премиум', labelEn: 'Premium', basePrice: 25000 },
+        ];
+
+  const mealTypes: HotelMealType[] =
+    hotelMealTypes.length > 0
+      ? hotelMealTypes
+      : [
+          { value: 'no-meal', label: 'Без питания', labelEn: 'No meals', price: 0 },
+          { value: 'breakfast', label: 'Завтрак', labelEn: 'Breakfast', price: 1500 },
+          { value: 'half-board', label: 'Полупансион', labelEn: 'Half board', price: 3000 },
+          { value: 'full-board', label: 'Полный пансион', labelEn: 'Full board', price: 5000 },
+        ];
 
   // Form state
   const [guests, setGuests] = useState(2);
   const [rooms, setRooms] = useState(1);
-  const [roomType, setRoomType] = useState('deluxe');
+  const [roomType, setRoomType] = useState(roomTypes[0]?.value || 'standard');
   const [checkInDate, setCheckInDate] = useState<Date>();
   const [checkOutDate, setCheckOutDate] = useState<Date>();
-  const [mealType, setMealType] = useState('breakfast');
+  const [mealType, setMealType] = useState(mealTypes[0]?.value || 'no-meal');
   const [needTransfer, setNeedTransfer] = useState(false);
   const [checkInTime, setCheckInTime] = useState('14:00');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -131,6 +175,8 @@ export function BookingFormPage() {
     nights: language === 'ru' ? 'ночей' : 'nights',
     promoApplied: language === 'ru' ? 'Промокод применен!' : 'Promo code applied!',
     invalidPromo: language === 'ru' ? 'Неверный промокод' : 'Invalid promo code',
+    bookingSuccess:
+      language === 'ru' ? 'Бронирование успешно подтверждено!' : 'Booking confirmed successfully!',
   };
 
   const calculateNights = () => {
@@ -205,11 +251,39 @@ export function BookingFormPage() {
   };
 
   const handleConfirmBooking = () => {
-    // Here you would typically send the booking to a backend
+    const selectedRoom = roomTypes.find((r) => r.value === roomType);
+
+    // Save booking to game state
+    setCurrentBooking({
+      roomId: roomNumber,
+      roomName: selectedRoom?.label || '',
+      roomNameEn: selectedRoom?.labelEn || '',
+      price: finalTotal,
+      mealType: mealType as 'no-meal' | 'diet-menu' | 'half-board' | 'all-inclusive',
+      additionalServices: selectedServices as (
+        | 'sauna'
+        | 'fishing'
+        | 'excursion'
+        | 'breakfast-in-room'
+        | 'diving'
+        | 'Cater-transfer'
+      )[],
+      bookedAt: new Date().toISOString(),
+    });
+
+    // Add hotel to visited if not already visited
+    if (hotelId) {
+      addVisitedHotel({
+        hotelId,
+        hotelName: hotel?.name || '',
+        hotelNameEn: hotel?.nameEn || '',
+        visitedAt: new Date().toISOString(),
+        completed: false,
+      });
+    }
+
     setShowConfirmDialog(false);
-    alert(
-      language === 'ru' ? 'Бронирование успешно подтверждено!' : 'Booking confirmed successfully!'
-    );
+    alert(t.bookingSuccess);
     navigate('/bookings');
   };
 

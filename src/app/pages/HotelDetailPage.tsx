@@ -27,10 +27,7 @@ import {
   // Snowflake,
   // ConciergeBell,
 } from 'lucide-react';
-import headImage7 from '../data/images/Soldier/head-image.jpg';
-import headImage2_7 from '../data/images/Soldier/head-image2.jpg';
 
-// { , , , , , Wind, Coffee, , Baby, , , , , , , , ,  }
 import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -117,24 +114,29 @@ export function HotelDetailPage() {
           <div className="relative">
             <div className="overflow-hidden rounded-lg" ref={emblaRef}>
               <div className="flex">
-                {hotel.images.map((image, index) => (
-                  <div key={index} className="flex-[0_0_100%] min-w-0">
-                    {index === 0 && hotel.id === 7 ? (
-                      <img
-                        src={isHeadImageClicked ? headImage2_7 : headImage7}
-                        alt={`${hotel.name} ${index + 1}`}
-                        className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
-                        onClick={() => setIsHeadImageClicked(!isHeadImageClicked)}
-                      />
-                    ) : (
-                      <img
-                        src={image}
-                        alt={`${hotel.name} ${index + 1}`}
-                        className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
-                      />
-                    )}
-                  </div>
-                ))}
+                {hotel.images.map((image, index) => {
+                  const galleryAction = hotel.galleryActions?.find(action => action.imageIndex === index);
+                  const isToggled = galleryAction && index === 0 && isHeadImageClicked;
+                  
+                  return (
+                    <div key={index} className="flex-[0_0_100%] min-w-0">
+                      {galleryAction ? (
+                        <img
+                          src={isToggled ? galleryAction.alternateImage : image}
+                          alt={`${hotel.name} ${index + 1}`}
+                          className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
+                          onClick={() => galleryAction.type === 'toggle' && setIsHeadImageClicked(!isHeadImageClicked)}
+                        />
+                      ) : (
+                        <img
+                          src={image}
+                          alt={`${hotel.name} ${index + 1}`}
+                          className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <button
@@ -169,7 +171,7 @@ export function HotelDetailPage() {
                 </div>
               </div>
               <div className="flex items-right gap-2 ml-auto">
-                {hotel.id === 7 ? (
+                {hotel.amenities.heart_tool_tip ? (
                   <Tooltip delayDuration={200}>
                     <TooltipTrigger asChild>
                       <button className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">

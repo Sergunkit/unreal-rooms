@@ -1,6 +1,6 @@
-import { Hono, Context } from "https://deno.land/x/hono@v4.6.3/mod.ts";
-import { cors } from "https://deno.land/x/hono@v4.6.3/mod.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js";
+import { Hono, Context } from "hono";
+import { cors } from "hono/middleware.ts";
+import { createClient } from "@supabase/supabase-js";
 import * as kv from "./kv_store.ts";
 
 const app = new Hono();

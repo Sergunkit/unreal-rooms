@@ -83,6 +83,12 @@ interface Room {
   image: string;
 }
 
+interface GalleryImageAction {
+  imageIndex: number;
+  type: 'toggle';
+  alternateImage: string;
+}
+
 interface Hotel {
   id: number;
   name: string;
@@ -100,6 +106,7 @@ interface Hotel {
   commonFeedbackEn: string;
   image: string;
   images: string[];
+  galleryActions?: GalleryImageAction[];
   amenities: Amenities;
   heart_tool_tip?: string;
   heart_tool_tipEn?: string;
@@ -114,7 +121,7 @@ interface Hotel {
   noise?: string;
   endBookingMassege?: string;
   endBookingMassegeEn?: string;
-  passingCondions?: {
+  passingConditions?: {
     roomId: number;
     mealTypes: string[];
     additionalServices: string[];
@@ -846,13 +853,13 @@ export const hotelData: Record<string, Hotel> = {
     location: 'Небольшой (полу)отсров в Девоне, Англия',
     locationEn: 'Small (semi)island in Devon, England',
     image: headImage7,
-    images: [
-      headImage7,
-      // headImage2_7,
-      galleryImageSoldier2_7,
-      // galleryImageSoldier7,
-      galleryImage1_7,
-      galleryImage2_7,
+    images: [headImage7, galleryImageSoldier2_7, galleryImage1_7, galleryImage2_7],
+    galleryActions: [
+      {
+        imageIndex: 0,
+        type: 'toggle',
+        alternateImage: headImage2_7,
+      },
     ],
     amenities: {
       dining: ['Лобби-бар', 'Уютный ресторан с панорамным видом', 'Обслуживание в номерах'],
@@ -915,7 +922,7 @@ export const hotelData: Record<string, Hotel> = {
           nameEn: 'Breakfast in room',
           price: 25,
         },
-        { id: 'diving', name: 'Дайвинг', nameEn: 'Diving', price: 2000 },
+        { id: 'diving', name: 'Дайвинг', nameEn: 'Diving', price: 200 },
         {
           id: 'Cater-transfer',
           name: 'Трансфер на катере',
@@ -1300,7 +1307,7 @@ export const hotelData: Record<string, Hotel> = {
     noise: '',
     endBookingMassege: 'Приговор утвержден. Все комнаты заняты',
     endBookingMassegeEn: 'The verdict is in. All rooms are occupied',
-    passingCondions: {
+    passingConditions: {
       roomId: 11,
       mealTypes: ['no-meal', 'half-board'],
       additionalServices: ['Cater-transfer'],

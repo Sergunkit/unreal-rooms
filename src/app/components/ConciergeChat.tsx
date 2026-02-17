@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { serverUrl } from '../utils/supabase';
 import { publicAnonKey } from '../utils/supabase/info';
+import { hotelData } from '../data/hotels';
 
 interface Message {
   id: string;
@@ -87,6 +88,11 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
     setMessage('');
     setIsLoading(true);
 
+    // Get hotel-specific messages if available
+    const hotel = hotelData[hotelId];
+    const chatMessages = hotel?.chatMassages;
+    const chatMessagesEn = hotel?.chatMassegesEn;
+
     try {
       // Send message to server
       const response = await fetch(
@@ -101,6 +107,8 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
             hotelId,
             message: userMessage.text,
             language,
+            chatMessages,
+            chatMessagesEn,
           }),
         }
       );

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Plane, MapPin, Compass } from 'lucide-react';
+// import { Plane, MapPin, Compass } from 'lucide-react';
 
 export function FloatingWidget() {
   const [isHovered, setIsHovered] = useState(false);
@@ -113,12 +113,12 @@ export function FloatingWidget() {
             transition={{ duration: 0.3, delay: 0.1 }}
             className="absolute top-2 left-2"
           >
-            <div className="bg-primary/90 rounded-full p-1.5 shadow-lg">
+            {/* <div className="bg-primary/90 rounded-full p-1.5 shadow-lg">
               <Plane className="w-3 h-3 text-white" />
-            </div>
+            </div> */}
           </motion.div>
 
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{
               opacity: isHovered ? 1 : 0,
@@ -130,9 +130,9 @@ export function FloatingWidget() {
             <div className="bg-purple-600/90 rounded-full p-1.5 shadow-lg">
               <MapPin className="w-3 h-3 text-white" />
             </div>
-          </motion.div>
+          </motion.div> */}
 
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{
               opacity: isHovered ? 1 : 0,
@@ -144,7 +144,7 @@ export function FloatingWidget() {
             <div className="bg-violet-500/90 rounded-full p-1.5 shadow-lg">
               <Compass className="w-3 h-3 text-white" />
             </div>
-          </motion.div>
+          </motion.div> */}
 
           {/* Filling animation - simulates items being added */}
           <motion.div
