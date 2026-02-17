@@ -170,7 +170,7 @@ export function ConciergeChat({ hotelId }: ConciergeChatProps) {
     <>
       {/* Chat Widget */}
       {chatOpen && (
-        <div className="fixed bottom-24 right-8 w-96 h-[500px] bg-card border border-border rounded-lg shadow-2xl flex flex-col z-40">
+        <div className="fixed bottom-44 right-8 w-96 h-[500px] bg-card border border-border rounded-lg shadow-2xl flex flex-col z-40">
           {/* Header */}
           <div className="p-4 border-b border-border flex items-center justify-between bg-primary/10 rounded-t-lg">
             <div className="flex items-center gap-3">

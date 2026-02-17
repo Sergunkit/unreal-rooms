@@ -560,7 +560,7 @@ export function HotelDetailPage() {
                 {feedbacks.map((feedback, index) => (
                   <div key={feedback.id}>
                     <p className="text-sm font-medium text-foreground mb-2">{feedback.author}</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{feedback.text}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{language === 'ru' ? feedback.text : feedback.textEn}</p>
                     {index < feedbacks.length - 1 && (
                       <div className="flex items-center justify-center my-6">
                         <Sparkles className="w-5 h-5 text-primary/50" />
