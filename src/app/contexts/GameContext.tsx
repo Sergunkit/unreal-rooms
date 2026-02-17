@@ -17,6 +17,21 @@ export type AdditionalService =
   | 'Cater-transfer';
 
 /**
+ * Временные данные формы бронирования (сохраняются между переходами)
+ */
+export interface TempBookingFormData {
+  guests: number;
+  rooms: number;
+  roomType: string;
+  checkInDate: string | null;
+  checkOutDate: string | null;
+  mealType: string;
+  needTransfer: boolean;
+  checkInTime: string;
+  selectedServices: string[];
+}
+
+/**
  * Статус бронирования комнаты
  */
 export interface RoomBooking {
@@ -70,6 +85,7 @@ export interface PlayerStatus {
   id: string;
   visitedHotels: VisitedHotel[];
   currentBooking: RoomBooking | null;
+  tempBookingForm: TempBookingFormData | null;
   collectedArtefacts: CollectedArtefact[];
   inventory: string[];
   stats: PlayerStats;
@@ -84,6 +100,7 @@ const initialPlayerStatus: PlayerStatus = {
   id: 'local-player',
   visitedHotels: [],
   currentBooking: null,
+  tempBookingForm: null,
   collectedArtefacts: [],
   inventory: [],
   stats: {
@@ -107,6 +124,10 @@ interface GameContextType {
   // Методы для работы с бронированиями
   setCurrentBooking: (booking: RoomBooking | null) => void;
   clearCurrentBooking: () => void;
+  // Методы для временных данных формы бронирования
+  saveTempBookingForm: (data: TempBookingFormData) => void;
+  clearTempBookingForm: () => void;
+  getTempBookingForm: () => TempBookingFormData | null;
   // Методы для посещённых отелей
   addVisitedHotel: (hotel: VisitedHotel) => void;
   completeHotelVisit: (hotelId: string) => void;
@@ -186,6 +207,35 @@ export function GameProvider({ children }: { children: ReactNode }) {
       currentBooking: null,
       updatedAt: new Date().toISOString(),
     }));
+  };
+
+  /**
+   * Сохранить временные данные формы бронирования
+   */
+  const saveTempBookingForm = (data: TempBookingFormData) => {
+    setPlayerStatus((prev) => ({
+      ...prev,
+      tempBookingForm: data,
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  /**
+   * Очистить временные данные формы бронирования
+   */
+  const clearTempBookingForm = () => {
+    setPlayerStatus((prev) => ({
+      ...prev,
+      tempBookingForm: null,
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  /**
+   * Получить временные данные формы бронирования
+   */
+  const getTempBookingForm = () => {
+    return playerStatus.tempBookingForm;
   };
 
   /**
@@ -316,6 +366,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
         isLoading,
         setCurrentBooking,
         clearCurrentBooking,
+        saveTempBookingForm,
+        clearTempBookingForm,
+        getTempBookingForm,
         addVisitedHotel,
         completeHotelVisit,
         addArtefact,

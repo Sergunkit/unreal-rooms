@@ -32,6 +32,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { hotelData } from '../data/hotels';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ConciergeChat } from '../components/ConciergeChat';
+import { useGame } from '../contexts/GameContext';
 import {
   Tooltip,
   TooltipContent,
@@ -66,6 +67,13 @@ export function HotelDetailPage() {
   const [isHeadImageClicked, setIsHeadImageClicked] = useState(false);
 
   const hotel = hotelData[id as keyof typeof hotelData];
+  const { playerStatus } = useGame();
+  const conditions = hotel.passingConditions;
+  const hasRoom = playerStatus.currentBooking?.roomId === conditions?.roomId;
+  const hasMeal = conditions?.mealTypes?.includes(playerStatus.currentBooking?.mealType || '');
+  const hasService = conditions?.additionalServices?.some(s => playerStatus.currentBooking?.additionalServices.includes(s as any));
+  const hasInventory = conditions?.inventory?.every(i => playerStatus.inventory.includes(i));
+  const isSafeToBook = !conditions || (hasRoom && hasMeal && hasService && hasInventory);
 
   if (!hotel) {
     return (
@@ -176,11 +184,10 @@ export function HotelDetailPage() {
                     <TooltipTrigger asChild>
                       <button className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
                         <Heart
-                          onClick={() => setIsFavorite(!isFavorite)}
                           className={`w-6 h-6 transition-all cursor-pointer ${
-                            isFavorite
+                            !isSafeToBook
                               ? 'fill-red-500 text-red-500'
-                              : 'text-primary-foreground hover:text-red-500'
+                              : 'text-primary-foreground'
                           }`}
                         />
                       </button>
@@ -196,9 +203,9 @@ export function HotelDetailPage() {
                   >
                     <Heart
                       className={`w-6 h-6 transition-all ${
-                        isFavorite
+                        !isSafeToBook
                           ? 'fill-red-500 text-red-500'
-                          : 'text-primary-foreground hover:text-red-500'
+                          : 'text-primary-foreground'
                       }`}
                     />
                   </button>

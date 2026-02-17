@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useGame } from '../contexts/GameContext';
@@ -66,7 +66,13 @@ export function BookingFormPage() {
   const { language } = useLanguage();
   const { id: hotelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { setCurrentBooking, addVisitedHotel } = useGame();
+  const { setCurrentBooking, addVisitedHotel, playerStatus, saveTempBookingForm} = useGame();
+
+  // Get temp booking form data if exists
+  const tempForm = playerStatus.tempBookingForm;
+
+  // Get saved booking if exists
+  const savedBooking = playerStatus.currentBooking;
 
   // Get hotel data from hotels.ts
   const hotel = hotelId ? hotelData[hotelId] : null;
@@ -119,15 +125,15 @@ export function BookingFormPage() {
         ];
 
   // Form state
-  const [guests, setGuests] = useState(2);
-  const [rooms, setRooms] = useState(1);
-  const [roomType, setRoomType] = useState(roomTypes[0]?.value || 'standard');
-  const [checkInDate, setCheckInDate] = useState<Date>();
-  const [checkOutDate, setCheckOutDate] = useState<Date>();
-  const [mealType, setMealType] = useState(mealTypes[0]?.value || 'no-meal');
-  const [needTransfer, setNeedTransfer] = useState(false);
-  const [checkInTime, setCheckInTime] = useState('14:00');
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [guests, setGuests] = useState(tempForm?.guests || 2);
+  const [rooms, setRooms] = useState(tempForm?.rooms || 1);
+  const [roomType, setRoomType] = useState(tempForm?.roomType || (savedBooking ? String(savedBooking.roomId) : (roomTypes[0]?.value || 'standard')));
+  const [checkInDate, setCheckInDate] = useState<Date | undefined>(tempForm?.checkInDate ? new Date(tempForm.checkInDate) : undefined);
+  const [checkOutDate, setCheckOutDate] = useState<Date | undefined>(tempForm?.checkOutDate ? new Date(tempForm.checkOutDate) : undefined);
+  const [mealType, setMealType] = useState(savedBooking?.mealType || (mealTypes[0]?.value || 'no-meal'));
+  const [needTransfer, setNeedTransfer] = useState(savedBooking?.additionalServices?.includes('Cater-transfer') || false);
+  const [checkInTime, setCheckInTime] = useState(tempForm?.checkInTime || '14:00');
+  const [selectedServices, setSelectedServices] = useState<string[]>(savedBooking?.additionalServices || []);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('card');
   const [cardType, setCardType] = useState<'visa' | 'mastercard'>('visa');
   const [promoCode, setPromoCode] = useState('');
@@ -237,6 +243,21 @@ export function BookingFormPage() {
       setDiscount(0);
     }
   };
+
+  // Save form data when it changes
+  useEffect(() => {
+    saveTempBookingForm({
+      guests,
+      rooms,
+      roomType,
+      checkInDate: checkInDate?.toISOString() || null,
+      checkOutDate: checkOutDate?.toISOString() || null,
+      mealType,
+      needTransfer,
+      checkInTime,
+      selectedServices,
+    });
+  }, [guests, rooms, roomType, checkInDate, checkOutDate, mealType, needTransfer, checkInTime, selectedServices]);
 
   const handleContinue = () => {
     if (!checkInDate || !checkOutDate) {
