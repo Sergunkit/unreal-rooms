@@ -1,3 +1,4 @@
+// @ts-nocheck - Deno-specific imports
 import { Hono, Context } from "hono";
 import { cors } from "hono/middleware.ts";
 import { createClient } from "@supabase/supabase-js";
