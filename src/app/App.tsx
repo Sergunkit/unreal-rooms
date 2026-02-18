@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router';
+import { useState, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -16,6 +17,24 @@ import { HotelDetailPage } from './pages/HotelDetailPage';
 import { BookingFormPage } from './pages/BookingFormPage';
 
 export default function App() {
+  const [suitcaseGlow, setSuitcaseGlow] = useState(false);
+
+  // Listen for artefact/prize collection events
+  useEffect(() => {
+    const handleArtefactCollected = () => {
+      setSuitcaseGlow(true);
+      setTimeout(() => setSuitcaseGlow(false), 2000);
+    };
+    
+    window.addEventListener('artefactCollected', handleArtefactCollected);
+    window.addEventListener('prizeCollected', handleArtefactCollected);
+    
+    return () => {
+      window.removeEventListener('artefactCollected', handleArtefactCollected);
+      window.removeEventListener('prizeCollected', handleArtefactCollected);
+    };
+  }, []);
+
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -36,7 +55,7 @@ export default function App() {
                   </Routes>
                 </main>
                 <DisclaimerTooltip />
-                <FloatingWidget />
+                <FloatingWidget isGlowing={suitcaseGlow} />
                 <Toaster position="bottom-right" />
               </div>
             </Router>

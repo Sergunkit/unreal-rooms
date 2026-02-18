@@ -2,7 +2,7 @@
 import headImage7 from './images/Soldier/head-image.jpg';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import headImage2_7 from './images/Soldier/head-image2.jpg';
-import galleryImageSoldier7 from './images/Soldier/gallery-image-soldier.jpg';
+// import galleryImageSoldier7 from './images/Soldier/gallery-image-soldier.jpg';
 import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
 import galleryImage1_7 from './images/Soldier/gallery-image1.jpeg';
 import galleryImage2_7 from './images/Soldier/gallery-image2.jpg';
@@ -122,7 +122,7 @@ interface Hotel {
   endBookingMassege?: string;
   endBookingMassegeEn?: string;
   passingConditions?: {
-    roomId: number;
+    roomId: string;
     mealTypes: string[];
     additionalServices: string[];
     inventory: string[];
@@ -922,7 +922,7 @@ export const hotelData: Record<string, Hotel> = {
           nameEn: 'Breakfast in room',
           price: 25,
         },
-        { id: 'diving', name: 'Дайвинг', nameEn: 'Diving', price: 200 },
+        { id: 'diving', name: 'Дайвинг', nameEn: 'Diving', price: 2000 },
         {
           id: 'Cater-transfer',
           name: 'Трансфер на катере',
@@ -1308,7 +1308,7 @@ export const hotelData: Record<string, Hotel> = {
     endBookingMassege: 'Приговор утвержден. Все комнаты заняты',
     endBookingMassegeEn: 'The verdict is in. All rooms are occupied',
     passingConditions: {
-      roomId: 11,
+      roomId: 'verdict',
       mealTypes: ['no-meal', 'half-board'],
       additionalServices: ['Cater-transfer'],
       inventory: ['Judges Hummer'],

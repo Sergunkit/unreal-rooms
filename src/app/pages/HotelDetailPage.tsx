@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
-import {
+import React, {   useState, useEffect } from 'react';
+import {   useParams, useNavigate } from 'react-router';
+import {  
   Star,
   MapPin,
   // Wifi,
@@ -28,17 +28,19 @@ import {
   // ConciergeBell,
 } from 'lucide-react';
 
-import { useLanguage } from '../contexts/LanguageContext';
-import { hotelData } from '../data/hotels';
+import {   useLanguage } from '../contexts/LanguageContext';
+import {   hotelData } from '../data/hotels';
+import { BookingFormPage } from './BookingFormPage';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ConciergeChat } from '../components/ConciergeChat';
-import { useGame } from '../contexts/GameContext';
-import {
+import {   ConciergeChat } from '../components/ConciergeChat';
+import {   useGame } from '../contexts/GameContext';
+import {  
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '../components/ui/tooltip';
+import { Drawer, DrawerContent } from '@/app/components/ui/drawer';
 
 interface Room {
   id: number;
@@ -64,16 +66,57 @@ export function HotelDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
   const [isHeadImageClicked, setIsHeadImageClicked] = useState(false);
+  const [, forceUpdate] = useState(0);
 
   const hotel = hotelData[id as keyof typeof hotelData];
-  const { playerStatus } = useGame();
+  const { playerStatus, addArtefact, hasArtefact, addToInventory } = useGame();
+  const [bookingUpdate, setBookingUpdate] = useState(0);
+
+  // Re-check conditions when booking is confirmed or page becomes visible
+  useEffect(() => {
+    // Use BroadcastChannel for cross-tab communication
+    const channel = new BroadcastChannel('booking_updates');
+    channel.onmessage = (event) => {
+      if (event.data.type === 'update') {
+        setBookingUpdate(prev => prev + 1);
+      }
+    };
+    
+    // Listen for visibility change (when returning from booking modal)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        forceUpdate(prev => prev + 1);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      channel.close();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // Force re-render on booking update
+  React.useEffect(() => {
+    forceUpdate(prev => prev + 1);
+  }, [playerStatus.tempBookingForm, playerStatus.currentBooking, bookingUpdate]);
+  
   const conditions = hotel.passingConditions;
-  const hasRoom = playerStatus.currentBooking?.roomId === conditions?.roomId;
-  const hasMeal = conditions?.mealTypes?.includes(playerStatus.currentBooking?.mealType || '');
-  const hasService = conditions?.additionalServices?.some(s => playerStatus.currentBooking?.additionalServices.includes(s as any));
+  // Check both confirmed booking and temporary form data
+  const currentBooking = playerStatus.currentBooking;
+  const tempForm = playerStatus.tempBookingForm;
+  const activeRoomId = currentBooking?.roomId || tempForm?.roomType || '';
+  const activeMealType = currentBooking?.mealType || tempForm?.mealType || '';
+  const activeServices = currentBooking?.additionalServices || tempForm?.selectedServices || [];
+  
+  const hasRoom = !conditions || activeRoomId === conditions.roomId;
+  const hasMeal = !conditions || conditions.mealTypes?.includes(activeMealType);
+  const hasService = !conditions || conditions.additionalServices?.every(s => activeServices.includes(s));
   const hasInventory = conditions?.inventory?.every(i => playerStatus.inventory.includes(i));
   const isSafeToBook = !conditions || (hasRoom && hasMeal && hasService && hasInventory);
+  console.log('DEBUG isSafeToBook:', { isSafeToBook, hasRoom, hasMeal, hasService, hasInventory, conditions, booking: playerStatus.currentBooking, inventory: playerStatus.inventory });
 
   if (!hotel) {
     return (
@@ -101,6 +144,23 @@ export function HotelDetailPage() {
   // Mock lost & found items
   //
   const lostFoundItems = hotel.lostandfaund;
+  
+  const handleCollectArtefact = (item: { id: number; name: string; nameEn: string; image: string }) => {
+    if (!hasArtefact(String(item.id))) {
+      addArtefact({
+        artefactId: String(item.id),
+        name: item.name,
+        nameEn: item.nameEn,
+        image: item.image,
+        collectedAt: new Date().toISOString(),
+      });
+      // Add to inventory
+      addToInventory(item.nameEn);
+      // Dispatch event for suitcase animation
+      window.dispatchEvent(new Event('artefactCollected'));
+      alert(language === 'ru' ? 'Артефакт добавлен в чемодан!' : 'Artefact added to suitcase!');
+    }
+  };
 
   return (
     <TooltipProvider>
@@ -251,7 +311,7 @@ export function HotelDetailPage() {
 
           {/* Book a room button - pushed to bottom with mt-auto */}
           <button
-            onClick={() => navigate(`/hotel/${id}/book`)}
+            onClick={() => setShowBookingModal(true)}
             className="px-8 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 mt-auto"
           >
             {language === 'ru' ? 'Забронировать номер' : 'Book a room'}
@@ -414,7 +474,7 @@ export function HotelDetailPage() {
       {/* Room Detail Modal */}
       {selectedRoom && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg w-full h-full max-w-6xl max-h-[90vh] overflow-hidden flex relative">
+          <div className="bg-card border border-border rounded-lg w-full h-full max-w-6xl max-h-[95vh] overflow-hidden flex relative">
             <button
               onClick={() => setSelectedRoom(null)}
               className="absolute top-4 right-4 p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors z-20"
@@ -475,7 +535,7 @@ export function HotelDetailPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => navigate(`/hotel/${id}/book`)}
+                  onClick={() => setShowBookingModal(true)}
                   className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
                 >
                   {language === 'ru' ? 'Забронировать' : 'Book Now'}
@@ -547,7 +607,7 @@ export function HotelDetailPage() {
       {/* Feedback Modal */}
       {showFeedbackModal && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <MessageSquare className="w-6 h-6 text-primary" />
@@ -584,7 +644,7 @@ export function HotelDetailPage() {
       {/* Lost & Found Modal */}
       {showLostFoundModal && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Search className="w-6 h-6 text-primary" />
@@ -601,17 +661,29 @@ export function HotelDetailPage() {
             </div>
             <div className="overflow-y-auto flex-1 p-6">
               <div className="grid grid-cols-2 gap-4">
-                {lostFoundItems.map((item) => (
+                {lostFoundItems.map((item) => {
+                  const alreadyCollected = hasArtefact(String(item.id));
+                  return (
                   <div
                     key={item.id}
-                    className="bg-secondary/50 rounded-lg p-4 hover:bg-secondary transition-colors cursor-pointer"
+                    className={`rounded-lg p-4 transition-colors cursor-pointer ${
+                      alreadyCollected 
+                        ? 'opacity-50 cursor-not-allowed bg-secondary/30' 
+                        : 'bg-secondary/50 hover:bg-secondary'
+                    }`}
+                    onClick={() => !alreadyCollected && handleCollectArtefact({ id: item.id, name: item.name, nameEn: item.nameEn, image: item.image })}
                   >
                     <img src={item.image} alt={item.name} className="w-full h-32 object-cover mb-3 rounded-lg" />
                     <h4 className="text-sm font-medium text-foreground">
                       {language === 'ru' ? item.name : item.nameEn}
                     </h4>
+                    {alreadyCollected && (
+                      <p className="text-xs text-primary mt-1">
+                        {language === 'ru' ? 'Уже в чемодане' : 'Already in suitcase'}
+                      </p>
+                    )}
                   </div>
-                ))}
+                );})}
               </div>
             </div>
           </div>
@@ -621,6 +693,14 @@ export function HotelDetailPage() {
        
       {/* Concierge Chat */}
              {id && <ConciergeChat hotelId={id} />}
+
+      <Drawer open={showBookingModal} onOpenChange={setShowBookingModal}>
+        <DrawerContent className="max-w-4xl mx-auto h-[95vh]">
+          <div className="p-4 overflow-y-auto h-full">
+            <BookingFormPage />
+          </div>
+        </DrawerContent>
+      </Drawer>
             </main>
           </TooltipProvider>
         );}

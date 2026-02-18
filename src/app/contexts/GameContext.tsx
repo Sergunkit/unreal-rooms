@@ -35,7 +35,7 @@ export interface TempBookingFormData {
  * Статус бронирования комнаты
  */
 export interface RoomBooking {
-  roomId: number;
+  roomId: string;
   roomName: string;
   roomNameEn: string;
   price: number;
@@ -63,6 +63,7 @@ export interface CollectedArtefact {
   artefactId: string;
   name: string;
   nameEn: string;
+  image: string;
   collectedAt: string;
 }
 
@@ -213,11 +214,18 @@ export function GameProvider({ children }: { children: ReactNode }) {
    * Сохранить временные данные формы бронирования
    */
   const saveTempBookingForm = (data: TempBookingFormData) => {
-    setPlayerStatus((prev) => ({
-      ...prev,
-      tempBookingForm: data,
-      updatedAt: new Date().toISOString(),
-    }));
+    setPlayerStatus((prev) => {
+      // Only update if data has actually changed to avoid unnecessary re-renders
+      const hasChanged = JSON.stringify(prev.tempBookingForm) !== JSON.stringify(data);
+      if (!hasChanged) {
+        return prev;
+      }
+      return {
+        ...prev,
+        tempBookingForm: data,
+        updatedAt: new Date().toISOString(),
+      };
+    });
   };
 
   /**
