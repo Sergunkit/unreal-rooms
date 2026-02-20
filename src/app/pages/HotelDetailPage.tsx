@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, {   useState, useEffect } from 'react';
+import React, {   useState } from 'react';
 import {   useParams, useNavigate } from 'react-router';
 import {  
   Star,
@@ -68,55 +68,37 @@ export function HotelDetailPage() {
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [isHeadImageClicked, setIsHeadImageClicked] = useState(false);
-  const [, forceUpdate] = useState(0);
 
   const hotel = hotelData[id as keyof typeof hotelData];
   const { playerStatus, addArtefact, hasArtefact, addToInventory } = useGame();
-  const [bookingUpdate, setBookingUpdate] = useState(0);
-
-  // Re-check conditions when booking is confirmed or page becomes visible
-  useEffect(() => {
-    // Use BroadcastChannel for cross-tab communication
-    const channel = new BroadcastChannel('booking_updates');
-    channel.onmessage = (event) => {
-      if (event.data.type === 'update') {
-        setBookingUpdate(prev => prev + 1);
-      }
-    };
-    
-    // Listen for visibility change (when returning from booking modal)
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        forceUpdate(prev => prev + 1);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      channel.close();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
-  // Force re-render on booking update
+  
+  // Force re-render when tempBookingForm changes to update heart icon in real-time
+  const [, forceUpdate] = React.useState(0);
   React.useEffect(() => {
     forceUpdate(prev => prev + 1);
-  }, [playerStatus.tempBookingForm, playerStatus.currentBooking, bookingUpdate]);
+  }, [playerStatus.tempBookingForm, playerStatus.currentBooking]);
   
   const conditions = hotel.passingConditions;
   // Check both confirmed booking and temporary form data
   const currentBooking = playerStatus.currentBooking;
   const tempForm = playerStatus.tempBookingForm;
-  const activeRoomId = currentBooking?.roomId || tempForm?.roomType || '';
-  const activeMealType = currentBooking?.mealType || tempForm?.mealType || '';
-  const activeServices = currentBooking?.additionalServices || tempForm?.selectedServices || [];
-  
+  // При открытой форме бронирования используем tempForm, иначе currentBooking
+  const activeRoomId = showBookingModal && tempForm?.roomType 
+    ? tempForm.roomType 
+    : (currentBooking?.roomId || tempForm?.roomType || '');
+  const activeMealType = showBookingModal && tempForm?.mealType 
+    ? tempForm.mealType 
+    : (currentBooking?.mealType || tempForm?.mealType || '');
+  const activeServices = showBookingModal && tempForm?.selectedServices 
+    ? tempForm.selectedServices 
+    : (currentBooking?.additionalServices || tempForm?.selectedServices || []);
+
   const hasRoom = !conditions || activeRoomId === conditions.roomId;
   const hasMeal = !conditions || conditions.mealTypes?.includes(activeMealType);
   const hasService = !conditions || conditions.additionalServices?.every(s => activeServices.includes(s));
   const hasInventory = conditions?.inventory?.every(i => playerStatus.inventory.includes(i));
   const isSafeToBook = !conditions || (hasRoom && hasMeal && hasService && hasInventory);
-  console.log('DEBUG isSafeToBook:', { isSafeToBook, hasRoom, hasMeal, hasService, hasInventory, conditions, booking: playerStatus.currentBooking, inventory: playerStatus.inventory });
+  console.log('DEBUG isSafeToBook:', { isSafeToBook, hasRoom, hasMeal, hasService, hasInventory, conditions, booking: playerStatus.currentBooking, tempForm, activeRoomId, activeMealType, activeServices, inventory: playerStatus.inventory });
 
   if (!hotel) {
     return (

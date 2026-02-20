@@ -14,7 +14,7 @@ import { BookingsPage } from './pages/BookingsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ChatPage } from './pages/ChatPage';
 import { HotelDetailPage } from './pages/HotelDetailPage';
-import { BookingFormPage } from './pages/BookingFormPage';
+// import { BookingFormPage } from './pages/BookingFormPage';
 
 export default function App() {
   const [suitcaseGlow, setSuitcaseGlow] = useState(false);
@@ -25,10 +25,10 @@ export default function App() {
       setSuitcaseGlow(true);
       setTimeout(() => setSuitcaseGlow(false), 2000);
     };
-    
+
     window.addEventListener('artefactCollected', handleArtefactCollected);
     window.addEventListener('prizeCollected', handleArtefactCollected);
-    
+
     return () => {
       window.removeEventListener('artefactCollected', handleArtefactCollected);
       window.removeEventListener('prizeCollected', handleArtefactCollected);
@@ -51,7 +51,7 @@ export default function App() {
                     <Route path="/profile" element={<ProfilePage language={'ru'} />} />
                     <Route path="/chat" element={<ChatPage />} />
                     <Route path="/hotel/:id" element={<HotelDetailPage />} />
-                    <Route path="/hotel/:id/book" element={<BookingFormPage />} />
+                    {/* <Route path="/hotel/:id/book" element={<BookingFormPage />} /> */}
                   </Routes>
                 </main>
                 <DisclaimerTooltip />

@@ -1,9 +1,9 @@
-import {  useState, useEffect } from 'react';
-import {  useParams, useNavigate } from 'react-router';
-import {  useLanguage } from '../contexts/LanguageContext';
-import {  useGame } from '../contexts/GameContext';
-import {  hotelData } from '../data/hotels';
-import { 
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import { useLanguage } from '../contexts/LanguageContext';
+import { useGame } from '../contexts/GameContext';
+import { hotelData } from '../data/hotels';
+import {
   ArrowLeft,
   Users,
   BedDouble,
@@ -16,21 +16,21 @@ import {
   Tag,
   Sparkles,
 } from 'lucide-react';
-import {  Button } from '@/app/components/ui/button';
-import {  Input } from '@/app/components/ui/input';
-import {  Label } from '@/app/components/ui/label';
-import {  RadioGroup, RadioGroupItem } from '@/app/components/ui/radio-group';
-import { 
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
+import { Label } from '@/app/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/app/components/ui/radio-group';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/app/components/ui/select';
-import {  Checkbox } from '@/app/components/ui/checkbox';
-import {  Calendar as CalendarComponent } from '@/app/components/ui/calendar';
-import {  Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
-import { 
+import { Checkbox } from '@/app/components/ui/checkbox';
+import { Calendar as CalendarComponent } from '@/app/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -38,8 +38,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/app/components/ui/dialog';
-import {  format } from 'date-fns';
-import {  ru, enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
+import { ru, enUS } from 'date-fns/locale';
 
 interface HotelAdditionalService {
   id: string;
@@ -257,7 +257,7 @@ export function BookingFormPage() {
     }
   };
 
-  // Save form data when it changes and broadcast update
+  // Save form data when it changes
   useEffect(() => {
     saveTempBookingForm({
       guests,
@@ -270,11 +270,6 @@ export function BookingFormPage() {
       checkInTime,
       selectedServices,
     });
-    
-    // Broadcast update to all listeners
-    const channel = new BroadcastChannel('booking_updates');
-    channel.postMessage({ type: 'update' });
-    channel.close();
   }, [
     guests,
     rooms,
@@ -285,6 +280,7 @@ export function BookingFormPage() {
     needTransfer,
     checkInTime,
     selectedServices,
+    saveTempBookingForm,
   ]);
 
   const handleContinue = () => {
@@ -296,8 +292,6 @@ export function BookingFormPage() {
       );
       return;
     }
-    // Dispatch event to update heart icon
-    (new BroadcastChannel('booking_updates')).postMessage({ type: 'update' });
     setShowConfirmDialog(true);
   };
 
@@ -334,8 +328,6 @@ export function BookingFormPage() {
     }
 
     setShowConfirmDialog(false);
-    // Dispatch event to update heart icon on hotel detail page
-    (new BroadcastChannel('booking_updates')).postMessage({ type: 'update' });
     alert(t.bookingSuccess);
     navigate('/bookings');
   };
@@ -674,8 +666,6 @@ export function BookingFormPage() {
                 </div>
               </div>
             </div>
-
-            
 
             {/* Action Buttons */}
             <div className="flex gap-4">
