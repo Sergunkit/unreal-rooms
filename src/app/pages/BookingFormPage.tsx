@@ -4,7 +4,6 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useGame } from '../contexts/GameContext';
 import { hotelData } from '../data/hotels';
 import {
-  ArrowLeft,
   Users,
   BedDouble,
   Calendar,
@@ -62,7 +61,11 @@ interface HotelMealType {
   price: number;
 }
 
-export function BookingFormPage() {
+interface BookingFormPageProps {
+  onClose?: () => void;
+}
+
+export function BookingFormPage({ onClose }: BookingFormPageProps) {
   const { language } = useLanguage();
   const { id: hotelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -147,13 +150,15 @@ export function BookingFormPage() {
   const [selectedServices, setSelectedServices] = useState<string[]>(
     tempForm?.selectedServices || savedBooking?.additionalServices || []
   );
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('card');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
   const [cardType, setCardType] = useState<'visa' | 'mastercard'>('visa');
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState('');
   const [discount, setDiscount] = useState(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [roomNumber] = useState(() => Math.floor(Math.random() * 900 + 100));
+  const [isCheckInOpen, setIsCheckInOpen] = useState(false);
+  const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
 
   const t = {
     title: language === 'ru' ? 'Бронирование номера' : 'Room Booking',
@@ -177,7 +182,6 @@ export function BookingFormPage() {
     applyPromo: language === 'ru' ? 'Применить' : 'Apply',
     totalCost: language === 'ru' ? 'Общая стоимость' : 'Total cost',
     withDiscount: language === 'ru' ? 'С учетом скидок' : 'With discounts',
-    back: language === 'ru' ? 'Назад' : 'Back',
     continue: language === 'ru' ? 'Продолжить' : 'Continue',
     confirmTitle: language === 'ru' ? 'Подтверждение бронирования' : 'Booking Confirmation',
     confirmDesc:
@@ -336,23 +340,8 @@ export function BookingFormPage() {
   const nights = calculateNights();
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container mx-auto px-4 max-w-5xl">
-        {/* Header */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-4 text-primary hover:text-primary/80"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            {t.back}
-          </Button>
-          <h1 className="text-3xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-            {t.title}
-          </h1>
-        </div>
-
+    <div className={onClose ? '' : 'min-h-screen bg-background py-8'}>
+      <div className={onClose ? '' : 'container mx-auto px-4 max-w-5xl'}>
         <div className="grid md:grid-cols-2 gap-8">
           {/* Section I: Booking Parameters */}
           <div className="space-y-6">
@@ -419,7 +408,7 @@ export function BookingFormPage() {
                     <Calendar className="h-4 w-4 text-primary" />
                     {t.checkIn}
                   </Label>
-                  <Popover>
+                  <Popover open={isCheckInOpen} onOpenChange={setIsCheckInOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -436,7 +425,10 @@ export function BookingFormPage() {
                       <CalendarComponent
                         mode="single"
                         selected={checkInDate}
-                        onSelect={setCheckInDate}
+                        onSelect={(date) => {
+                          setCheckInDate(date);
+                          setIsCheckInOpen(false);
+                        }}
                         disabled={(date) => date < new Date()}
                         locale={language === 'ru' ? ru : enUS}
                       />
@@ -450,7 +442,7 @@ export function BookingFormPage() {
                     <Calendar className="h-4 w-4 text-primary" />
                     {t.checkOut}
                   </Label>
-                  <Popover>
+                  <Popover open={isCheckOutOpen} onOpenChange={setIsCheckOutOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
@@ -467,7 +459,10 @@ export function BookingFormPage() {
                       <CalendarComponent
                         mode="single"
                         selected={checkOutDate}
-                        onSelect={setCheckOutDate}
+                        onSelect={(date) => {
+                          setCheckOutDate(date);
+                          setIsCheckOutOpen(false);
+                        }}
                         disabled={(date) => !checkInDate || date <= checkInDate}
                         locale={language === 'ru' ? ru : enUS}
                       />
@@ -519,7 +514,7 @@ export function BookingFormPage() {
                     type="time"
                     value={checkInTime}
                     onChange={(e) => setCheckInTime(e.target.value)}
-                    className="bg-input-background border-border"
+                    className="bg-input-background border-border [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
 
@@ -575,38 +570,39 @@ export function BookingFormPage() {
                         {t.cash}
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="card" id="card" />
-                      <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer">
-                        <CreditCard className="h-4 w-4 text-primary" />
-                        {t.card}
-                      </Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="card" id="card" />
+                        <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer">
+                          <CreditCard className="h-4 w-4 text-primary" />
+                          {t.card}
+                        </Label>
+                      </div>
+                      {/* Card Type - nested under card option */}
+                      {paymentMethod === 'card' && (
+                        <div className="ml-6 pl-4 border-l-2 border-border space-y-2">
+                          <RadioGroup
+                            value={cardType}
+                            onValueChange={(value: 'visa' | 'mastercard') => setCardType(value)}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="visa" id="visa" />
+                              <Label htmlFor="visa" className="cursor-pointer text-sm">
+                                Visa
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="mastercard" id="mastercard" />
+                              <Label htmlFor="mastercard" className="cursor-pointer text-sm">
+                                Mastercard
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                      )}
                     </div>
                   </RadioGroup>
                 </div>
-
-                {/* Card Type */}
-                {paymentMethod === 'card' && (
-                  <div className="space-y-3">
-                    <RadioGroup
-                      value={cardType}
-                      onValueChange={(value: 'visa' | 'mastercard') => setCardType(value)}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="visa" id="visa" />
-                        <Label htmlFor="visa" className="cursor-pointer">
-                          Visa
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="mastercard" id="mastercard" />
-                        <Label htmlFor="mastercard" className="cursor-pointer">
-                          Mastercard
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                )}
 
                 {/* Promo Code */}
                 <div className="space-y-3">

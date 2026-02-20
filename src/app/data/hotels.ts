@@ -127,6 +127,9 @@ interface Hotel {
     additionalServices: string[];
     inventory: string[];
   };
+  wrongOptions?: {
+    additionalServices: string[];
+  };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1312,6 +1315,9 @@ export const hotelData: Record<string, Hotel> = {
       mealTypes: ['no-meal', 'half-board'],
       additionalServices: ['Cater-transfer'],
       inventory: ['Judges Hummer'],
+    },
+    wrongOptions: {
+      additionalServices: ['sauna', 'excursion', 'diving'],
     },
   },
 };

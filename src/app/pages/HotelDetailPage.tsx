@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, {   useState } from 'react';
 import {   useParams, useNavigate } from 'react-router';
-import {  
+import {
   Star,
   MapPin,
   // Wifi,
@@ -22,6 +22,7 @@ import {
   MessageSquare,
   Search,
   TriangleAlert,
+  Calendar,
   // TV,
   // BriefcaseMedical,
   // Snowflake,
@@ -34,13 +35,12 @@ import { BookingFormPage } from './BookingFormPage';
 import useEmblaCarousel from 'embla-carousel-react';
 import {   ConciergeChat } from '../components/ConciergeChat';
 import {   useGame } from '../contexts/GameContext';
-import {  
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '../components/ui/tooltip';
-import { Drawer, DrawerContent } from '@/app/components/ui/drawer';
 
 interface Room {
   id: number;
@@ -79,26 +79,30 @@ export function HotelDetailPage() {
   }, [playerStatus.tempBookingForm, playerStatus.currentBooking]);
   
   const conditions = hotel.passingConditions;
+  const wrongOptions = hotel.wrongOptions;
   // Check both confirmed booking and temporary form data
   const currentBooking = playerStatus.currentBooking;
   const tempForm = playerStatus.tempBookingForm;
   // При открытой форме бронирования используем tempForm, иначе currentBooking
-  const activeRoomId = showBookingModal && tempForm?.roomType 
-    ? tempForm.roomType 
+  const activeRoomId = showBookingModal && tempForm?.roomType
+    ? tempForm.roomType
     : (currentBooking?.roomId || tempForm?.roomType || '');
-  const activeMealType = showBookingModal && tempForm?.mealType 
-    ? tempForm.mealType 
+  const activeMealType = showBookingModal && tempForm?.mealType
+    ? tempForm.mealType
     : (currentBooking?.mealType || tempForm?.mealType || '');
-  const activeServices = showBookingModal && tempForm?.selectedServices 
-    ? tempForm.selectedServices 
+  const activeServices = showBookingModal && tempForm?.selectedServices
+    ? tempForm.selectedServices
     : (currentBooking?.additionalServices || tempForm?.selectedServices || []);
 
   const hasRoom = !conditions || activeRoomId === conditions.roomId;
   const hasMeal = !conditions || conditions.mealTypes?.includes(activeMealType);
   const hasService = !conditions || conditions.additionalServices?.every(s => activeServices.includes(s));
   const hasInventory = conditions?.inventory?.every(i => playerStatus.inventory.includes(i));
-  const isSafeToBook = !conditions || (hasRoom && hasMeal && hasService && hasInventory);
-  console.log('DEBUG isSafeToBook:', { isSafeToBook, hasRoom, hasMeal, hasService, hasInventory, conditions, booking: playerStatus.currentBooking, tempForm, activeRoomId, activeMealType, activeServices, inventory: playerStatus.inventory });
+  
+  // Проверка на запрещенные опции (wrongOptions)
+  const hasWrongOptions = wrongOptions?.additionalServices?.some(s => activeServices.includes(s)) ?? false;
+  
+  const isSafeToBook = !conditions || (hasRoom && hasMeal && hasService && hasInventory && !hasWrongOptions);
 
   if (!hotel) {
     return (
@@ -588,7 +592,7 @@ export function HotelDetailPage() {
 
       {/* Feedback Modal */}
       {showFeedbackModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -625,7 +629,7 @@ export function HotelDetailPage() {
 
       {/* Lost & Found Modal */}
       {showLostFoundModal && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -676,13 +680,30 @@ export function HotelDetailPage() {
       {/* Concierge Chat */}
              {id && <ConciergeChat hotelId={id} />}
 
-      <Drawer open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DrawerContent className="max-w-4xl mx-auto h-[95vh]">
-          <div className="p-4 overflow-y-auto h-full">
-            <BookingFormPage />
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-lg max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-border flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <Calendar className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl text-foreground font-medium">
+                  {language === 'ru' ? 'Бронирование номера' : 'Room Booking'}
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowBookingModal(false)}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-6">
+              <BookingFormPage onClose={() => setShowBookingModal(false)} />
+            </div>
           </div>
-        </DrawerContent>
-      </Drawer>
+        </div>
+      )}
             </main>
           </TooltipProvider>
         );}
