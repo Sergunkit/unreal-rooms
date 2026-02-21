@@ -156,6 +156,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
   const [appliedPromo, setAppliedPromo] = useState('');
   const [discount, setDiscount] = useState(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [roomNumber] = useState(() => Math.floor(Math.random() * 900 + 100));
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
@@ -182,6 +183,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
     applyPromo: language === 'ru' ? 'Применить' : 'Apply',
     totalCost: language === 'ru' ? 'Общая стоимость' : 'Total cost',
     withDiscount: language === 'ru' ? 'С учетом скидок' : 'With discounts',
+    back: language === 'ru' ? 'Назад' : 'Back',
     continue: language === 'ru' ? 'Продолжить' : 'Continue',
     confirmTitle: language === 'ru' ? 'Подтверждение бронирования' : 'Booking Confirmation',
     confirmDesc:
@@ -332,8 +334,11 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
     }
 
     setShowConfirmDialog(false);
-    alert(t.bookingSuccess);
-    navigate('/bookings');
+    setShowSuccessModal(true);
+    setTimeout(() => {
+      setShowSuccessModal(false);
+      navigate('/bookings');
+    }, 3000);
   };
 
   const { total, discountAmount, finalTotal } = calculateTotal();
@@ -778,6 +783,37 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-lg max-w-md w-full p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl text-foreground font-medium mb-2">
+                  {language === 'ru' ? 'Бронирование подтверждено!' : 'Booking Confirmed!'}
+                </h3>
+                <p className="text-muted-foreground">
+                  {language === 'ru' ? hotel?.endBookingMassege : hotel?.endBookingMassegeEn}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

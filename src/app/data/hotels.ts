@@ -1,12 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import headImage7 from './images/Soldier/head-image.jpg';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import headImage2_7 from './images/Soldier/head-image2.jpg';
-// import galleryImageSoldier7 from './images/Soldier/gallery-image-soldier.jpg';
 import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
 import galleryImage1_7 from './images/Soldier/gallery-image1.jpeg';
 import galleryImage2_7 from './images/Soldier/gallery-image2.jpg';
-
 import lastStandSuite7 from './images/Soldier/Last-Stand-Suite.jpg';
 import deepSleepRoom7 from './images/Soldier/Deep-Sleep-Room.jpg';
 import anglerRestCabin7 from './images/Soldier/Anglers-Rest-Cabin.jpg';
@@ -128,7 +125,13 @@ interface Hotel {
     inventory: string[];
   };
   wrongOptions?: {
-    additionalServices: string[];
+    mealTypes?: string[];
+    additionalServices?: string[];
+    inventory?: string[];
+    roomId?: string;
+    checkInTime?: string;
+    paymentMethod?: string;
+    date?: string;
   };
 }
 
@@ -1295,7 +1298,7 @@ export const hotelData: Record<string, Hotel> = {
       {
         id: 2,
         author: 'Owen',
-        text: 'Прилив здесь — это не просто природное явление, а часть сервиса. Когда вода отрезает остров от мира, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
+        text: 'Прилив здесь — это не просто природное явление, а часть сервиса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
         textEn:
           'The tide here is not just a natural phenomenon but part of the service. When the water cuts off the island from the world, you finally realize that no one will come and disturb your relaxation. The cuisine is exquisite, especially the mackerel. Too bad guests quickly disperse to their rooms and never come out for dinner again. The hotel truly gives each person exactly what they deserve. See you in court... no, in the lobby.',
       },
@@ -1318,6 +1321,7 @@ export const hotelData: Record<string, Hotel> = {
     },
     wrongOptions: {
       additionalServices: ['sauna', 'excursion', 'diving'],
+      mealTypes: [],
     },
   },
 };

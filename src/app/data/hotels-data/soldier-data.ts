@@ -1,6 +1,26 @@
 /* eslint-disable prettier/prettier */
+import headImage2_7 from './images/Soldier/head-image2.jpg';
+import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
+import galleryImage1_7 from './images/Soldier/gallery-image1.jpeg';
+import galleryImage2_7 from './images/Soldier/gallery-image2.jpg';
+import lastStandSuite7 from './images/Soldier/Last-Stand-Suite.jpg';
+import deepSleepRoom7 from './images/Soldier/Deep-Sleep-Room.jpg';
+import anglerRestCabin7 from './images/Soldier/Anglers-Rest-Cabin.jpg';
+import hearthHomeLodge7 from './images/Soldier/Hearth-and-Home-Lodge.jpg';
+import goldenHourLounge7 from './images/Soldier/Golden-Hour-Lounge.jpg';
+import goldFishStudio7 from './images/Soldier/Gold-Fish-Studio.jpg';
+import beekeeperBalcony7 from './images/Soldier/Beekeepers-Balcony.jpg';
+import firstAidSuite7 from './images/Soldier/First-Aid-Suite.jpg';
+import highTideAttic7 from './images/Soldier/High-Tide-Attic.jpeg';
+import nightcapDeluxe7 from './images/Soldier/Nightcap-Deluxe.jpg';
+import verdictGrandSuite7 from './images/Soldier/Verdict-Grand-Suite.jpg';
+import headImage7 from './images/Soldier/head-image.jpg';
+import judgesHummer7 from './images/artefacts/Judges-Hummer.jpg';
+import bottleWithNote7 from './images/artefacts/Bottle-with-a-Note.jpg';
+
+
 export const soldierData = {
-    id: 1,
+    id: 7,
     name: 'Soldier Island Hotel',
     nameEn: 'Soldier Island Hotel',
     stars: 5,
@@ -13,19 +33,17 @@ export const soldierData = {
     descriptionEn:
       'A premium resort on a rocky island where luxury meets inevitability. The viewing platforms offer a view of the boundless ocean, and the Art Deco interiors immerse you in the atmosphere of the golden age. No one leaves us without fully enjoying all the pleasures our hotel can offer. During high tide, the island is completely cut off from the mainland — it’s the best reason to relax and take your time.',
     commonFeedback: '(Идеальная репутация. Жалоб от вернувшихся из отеля не поступало)',
-    commonFeedbackEn: '(Perfect reputation. No complaints from returning guests)',
+    commonFeedbackEn: '(Perfect reputation. No complaints from survivors)',
     location: 'Небольшой (полу)отсров в Девоне, Англия',
     locationEn: 'Small (semi)island in Devon, England',
-    image: 'src/app/data/images/Soldier/head-image.jpg',
-    images: [
-      'src/app/data/images/Soldier/head-image.jpg',
-      'src/app/data/images/Soldier/galery-image-soldier.jpg',
-      'src/app/data/images/Soldier/galery-image1.jpg',
-      'src/app/data/images/Soldier/galery-image2.jpg',
-    ],
-    hidenImages: [
-      'src/app/data/images/Soldier/head-image2.jpg',
-      'src/app/data/images/Soldier/galery-image-soldier2.jpg',
+    image: headImage7,
+    images: [headImage7, galleryImageSoldier2_7, galleryImage1_7, galleryImage2_7],
+    galleryActions: [
+      {
+        imageIndex: 0,
+        type: 'toggle',
+        alternateImage: headImage2_7,
+      },
     ],
     amenities: {
       dining: ['Лобби-бар', 'Уютный ресторан с панорамным видом', 'Обслуживание в номерах'],
@@ -48,14 +66,31 @@ export const soldierData = {
         'Hiking trails on cliffs',
         'Fishing with instructor (fishing rods provided)',
       ],
-      additional: ['Собственный каменистый пляж. Спуск в воду по лесенке.', 'Обзорная экскурсия по острову (включает посещение маяка)', 'Консультация дежурного доктора (мистер Армстронг всегда готов помочь)',  'Дайвинг центр.'],
-      additionalEn: ['Island tour (includes lighthouse visit)', 'On-call doctor consultation (Mr. Armstrong is always ready to help)', 'Diving center.'],
-      restrictions: ['Заселение и выселение проводятся строго в часы отлива. Отель не несет ответственности за действия гостей в условиях изоляции.', 'На территории отеля запрещены любые виды оружия, включая топоры и ножи. Исключение — разрешенные инструменты для рубки дров.', 'Курение разрешено только в специально отведенных местах на открытом воздухе.'],
-      restrictionsEn: ['Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.', 'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.', 'Smoking is only allowed in designated outdoor areas.'],
+      additional: [
+        'Собственный каменистый пляж. Спуск в воду по лесенке.',
+        'Обзорная экскурсия по острову (включает посещение маяка)',
+        'Консультация дежурного доктора (мистер Армстронг всегда готов помочь)',
+        'Дайвинг центр.',
+        'Винтажный грамофон с коллекцией редких записей для прослушивания в лобби.',
+      ],
+      additionalEn: [
+        'Island tour (includes lighthouse visit)',
+        'On-call doctor consultation (Mr. Armstrong is always ready to help)',
+        'Diving center.',
+        'Vintage gramophone with a collection of rare records for listening in the lobby.',
+      ],
+      restrictions: [
+        'Заселение и выселение проводятся строго в часы отлива. Отель не несет ответственности за действия гостей в условиях изоляции.',
+        'На территории отеля запрещены любые виды оружия, включая топоры и ножи. Исключение — разрешенные инструменты для рубки дров.',
+        'Курение разрешено только в специально отведенных местах на открытом воздухе.',
+      ],
+      restrictionsEn: [
+        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
+        'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
+        'Smoking is only allowed in designated outdoor areas.',
+      ],
       heart_tool_tip: 'Отель для бессердечно счастливых',
       heart_tool_tipEn: 'Hotel for heartlessly happy',
-      raiting_tool_tip: 'Идеальная репутация. Жалоб от выживших не поступало',
-      raiting_tool_tipEn: 'Perfect reputation. No complaints from survivors',
       additionalServices: [
         { id: 'sauna', name: 'Сауна с бассейном', nameEn: 'Sauna with pool', price: 25 },
         {
@@ -146,12 +181,25 @@ export const soldierData = {
         labelEn: 'Diet menu (as recommended by personal doctor)',
         price: 25,
       },
-      { value: 'half-board', label: 'Полупансион (без алкоголя)', labelEn: 'Half board (without alcohol)', price: 15 },
+      {
+        value: 'half-board',
+        label: 'Полупансион (без алкоголя)',
+        labelEn: 'Half board (without alcohol)',
+        price: 15,
+      },
       {
         value: 'all-inclusive',
         label: 'Все включено (включая элитный алкоголь).',
         labelEn: 'All inclusive (including premium alcohol).',
         price: 30,
+      },
+    ],
+    lostandfaund: [
+      {
+        id: 1,
+        name: 'Молоток судьи',
+        nameEn: 'Judges Hummer',
+        image: judgesHummer7,
       },
     ],
     rooms: [
@@ -183,7 +231,7 @@ export const soldierData = {
           'Living area',
           'Balcony with view',
         ],
-        image: 'src/app/data/images/Soldier/Last-Stand-Suite.jpeg',
+        image: lastStandSuite7,
       },
       {
         id: 2,
@@ -195,9 +243,9 @@ export const soldierData = {
         capacity: 2,
         beds: '1 двуспальная',
         bedsEn: '1 double',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Мини-бар', 'Сейф', 'Телевизор 35"'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Mini-bar', 'Safe', '35" TV'],
-        image: 'src/app/data/images/Soldier/Deep-Sleep-Room.jpg',
+        amenities: ['Wi-Fi', 'Кондиционер', 'Аптечка', 'Сейф', 'Телевизор 35"'],
+        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'First aid kit', 'Safe', '35" TV'],
+        image: deepSleepRoom7,
       },
       {
         id: 3,
@@ -211,7 +259,7 @@ export const soldierData = {
         bedsEn: '2 single beds',
         amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 25"'],
         amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '25" TV'],
-        image: 'src/app/data/images/Soldier/Angler’s-Rest-Cabin.jpg',
+        image: anglerRestCabin7,
       },
       {
         id: 4,
@@ -232,6 +280,7 @@ export const soldierData = {
           'Балкон с видом',
           'Гостиная зона',
           'Отдельная спальня',
+          'Камин',
         ],
         amenitiesEn: [
           'Wi-Fi',
@@ -242,8 +291,9 @@ export const soldierData = {
           'Balcony with view',
           'Living area',
           'Separate bedroom',
+          'Fireplace',
         ],
-        image: 'src/app/data/images/Soldier/Hearth&Home-Lodge.jpg',
+        image: hearthHomeLodge7,
       },
       {
         id: 5,
@@ -273,7 +323,7 @@ export const soldierData = {
           'Balcony with view',
           'Living area',
         ],
-        image: 'src/app/data/images/Soldier/Golden-Hour-Lounge.jpg',
+        image: goldenHourLounge7,
       },
       {
         id: 6,
@@ -287,7 +337,7 @@ export const soldierData = {
         bedsEn: '1 double + 1 single bed',
         amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 45"', 'Гостиная зона'],
         amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '45" TV', 'Living area'],
-        image: 'src/app/data/images/Soldier/Gold-Fish-Studio.jpg',
+        image: goldFishStudio7,
       },
       {
         id: 7,
@@ -299,9 +349,9 @@ export const soldierData = {
         capacity: 2,
         beds: '2 односпальные кровати',
         bedsEn: '2 single beds',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 35"'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '35" TV'],
-        image: 'src/app/data/images/Soldier/Beekeeper’s-Balcony.jpg',
+        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 35"', 'Аптечка'],
+        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '35" TV', 'First aid kit'],
+        image: beekeeperBalcony7,
       },
       {
         id: 8,
@@ -313,9 +363,16 @@ export const soldierData = {
         capacity: 2,
         beds: '2 односпальные кровати',
         bedsEn: '2 single beds',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 45"', 'Балкон с видом'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '45" TV', 'Balcony with view'],
-        image: 'src/app/data/images/Soldier/First-Aid-Suite.jpg',
+        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 45"', 'Балкон с видом', 'Аптечка'],
+        amenitiesEn: [
+          'Wi-Fi',
+          'Air conditioning',
+          'Safe',
+          '45" TV',
+          'Balcony with view',
+          'First aid kit',
+        ],
+        image: firstAidSuite7,
       },
       {
         id: 9,
@@ -329,7 +386,7 @@ export const soldierData = {
         bedsEn: '1 double bed',
         amenities: ['Wi-Fi', 'Кондиционер', 'Мини-бар премиум', 'Сейф', 'Телевизор 25"'],
         amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Premium mini-bar', 'Safe', '25" TV'],
-        image: 'src/app/data/images/Soldier/High-Tide-Attic.jpeg',
+        image: highTideAttic7,
       },
       {
         id: 10,
@@ -361,7 +418,7 @@ export const soldierData = {
           'Living area',
           'Separate bedroom',
         ],
-        image: 'src/app/data/images/Soldier/Nightcap-Deluxe.jpg',
+        image: nightcapDeluxe7,
       },
       {
         id: 11,
@@ -375,11 +432,14 @@ export const soldierData = {
         bedsEn: '1 double bed',
         amenities: ['Wi-Fi', 'Кондиционер', 'Мини-бар', 'Сейф', 'Телевизор 35"', 'Гостиная зона'],
         amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Mini-bar', 'Safe', '35" TV', 'Living area'],
-        image: 'src/app/data/images/Soldier/Verdict-Grand-Suite.jpg',
+        image: verdictGrandSuite7,
       },
     ],
-    lostandfaund: [{id: 1, name: 'Молоток судьи', nameEn: 'Judges Hummer',  image: 'src/app/data/images/artefacts/Judges-Hummer.jpg'},],
-    prize: {id: 2, name: 'Бутылка с запиской',  nameEn: 'Bottle with a Note', image: 'src/app/data/images/artefacts/Bottle-with-a-Note.jpg'},
+    prize: {
+      name: 'Бутылка с запиской',
+      nameEn: 'Bottle with a Note',
+      image: bottleWithNote7,
+    },
     chatMassages: [
       'Десять негритят отправились обедать, Один поперхнулся, их осталось девять.',
       'Девять негритят, поев, клевали носом, Один проглотил себя, их осталось восемь.',
@@ -388,9 +448,10 @@ export const soldierData = {
       'Шесть негритят пошли на пасеку гулять, Одного ужалил шмель, их осталось пять.',
       'Пять негритят судейство учинили, Засудили одного, их осталось четыре.',
       'Четыре негритёнка пошли купаться в море, Один попался на приманку, их осталось трое.',
-      'Три негритёнка в зоопарке гуляли, Одного загрыз медведь, их осталось двое.',
+      'Три негритёнка в зоопарке гуляли',
+      'Одного загрыз медведь, их осталось двое.',
       'Два негритёнка легли на солнцепёке, Один сгорел дотла, и вот один, несчастный.',
-      'Последний негритёнок поглядел устало, Он пошёл повесился, и никого не стало.'
+      'Последний негритёнок поглядел устало, Он пошёл повесился, и никого не стало.',
     ],
     chatMassegesEn: [
       'Ten little soldiers went out to dine, One choked himself and then there were nine.',
@@ -402,33 +463,43 @@ export const soldierData = {
       'Four little soldiers going out to sea, A red herring swallowed one and then there were three.',
       'Three little soldiers walking in the zoo, A big bear hugged one and then there were two.',
       'Two little soldiers sitting in the sun, One got frizzled up and then there was one.',
-      'One little soldier left all alone, He went and hanged himself and then there were none.'
+      'One little soldier left all alone, He went and hanged himself and then there were none.',
     ],
     feedBacks: [
       {
-        name: 'Justice_W',
-        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел, но к утру всё утихло. Рекомендую тем, кто хочет закрыть все старые счета. 5 звезд из 5... или 10 из 10?',
-        textEn: 'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
+        id: 1,
+        author: 'Justice_W',
+        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел',
+        textEn:
+          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
       },
       {
-        name: 'Owen',
-        text: 'Прилив здесь — это не просто природное явление, а часть сервиса. Когда вода отрезает остров от мира, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
-        textEn: 'The tide here is not just a natural phenomenon but part of the service. When the water cuts off the island from the world, you finally realize that no one will come and disturb your relaxation. The cuisine is exquisite, especially the mackerel. Too bad guests quickly disperse to their rooms and never come out for dinner again. The hotel truly gives each person exactly what they deserve. See you in court... no, in the lobby.'
+        id: 2,
+        author: 'Owen',
+        text: 'Прилив здесь — это не просто природное явление, а часть сервиса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
+        textEn:
+          'The tide here is not just a natural phenomenon but part of the service. When the water cuts off the island from the world, you finally realize that no one will come and disturb your relaxation. The cuisine is exquisite, especially the mackerel. Too bad guests quickly disperse to their rooms and never come out for dinner again. The hotel truly gives each person exactly what they deserve. See you in court... no, in the lobby.',
       },
       {
-        name: 'Vera_C',
+        id: 3,
+        author: 'Vera_C',
         text: 'Вид из мансарды ("High Tide" Attic) открывается головокружительный. Настолько, что хочется просто сделать шаг вперед и ни о чем не думать. Крюк в потолке очень прочный, проверено. Сервис незаметный — за всё время пребывания я не видела ни одного живого человека, только голос из граммофона. Идеально для тех, кто хочет остаться наедине с собой навсегда',
-        textEn: 'The view from the attic ("High Tide" Attic) is breathtaking. So much so that you just want to take a step forward and not think about anything. The hook in the ceiling is very sturdy, tested. The service is unobtrusive — during my entire stay I didn’t see a single living person, only a voice from the gramophone. Perfect for those who want to be alone with themselves forever.',
+        textEn:
+          'The view from the attic ("High Tide" Attic) is breathtaking. So much so that you just want to take a step forward and not think about anything. The hook in the ceiling is very sturdy, tested. The service is unobtrusive — during my entire stay I didn’t see a single living person, only a voice from the gramophone. Perfect for those who want to be alone with themselves forever.',
       },
     ],
     noise: '',
     endBookingMassege: 'Приговор утвержден. Все комнаты заняты',
     endBookingMassegeEn: 'The verdict is in. All rooms are occupied',
     passingConditions: {
-      roomId: 11,
+      roomId: 'verdict',
       mealTypes: ['no-meal', 'half-board'],
       additionalServices: ['Cater-transfer'],
       inventory: ['Judges Hummer'],
+    },
+    wrongOptions: {
+      additionalServices: ['sauna', 'excursion', 'diving'],
+      mealTypes: [],
+    },
+  }
 
-    }
-};
