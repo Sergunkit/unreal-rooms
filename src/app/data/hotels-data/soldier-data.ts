@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import headImage2_7 from './images/Soldier/head-image2.jpg';
 import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
+import galleryImageSoldier_7 from './images/Soldier/gallery-image-soldier.jpg';
 import galleryImage1_7 from './images/Soldier/gallery-image1.jpeg';
 import galleryImage2_7 from './images/Soldier/gallery-image2.jpg';
 import lastStandSuite7 from './images/Soldier/Last-Stand-Suite.jpg';
@@ -38,11 +39,19 @@ export const soldierData = {
     locationEn: 'Small (semi)island in Devon, England',
     image: headImage7,
     images: [headImage7, galleryImageSoldier2_7, galleryImage1_7, galleryImage2_7],
-    galleryActions: [
+     galleryActions: [
       {
         imageIndex: 0,
         type: 'toggle',
         alternateImage: headImage2_7,
+      },
+      {
+        imageIndex: 1,
+        type: 'figurines',
+        alternateImage: galleryImageSoldier_7,
+        coords: { x1: 35, y1: 60, x2: 65, y2: 76 },
+        message: 'Сердце тебе поможет сделать правильный выбор.',
+        messageEn: 'The heart will help you make the right choice.',
       },
     ],
     amenities: {

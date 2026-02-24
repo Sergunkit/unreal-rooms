@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import React, {   useState } from 'react';
-import {   useParams, useNavigate } from 'react-router';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router';
 import {
   Star,
   MapPin,
@@ -29,12 +29,12 @@ import {
   // ConciergeBell,
 } from 'lucide-react';
 
-import {   useLanguage } from '../contexts/LanguageContext';
-import {   hotelData } from '../data/hotels';
+import { useLanguage } from '../contexts/LanguageContext';
+import { hotelData } from '../data/hotels';
 import { BookingFormPage } from './BookingFormPage';
 import useEmblaCarousel from 'embla-carousel-react';
-import {   ConciergeChat } from '../components/ConciergeChat';
-import {   useGame } from '../contexts/GameContext';
+import { ConciergeChat } from '../components/ConciergeChat';
+import { useGame } from '../contexts/GameContext';
 import {
   Tooltip,
   TooltipContent,
@@ -68,6 +68,8 @@ export function HotelDetailPage() {
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [isHeadImageClicked, setIsHeadImageClicked] = useState(false);
+  const [galleryImageStates, setGalleryImageStates] = useState<Record<number, boolean>>({});
+  const [showGalleryMessage, setShowGalleryMessage] = useState<{ show: boolean; text: string }>({ show: false, text: '' });
 
   const hotel = hotelData[id as keyof typeof hotelData];
   const { playerStatus, addArtefact, hasArtefact, addToInventory } = useGame();
@@ -170,17 +172,55 @@ export function HotelDetailPage() {
               <div className="flex">
                 {hotel.images.map((image, index) => {
                   const galleryAction = hotel.galleryActions?.find(action => action.imageIndex === index);
-                  const isToggled = galleryAction && index === 0 && isHeadImageClicked;
-                  
+                  const isToggled = galleryAction?.type === 'toggle' && index === 0 && isHeadImageClicked;
+                  const isFigurinesToggled = galleryAction?.type === 'figurines' && (galleryImageStates[index] ?? false);
+
                   return (
                     <div key={index} className="flex-[0_0_100%] min-w-0">
-                      {galleryAction ? (
+                      {galleryAction?.type === 'toggle' ? (
                         <img
                           src={isToggled ? galleryAction.alternateImage : image}
                           alt={`${hotel.name} ${index + 1}`}
                           className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
-                          onClick={() => galleryAction.type === 'toggle' && setIsHeadImageClicked(!isHeadImageClicked)}
+                          onClick={() => setIsHeadImageClicked(!isHeadImageClicked)}
                         />
+                      ) : galleryAction?.type === 'figurines' ? (
+                        <div
+                          className="relative"
+                          onClick={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const x = ((e.clientX - rect.left) / rect.width) * 100;
+                            const y = ((e.clientY - rect.top) / rect.height) * 100;
+                            
+                            if (
+                              galleryAction.coords &&
+                              x >= galleryAction.coords.x1 &&
+                              x <= galleryAction.coords.x2 &&
+                              y >= galleryAction.coords.y1 &&
+                              y <= galleryAction.coords.y2
+                            ) {
+                              setGalleryImageStates(prev => ({ ...prev, [index]: !prev[index] }));
+                              setShowGalleryMessage({
+                                show: true,
+                                text: language === 'ru' ? galleryAction.message! : galleryAction.messageEn!,
+                              });
+                              setTimeout(() => setShowGalleryMessage({ show: false, text: '' }), 3000);
+                            }
+                          }}
+                        >
+                          <img
+                            src={isFigurinesToggled && galleryAction.alternateImage ? galleryAction.alternateImage : image}
+                            alt={`${hotel.name} ${index + 1}`}
+                            className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
+                          />
+                          {showGalleryMessage.show && (
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-card border border-border rounded-lg px-4 py-2 shadow-lg z-10">
+                              <p className="text-sm text-foreground">
+                                {showGalleryMessage.text}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <img
                           src={image}
@@ -699,7 +739,10 @@ export function HotelDetailPage() {
               </button>
             </div>
             <div className="overflow-y-auto flex-1 p-6">
-              <BookingFormPage onClose={() => setShowBookingModal(false)} />
+              <BookingFormPage
+                onClose={() => setShowBookingModal(false)}
+                isSafeToBook={isSafeToBook}
+              />
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 import headImage7 from './images/Soldier/head-image.jpg';
 import headImage2_7 from './images/Soldier/head-image2.jpg';
 import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
+import galleryImageSoldier_7 from './images/Soldier/gallery-image-soldier.jpg';
 import galleryImage1_7 from './images/Soldier/gallery-image1.jpeg';
 import galleryImage2_7 from './images/Soldier/gallery-image2.jpg';
 import lastStandSuite7 from './images/Soldier/Last-Stand-Suite.jpg';
@@ -82,8 +83,11 @@ interface Room {
 
 interface GalleryImageAction {
   imageIndex: number;
-  type: 'toggle';
-  alternateImage: string;
+  type: 'toggle' | 'figurines';
+  alternateImage?: string;
+  coords?: { x1: number; y1: number; x2: number; y2: number };
+  message?: string;
+  messageEn?: string;
 }
 
 interface Hotel {
@@ -118,6 +122,8 @@ interface Hotel {
   noise?: string;
   endBookingMassege?: string;
   endBookingMassegeEn?: string;
+  endWrongBookingMassege?: string;
+  endWrongBookingMassegeEn?: string;
   passingConditions?: {
     roomId: string;
     mealTypes: string[];
@@ -866,6 +872,14 @@ export const hotelData: Record<string, Hotel> = {
         type: 'toggle',
         alternateImage: headImage2_7,
       },
+      {
+        imageIndex: 1,
+        type: 'figurines',
+        alternateImage: galleryImageSoldier_7,
+        coords: { x1: 35, y1: 60, x2: 65, y2: 76 },
+        message: 'Сердце тебе поможет сделать правильный выбор.',
+        messageEn: 'The heart will help you make the right choice.',
+      },
     ],
     amenities: {
       dining: ['Лобби-бар', 'Уютный ресторан с панорамным видом', 'Обслуживание в номерах'],
@@ -1014,14 +1028,6 @@ export const hotelData: Record<string, Hotel> = {
         label: 'Все включено (включая элитный алкоголь).',
         labelEn: 'All inclusive (including premium alcohol).',
         price: 30,
-      },
-    ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
       },
     ],
     rooms: [
@@ -1257,6 +1263,14 @@ export const hotelData: Record<string, Hotel> = {
         image: verdictGrandSuite7,
       },
     ],
+    lostandfaund: [
+      {
+        id: 1,
+        name: 'Молоток судьи',
+        nameEn: 'Judges Hummer',
+        image: judgesHummer7,
+      },
+    ],
     prize: {
       name: 'Бутылка с запиской',
       nameEn: 'Bottle with a Note',
@@ -1298,7 +1312,7 @@ export const hotelData: Record<string, Hotel> = {
       {
         id: 2,
         author: 'Owen',
-        text: 'Прилив здесь — это не просто природное явление, а часть сервиса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
+        text: 'Прилив здесь — это не просто природное явление, а часть се��виса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
         textEn:
           'The tide here is not just a natural phenomenon but part of the service. When the water cuts off the island from the world, you finally realize that no one will come and disturb your relaxation. The cuisine is exquisite, especially the mackerel. Too bad guests quickly disperse to their rooms and never come out for dinner again. The hotel truly gives each person exactly what they deserve. See you in court... no, in the lobby.',
       },
