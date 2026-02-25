@@ -70,6 +70,8 @@ export function HotelDetailPage() {
   const [isHeadImageClicked, setIsHeadImageClicked] = useState(false);
   const [galleryImageStates, setGalleryImageStates] = useState<Record<number, boolean>>({});
   const [showGalleryMessage, setShowGalleryMessage] = useState<{ show: boolean; text: string }>({ show: false, text: '' });
+  const [showArtifactModal, setShowArtifactModal] = useState(false);
+  const [foundArtifact, setFoundArtifact] = useState<{ id: number; name: string; nameEn: string; image: string } | null>(null);
 
   const hotel = hotelData[id as keyof typeof hotelData];
   const { playerStatus, addArtefact, hasArtefact, addToInventory } = useGame();
@@ -129,8 +131,6 @@ export function HotelDetailPage() {
 
   const feedbacks = hotel.feedBacks;
 
-  // Mock lost & found items
-  //
   const lostFoundItems = hotel.lostandfaund;
   
   const handleCollectArtefact = (item: { id: number; name: string; nameEn: string; image: string }) => {
@@ -173,7 +173,8 @@ export function HotelDetailPage() {
                 {hotel.images.map((image, index) => {
                   const galleryAction = hotel.galleryActions?.find(action => action.imageIndex === index);
                   const isToggled = galleryAction?.type === 'toggle' && index === 0 && isHeadImageClicked;
-                  const isFigurinesToggled = galleryAction?.type === 'figurines' && (galleryImageStates[index] ?? false);
+                  const isFigurinesToggled = galleryAction?.type === 'hint' && (galleryImageStates[index] ?? false);
+                  const isArtifactToggled = galleryAction?.type === 'artifact-find' && (galleryImageStates[index] ?? false);
 
                   return (
                     <div key={index} className="flex-[0_0_100%] min-w-0">
@@ -184,7 +185,7 @@ export function HotelDetailPage() {
                           className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
                           onClick={() => setIsHeadImageClicked(!isHeadImageClicked)}
                         />
-                      ) : galleryAction?.type === 'figurines' ? (
+                      ) : galleryAction?.type === 'hint' ? (
                         <div
                           className="relative"
                           onClick={(e) => {
@@ -220,6 +221,41 @@ export function HotelDetailPage() {
                               </p>
                             </div>
                           )}
+                        </div>
+                      ) : galleryAction?.type === 'artifact-find' ? (
+                        <div
+                          className="relative"
+                          onClick={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const x = ((e.clientX - rect.left) / rect.width) * 100;
+                            const y = ((e.clientY - rect.top) / rect.height) * 100;
+                            
+                            if (
+                              galleryAction.coords &&
+                              x >= galleryAction.coords.x1 &&
+                              x <= galleryAction.coords.x2 &&
+                              y >= galleryAction.coords.y1 &&
+                              y <= galleryAction.coords.y2
+                            ) {
+                              setGalleryImageStates(prev => ({ ...prev, [index]: !prev[index] }));
+                              // Show artifact modal
+                              if (galleryAction.artefact) {
+                                setFoundArtifact({
+                                  id: galleryAction.artefact.id,
+                                  name: galleryAction.artefact.name,
+                                  nameEn: galleryAction.artefact.nameEn,
+                                  image: galleryAction.artefact.image,
+                                });
+                                setShowArtifactModal(true);
+                              }
+                            }
+                          }}
+                        >
+                          <img
+                            src={isArtifactToggled && galleryAction.alternateImage ? galleryAction.alternateImage : image}
+                            alt={`${hotel.name} ${index + 1}`}
+                            className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
+                          />
                         </div>
                       ) : (
                         <img
@@ -716,6 +752,50 @@ export function HotelDetailPage() {
         </div>
       )}
 
+      {/* Artifact Found Modal */}
+      {showArtifactModal && foundArtifact && (
+        <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-lg max-w-md w-full max-h-[95vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Sparkle className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl text-foreground font-medium">
+                  {language === 'ru' ? 'Артефакт найден!' : 'Artifact Found!'}
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowArtifactModal(false)}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-6 flex flex-col items-center">
+              <img 
+                src={foundArtifact.image} 
+                alt={foundArtifact.name} 
+                className="w-full h-48 object-contain mb-4 rounded-lg" 
+              />
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                {language === 'ru' ? foundArtifact.name : foundArtifact.nameEn}
+              </h3>
+              <p className="text-sm text-muted-foreground text-center mb-6">
+                {language === 'ru' ? 'Вы нашли артефакт! Нажмите кнопку ниже, чтобы добавить его в чемодан.' : 'You found an artifact! Click the button below to add it to your suitcase.'}
+              </p>
+              <button
+                onClick={() => {
+                  handleCollectArtefact(foundArtifact);
+                  setShowArtifactModal(false);
+                }}
+                className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+              >
+                {language === 'ru' ? 'Забрать в чемодан' : 'Add to Suitcase'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
        
       {/* Concierge Chat */}
              {id && <ConciergeChat hotelId={id} />}
@@ -723,7 +803,7 @@ export function HotelDetailPage() {
       {/* Booking Modal */}
       {showBookingModal && (
         <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg max-w-4xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+          <div className="bg-card border border-border rounded-lg max-w-6xl w-full max-h-[85vh] overflow-hidden flex flex-col">
             <div className="p-6 border-b border-border flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-3">
                 <Calendar className="w-6 h-6 text-primary" />

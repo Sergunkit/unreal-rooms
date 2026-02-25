@@ -1,23 +1,23 @@
 /* eslint-disable prettier/prettier */
-import headImage2_7 from './images/Soldier/head-image2.jpg';
-import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
-import galleryImageSoldier_7 from './images/Soldier/gallery-image-soldier.jpg';
-import galleryImage1_7 from './images/Soldier/gallery-image1.jpeg';
-import galleryImage2_7 from './images/Soldier/gallery-image2.jpg';
-import lastStandSuite7 from './images/Soldier/Last-Stand-Suite.jpg';
-import deepSleepRoom7 from './images/Soldier/Deep-Sleep-Room.jpg';
-import anglerRestCabin7 from './images/Soldier/Anglers-Rest-Cabin.jpg';
-import hearthHomeLodge7 from './images/Soldier/Hearth-and-Home-Lodge.jpg';
-import goldenHourLounge7 from './images/Soldier/Golden-Hour-Lounge.jpg';
-import goldFishStudio7 from './images/Soldier/Gold-Fish-Studio.jpg';
-import beekeeperBalcony7 from './images/Soldier/Beekeepers-Balcony.jpg';
-import firstAidSuite7 from './images/Soldier/First-Aid-Suite.jpg';
-import highTideAttic7 from './images/Soldier/High-Tide-Attic.jpeg';
-import nightcapDeluxe7 from './images/Soldier/Nightcap-Deluxe.jpg';
-import verdictGrandSuite7 from './images/Soldier/Verdict-Grand-Suite.jpg';
-import headImage7 from './images/Soldier/head-image.jpg';
-import judgesHummer7 from './images/artefacts/Judges-Hummer.jpg';
-import bottleWithNote7 from './images/artefacts/Bottle-with-a-Note.jpg';
+import headImage2_7 from '../images/Soldier/head-image2.jpg';
+import galleryImageSoldier2_7 from '../images/Soldier/gallery-image-soldier2.jpg';
+import galleryImageSoldier_7 from '../images/Soldier/gallery-image-soldier.jpg';
+import galleryImage1_7 from '../images/Soldier/gallery-image1.jpeg';
+import galleryImage2_7 from '../images/Soldier/gallery-image2.jpg';
+import lastStandSuite7 from '../images/Soldier/Last-Stand-Suite.jpg';
+import deepSleepRoom7 from '../images/Soldier/Deep-Sleep-Room.jpg';
+import anglerRestCabin7 from '../images/Soldier/Anglers-Rest-Cabin.jpg';
+import hearthHomeLodge7 from '../images/Soldier/Hearth-and-Home-Lodge.jpg';
+import goldenHourLounge7 from '../images/Soldier/Golden-Hour-Lounge.jpg';
+import goldFishStudio7 from '../images/Soldier/Gold-Fish-Studio.jpg';
+import beekeeperBalcony7 from '../images/Soldier/Beekeepers-Balcony.jpg';
+import firstAidSuite7 from '../images/Soldier/First-Aid-Suite.jpg';
+import highTideAttic7 from '../images/Soldier/High-Tide-Attic.jpeg';
+import nightcapDeluxe7 from '../images/Soldier/Nightcap-Deluxe.jpg';
+import verdictGrandSuite7 from '../images/Soldier/Verdict-Grand-Suite.jpg';
+import headImage7 from '../images/Soldier/head-image.jpg';
+import judgesHummer7 from '../images/artefacts/Judges-Hummer.jpg';
+import bottleWithNote7 from '../images/artefacts/Bottle-with-a-Note.jpg';
 
 
 export const soldierData = {
@@ -39,15 +39,15 @@ export const soldierData = {
     locationEn: 'Small (semi)island in Devon, England',
     image: headImage7,
     images: [headImage7, galleryImageSoldier2_7, galleryImage1_7, galleryImage2_7],
-     galleryActions: [
+    galleryActions: [
       {
         imageIndex: 0,
-        type: 'toggle',
+        type: 'toggle' as const,
         alternateImage: headImage2_7,
       },
       {
         imageIndex: 1,
-        type: 'figurines',
+        type: 'hint' as const,
         alternateImage: galleryImageSoldier_7,
         coords: { x1: 35, y1: 60, x2: 65, y2: 76 },
         message: 'Сердце тебе поможет сделать правильный выбор.',
@@ -201,14 +201,6 @@ export const soldierData = {
         label: 'Все включено (включая элитный алкоголь).',
         labelEn: 'All inclusive (including premium alcohol).',
         price: 30,
-      },
-    ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
       },
     ],
     rooms: [
@@ -444,6 +436,14 @@ export const soldierData = {
         image: verdictGrandSuite7,
       },
     ],
+    lostandfaund: [
+      {
+        id: 1,
+        name: 'Молоток судьи',
+        nameEn: 'Judges Hummer',
+        image: judgesHummer7,
+      },
+    ],
     prize: {
       name: 'Бутылка с запиской',
       nameEn: 'Bottle with a Note',
@@ -485,7 +485,7 @@ export const soldierData = {
       {
         id: 2,
         author: 'Owen',
-        text: 'Прилив здесь — это не просто природное явление, а часть сервиса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
+        text: 'Прилив здесь — это не просто природное явление, а часть се��виса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
         textEn:
           'The tide here is not just a natural phenomenon but part of the service. When the water cuts off the island from the world, you finally realize that no one will come and disturb your relaxation. The cuisine is exquisite, especially the mackerel. Too bad guests quickly disperse to their rooms and never come out for dinner again. The hotel truly gives each person exactly what they deserve. See you in court... no, in the lobby.',
       },
@@ -507,8 +507,7 @@ export const soldierData = {
       inventory: ['Judges Hummer'],
     },
     wrongOptions: {
-      additionalServices: ['sauna', 'excursion', 'diving'],
+      additionalServices: ['sauna', 'excursion', 'diving', 'fishing', 'breakfast-in-room'],
       mealTypes: [],
     },
-  }
-
+  };

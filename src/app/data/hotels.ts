@@ -1,150 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import headImage7 from './images/Soldier/head-image.jpg';
-import headImage2_7 from './images/Soldier/head-image2.jpg';
-import galleryImageSoldier2_7 from './images/Soldier/gallery-image-soldier2.jpg';
-import galleryImageSoldier_7 from './images/Soldier/gallery-image-soldier.jpg';
-import galleryImage1_7 from './images/Soldier/gallery-image1.jpeg';
-import galleryImage2_7 from './images/Soldier/gallery-image2.jpg';
-import lastStandSuite7 from './images/Soldier/Last-Stand-Suite.jpg';
-import deepSleepRoom7 from './images/Soldier/Deep-Sleep-Room.jpg';
-import anglerRestCabin7 from './images/Soldier/Anglers-Rest-Cabin.jpg';
-import hearthHomeLodge7 from './images/Soldier/Hearth-and-Home-Lodge.jpg';
-import goldenHourLounge7 from './images/Soldier/Golden-Hour-Lounge.jpg';
-import goldFishStudio7 from './images/Soldier/Gold-Fish-Studio.jpg';
-import beekeeperBalcony7 from './images/Soldier/Beekeepers-Balcony.jpg';
-import firstAidSuite7 from './images/Soldier/First-Aid-Suite.jpg';
-import highTideAttic7 from './images/Soldier/High-Tide-Attic.jpeg';
-import nightcapDeluxe7 from './images/Soldier/Nightcap-Deluxe.jpg';
-import verdictGrandSuite7 from './images/Soldier/Verdict-Grand-Suite.jpg';
+import { Hotel } from './hotels-data/hotelTypes';
+import { soldierData } from './hotels-data/soldier-data';
+import { lastPeakData } from './hotels-data/last-peak-data';
 
-import judgesHummer7 from './images/artefacts/Judges-Hummer.jpg';
-import bottleWithNote7 from './images/artefacts/Bottle-with-a-Note.jpg';
+// Type assertions for game hotels with complex gallery actions
+const soldierHotel = soldierData as unknown as Hotel;
+const lastPeakHotel = lastPeakData as unknown as Hotel;
 
-interface Amenities {
-  dining: string[];
-  diningEn: string[];
-  pools: string[];
-  poolsEn: string[];
-  transport: string[];
-  transportEn: string[];
-  sports: string[];
-  sportsEn: string[];
-  additional: string[];
-  additionalEn: string[];
-  restrictions: string[];
-  restrictionsEn: string[];
-  heart_tool_tip?: string; // Add this property
-  heart_tool_tipEn?: string; // Add this property
-  additionalServices?: { id: string; name: string; nameEn: string; price: number }[];
-}
-
-interface RoomType {
-  value: string;
-  label: string;
-  labelEn: string;
-  basePrice: number;
-}
-
-interface MealType {
-  value: string;
-  label: string;
-  labelEn: string;
-  price: number;
-}
-
-interface FeedBack {
-  id: number;
-  author: string;
-  text: string;
-  textEn: string;
-}
-
-interface LostAndFoundItem {
-  id: number;
-  name: string;
-  nameEn: string;
-  image: string;
-}
-
-interface Room {
-  id: number;
-  roomNumber: number | null;
-  name: string;
-  nameEn: string;
-  price: number;
-  size: number;
-  capacity: number;
-  beds: string;
-  bedsEn: string;
-  amenities: string[];
-  amenitiesEn: string[];
-  image: string;
-}
-
-interface GalleryImageAction {
-  imageIndex: number;
-  type: 'toggle' | 'figurines';
-  alternateImage?: string;
-  coords?: { x1: number; y1: number; x2: number; y2: number };
-  message?: string;
-  messageEn?: string;
-}
-
-interface Hotel {
-  id: number;
-  name: string;
-  nameEn: string;
-  stars: number;
-  rating: number;
-  price: number;
-  slogan: string;
-  sloganEn: string;
-  description: string;
-  descriptionEn: string;
-  location: string;
-  locationEn: string;
-  commonFeedback: string;
-  commonFeedbackEn: string;
-  image: string;
-  images: string[];
-  galleryActions?: GalleryImageAction[];
-  amenities: Amenities;
-  heart_tool_tip?: string;
-  heart_tool_tipEn?: string;
-  feedBacks: FeedBack[];
-  lostandfaund: LostAndFoundItem[];
-  rooms: Room[];
-  roomTypes?: RoomType[];
-  mealTypes?: MealType[];
-  prize?: { name: string; nameEn: string; image: string };
-  chatMassages?: string[];
-  chatMassegesEn?: string[];
-  noise?: string;
-  endBookingMassege?: string;
-  endBookingMassegeEn?: string;
-  endWrongBookingMassege?: string;
-  endWrongBookingMassegeEn?: string;
-  passingConditions?: {
-    roomId: string;
-    mealTypes: string[];
-    additionalServices: string[];
-    inventory: string[];
-  };
-  wrongOptions?: {
-    mealTypes?: string[];
-    additionalServices?: string[];
-    inventory?: string[];
-    roomId?: string;
-    checkInTime?: string;
-    paymentMethod?: string;
-    date?: string;
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// import { id } from 'date-fns/locale';
-
-export const hotelData: Record<string, Hotel> = {
+// Base hotel data for hotels 1-6 (using placeholder images)
+const baseHotels: Record<string, Hotel> = {
   '1': {
     id: 1,
     name: 'Мистический Особняк',
@@ -208,7 +71,7 @@ export const hotelData: Record<string, Hotel> = {
         'Курение разрешено только в специально отведенных местах на открытом воздухе.',
       ],
       restrictionsEn: [
-        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
+        "Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests' actions under isolation conditions.",
         'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
         'Smoking is only allowed in designated outdoor areas.',
       ],
@@ -224,14 +87,7 @@ export const hotelData: Record<string, Hotel> = {
           'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
       },
     ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
-      },
-    ],
+    lostandfaund: [],
     rooms: [
       {
         id: 1,
@@ -367,7 +223,7 @@ export const hotelData: Record<string, Hotel> = {
         'Курение разрешено только в специально отведенных местах на открытом воздухе.',
       ],
       restrictionsEn: [
-        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
+        "Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests' actions under isolation conditions.",
         'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
         'Smoking is only allowed in designated outdoor areas.',
       ],
@@ -378,19 +234,12 @@ export const hotelData: Record<string, Hotel> = {
       {
         id: 1,
         author: 'Justice_W',
-        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел, но к утру всё утихло. Рекомендую тем, кто хочет закрыть все старые счета. 5 звезд из 5... или 10 из 10?',
+        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали.',
         textEn:
-          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
+          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail.',
       },
     ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
-      },
-    ],
+    lostandfaund: [],
     rooms: [
       {
         id: 1,
@@ -405,38 +254,6 @@ export const hotelData: Record<string, Hotel> = {
         amenities: ['Wi-Fi', 'Камин', 'Антикварная мебель', 'Винный холодильник', 'Smart TV'],
         amenitiesEn: ['Wi-Fi', 'Fireplace', 'Antique furniture', 'Wine cooler', 'Smart TV'],
         image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80',
-      },
-      {
-        id: 2,
-        roomNumber: null,
-        name: 'Королевские апартаменты',
-        nameEn: 'Royal Suite',
-        price: 1200,
-        size: 80,
-        capacity: 4,
-        beds: '1 двуспальная King + зона отдыха',
-        bedsEn: '1 king-size + lounge area',
-        amenities: [
-          'Wi-Fi',
-          'Камин',
-          'Антикварная мебель',
-          'Винный погреб',
-          'Smart TV 85"',
-          'Библиотека',
-          'Терраса',
-          'Личный дворецкий',
-        ],
-        amenitiesEn: [
-          'Wi-Fi',
-          'Fireplace',
-          'Antique furniture',
-          'Wine cellar',
-          'Smart TV 85"',
-          'Library',
-          'Terrace',
-          'Personal butler',
-        ],
-        image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&q=80',
       },
     ],
   },
@@ -490,7 +307,7 @@ export const hotelData: Record<string, Hotel> = {
         'Курение разрешено только в специально отведенных местах на открытом воздухе.',
       ],
       restrictionsEn: [
-        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
+        "Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests' actions under isolation conditions.",
         'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
         'Smoking is only allowed in designated outdoor areas.',
       ],
@@ -501,19 +318,11 @@ export const hotelData: Record<string, Hotel> = {
       {
         id: 1,
         author: 'Justice_W',
-        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел, но к утру всё утихло. Рекомендую тем, кто хочет закрыть все старые счета. 5 звезд из 5... или 10 из 10?',
-        textEn:
-          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
+        text: 'Отель просто выше всяких похвал!',
+        textEn: 'The hotel is simply beyond praise!',
       },
     ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
-      },
-    ],
+    lostandfaund: [],
     rooms: [
       {
         id: 1,
@@ -540,36 +349,6 @@ export const hotelData: Record<string, Hotel> = {
           'Smart TV',
         ],
         image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=800&q=80',
-      },
-      {
-        id: 2,
-        roomNumber: null,
-        name: 'Дизайнерский лофт',
-        nameEn: 'Designer Loft',
-        price: 550,
-        size: 55,
-        capacity: 3,
-        beds: '1 двуспальная + диван-кровать',
-        bedsEn: '1 double + sofa bed',
-        amenities: [
-          'Wi-Fi',
-          'Смарт-дом',
-          'Hi-Fi система',
-          'Эспрессо-машина',
-          'Умная TV 75"',
-          'Терраса',
-          'Винная витрина',
-        ],
-        amenitiesEn: [
-          'Wi-Fi',
-          'Smart home',
-          'Hi-Fi system',
-          'Espresso machine',
-          'Smart TV 75"',
-          'Terrace',
-          'Wine showcase',
-        ],
-        image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800&q=80',
       },
     ],
   },
@@ -623,7 +402,7 @@ export const hotelData: Record<string, Hotel> = {
         'Курение разрешено только в специально отведенных местах на открытом воздухе.',
       ],
       restrictionsEn: [
-        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
+        "Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests' actions under isolation conditions.",
         'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
         'Smoking is only allowed in designated outdoor areas.',
       ],
@@ -634,19 +413,11 @@ export const hotelData: Record<string, Hotel> = {
       {
         id: 1,
         author: 'Justice_W',
-        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел, но к утру всё утихло. Рекомендую тем, кто хочет закрыть все старые счета. 5 звезд из 5... или 10 из 10?',
-        textEn:
-          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
+        text: 'Отель просто выше всяких похвал!',
+        textEn: 'The hotel is simply beyond praise!',
       },
     ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
-      },
-    ],
+    lostandfaund: [],
     rooms: [
       {
         id: 1,
@@ -704,7 +475,7 @@ export const hotelData: Record<string, Hotel> = {
         'Курение разрешено только в специально отведенных местах на открытом воздухе.',
       ],
       restrictionsEn: [
-        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
+        "Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests' actions under isolation conditions.",
         'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
         'Smoking is only allowed in designated outdoor areas.',
       ],
@@ -715,19 +486,11 @@ export const hotelData: Record<string, Hotel> = {
       {
         id: 1,
         author: 'Justice_W',
-        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел',
-        textEn:
-          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
+        text: 'Отель просто выше всяких похвал!',
+        textEn: 'The hotel is simply beyond praise!',
       },
     ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
-      },
-    ],
+    lostandfaund: [],
     rooms: [
       {
         id: 1,
@@ -806,7 +569,7 @@ export const hotelData: Record<string, Hotel> = {
         'Курение разрешено только в специально отведенных местах на открытом воздухе.',
       ],
       restrictionsEn: [
-        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
+        "Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests' actions under isolation conditions.",
         'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
         'Smoking is only allowed in designated outdoor areas.',
       ],
@@ -817,19 +580,11 @@ export const hotelData: Record<string, Hotel> = {
       {
         id: 1,
         author: 'Justice_W',
-        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел',
-        textEn:
-          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
+        text: 'Отель просто выше всяких похвал!',
+        textEn: 'The hotel is simply beyond praise!',
       },
     ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
-      },
-    ],
+    lostandfaund: [],
     rooms: [
       {
         id: 1,
@@ -847,495 +602,11 @@ export const hotelData: Record<string, Hotel> = {
       },
     ],
   },
-  '7': {
-    id: 7,
-    name: 'Soldier Island Hotel',
-    nameEn: 'Soldier Island Hotel',
-    stars: 5,
-    rating: 9.5,
-    price: 250,
-    slogan: 'Здесь вас ждет сервис, который вы действительно заслуживаете',
-    sloganEn: 'Experience the service you truly deserve',
-    description:
-      'Премиальный курорт на скалистом острове, где роскошь встречается с неизбежностью. Со смотровых площадок открывается вид на безбрежный океан, а интерьеры в стиле Ар-деко погружают в атмосферу золотого века. Никто не покидает нас, не получив сполна всего удовольствия, которое способен дарить наш отель. Во время прилива остров оказывается полностью отрезанным от материка — это лучший повод расслабиться и никуда не торопиться.',
-    descriptionEn:
-      'A premium resort on a rocky island where luxury meets inevitability. The viewing platforms offer a view of the boundless ocean, and the Art Deco interiors immerse you in the atmosphere of the golden age. No one leaves us without fully enjoying all the pleasures our hotel can offer. During high tide, the island is completely cut off from the mainland — it’s the best reason to relax and take your time.',
-    commonFeedback: '(Идеальная репутация. Жалоб от вернувшихся из отеля не поступало)',
-    commonFeedbackEn: '(Perfect reputation. No complaints from survivors)',
-    location: 'Небольшой (полу)отсров в Девоне, Англия',
-    locationEn: 'Small (semi)island in Devon, England',
-    image: headImage7,
-    images: [headImage7, galleryImageSoldier2_7, galleryImage1_7, galleryImage2_7],
-    galleryActions: [
-      {
-        imageIndex: 0,
-        type: 'toggle',
-        alternateImage: headImage2_7,
-      },
-      {
-        imageIndex: 1,
-        type: 'figurines',
-        alternateImage: galleryImageSoldier_7,
-        coords: { x1: 35, y1: 60, x2: 65, y2: 76 },
-        message: 'Сердце тебе поможет сделать правильный выбор.',
-        messageEn: 'The heart will help you make the right choice.',
-      },
-    ],
-    amenities: {
-      dining: ['Лобби-бар', 'Уютный ресторан с панорамным видом', 'Обслуживание в номерах'],
-      diningEn: ['Lobby bar', 'Cozy restaurant with panoramic view', 'Room service'],
-      pools: ['Сауна с бассейном', 'Открытый бассейн на террасе'],
-      poolsEn: ['Sauna with pool', 'Outdoor terrace pool'],
-      transport: [
-        'Трансфер на катере от побережья Девона. Строгое расписание: рейсы зависят от лунного цикла и уровня воды.',
-      ],
-      transportEn: [
-        'Cater transfer from Devon coast. Strict schedule: flights depend on lunar cycle and water level.',
-      ],
-      sports: [
-        'Рубка дров для камина (требуется физическая сила)',
-        'Пешеходные тропы по скалам',
-        'Рыбалка с инструктором (удочки предоставляются)',
-      ],
-      sportsEn: [
-        'Wood cutting for fireplace (requires physical strength)',
-        'Hiking trails on cliffs',
-        'Fishing with instructor (fishing rods provided)',
-      ],
-      additional: [
-        'Собственный каменистый пляж. Спуск в воду по лесенке.',
-        'Обзорная экскурсия по острову (включает посещение маяка)',
-        'Консультация дежурного доктора (мистер Армстронг всегда готов помочь)',
-        'Дайвинг центр.',
-        'Винтажный грамофон с коллекцией редких записей для прослушивания в лобби.',
-      ],
-      additionalEn: [
-        'Island tour (includes lighthouse visit)',
-        'On-call doctor consultation (Mr. Armstrong is always ready to help)',
-        'Diving center.',
-        'Vintage gramophone with a collection of rare records for listening in the lobby.',
-      ],
-      restrictions: [
-        'Заселение и выселение проводятся строго в часы отлива. Отель не несет ответственности за действия гостей в условиях изоляции.',
-        'На территории отеля запрещены любые виды оружия, включая топоры и ножи. Исключение — разрешенные инструменты для рубки дров.',
-        'Курение разрешено только в специально отведенных местах на открытом воздухе.',
-      ],
-      restrictionsEn: [
-        'Check-in and check-out are strictly conducted during low tide hours. The hotel is not responsible for guests’ actions under isolation conditions.',
-        'All types of weapons, including axes and knives, are prohibited on hotel grounds. Exception — approved wood-cutting tools.',
-        'Smoking is only allowed in designated outdoor areas.',
-      ],
-      heart_tool_tip: 'Отель для бессердечно счастливых',
-      heart_tool_tipEn: 'Hotel for heartlessly happy',
-      additionalServices: [
-        { id: 'sauna', name: 'Сауна с бассейном', nameEn: 'Sauna with pool', price: 25 },
-        {
-          id: 'fishing',
-          name: 'Рыбалка с инструктором',
-          nameEn: 'Fishing with instructor',
-          price: 60,
-        },
-        { id: 'excursion', name: 'Экскурсия', nameEn: 'Excursion', price: 15 },
-        {
-          id: 'breakfast-in-room',
-          name: 'Завтрак в номер',
-          nameEn: 'Breakfast in room',
-          price: 25,
-        },
-        { id: 'diving', name: 'Дайвинг', nameEn: 'Diving', price: 2000 },
-        {
-          id: 'Cater-transfer',
-          name: 'Трансфер на катере',
-          nameEn: 'Cater transfer',
-          price: 10,
-        },
-      ],
-    },
-    roomTypes: [
-      {
-        value: 'last-stand',
-        label: 'Люкс "Последний рубеж"',
-        labelEn: '"The Last Stand" Suite',
-        basePrice: 800,
-      },
-      {
-        value: 'deep-sleep',
-        label: 'Комната "Глубокий сон"',
-        labelEn: '"Deep Sleep" Room',
-        basePrice: 250,
-      },
-      {
-        value: 'angler’s-rest',
-        label: 'Рыбаций причал',
-        labelEn: '"Angler’s Rest" Cabin',
-        basePrice: 350,
-      },
-      {
-        value: 'hearth-Home',
-        label: 'Лодж "Очаг и дом"',
-        labelEn: '"Hearth & Home" Lodge',
-        basePrice: 800,
-      },
-      {
-        value: 'golden-hour',
-        label: 'Аппартаменты "Золотой час"',
-        labelEn: '"The Golden Hour" Lounge',
-        basePrice: 650,
-      },
-      {
-        value: 'gold-fish',
-        label: 'Студия "Золотая рыбка"',
-        labelEn: '"Gold Fish" Studio',
-        basePrice: 500,
-      },
-      {
-        value: 'beekeeper',
-        label: 'Лоджия пчеловода',
-        labelEn: '"The Beekeeper’s" Balcony',
-        basePrice: 250,
-      },
-      { value: 'first-aid', label: 'Первая помощь', labelEn: '"First Aid" Suite', basePrice: 350 },
-      {
-        value: 'high-tide',
-        label: 'Мансарда "Прилив"',
-        labelEn: '"High Tide" Attic',
-        basePrice: 250,
-      },
-      { value: 'nightcap', label: 'Полная чаша', labelEn: '"Nightcap" Deluxe', basePrice: 500 },
-      {
-        value: 'verdict',
-        label: 'Гранд-люкс "Вердикт"',
-        labelEn: '"The Verdict" Grand Suite',
-        basePrice: 450,
-      },
-    ],
-    mealTypes: [
-      { value: 'no-meal', label: 'Без питания', labelEn: 'No meals', price: 0 },
-      {
-        value: 'diet-menu',
-        label: 'Диетическое меню (по рекомендации личного врача)',
-        labelEn: 'Diet menu (as recommended by personal doctor)',
-        price: 25,
-      },
-      {
-        value: 'half-board',
-        label: 'Полупансион (без алкоголя)',
-        labelEn: 'Half board (without alcohol)',
-        price: 15,
-      },
-      {
-        value: 'all-inclusive',
-        label: 'Все включено (включая элитный алкоголь).',
-        labelEn: 'All inclusive (including premium alcohol).',
-        price: 30,
-      },
-    ],
-    rooms: [
-      {
-        id: 1,
-        roomNumber: null,
-        name: 'Люкс "Последний рубеж"',
-        nameEn: '"The Last Stand" Suite',
-        price: 800,
-        size: 40,
-        capacity: 4,
-        beds: '1 двуспальная + 1 односпальная',
-        bedsEn: '1 double + 1 single bed',
-        amenities: [
-          'Wi-Fi',
-          'Кондиционер',
-          'Мини-бар',
-          'Сейф',
-          'Телевизор 55"',
-          'Гостиная зона',
-          'Балкон с видом',
-        ],
-        amenitiesEn: [
-          'Wi-Fi',
-          'Air conditioning',
-          'Mini-bar',
-          'Safe',
-          '55" TV',
-          'Living area',
-          'Balcony with view',
-        ],
-        image: lastStandSuite7,
-      },
-      {
-        id: 2,
-        roomNumber: null,
-        name: 'Комната "Глубокий сон"',
-        nameEn: '"Deep Sleep" Room',
-        price: 250,
-        size: 28,
-        capacity: 2,
-        beds: '1 двуспальная',
-        bedsEn: '1 double',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Аптечка', 'Сейф', 'Телевизор 35"'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'First aid kit', 'Safe', '35" TV'],
-        image: deepSleepRoom7,
-      },
-      {
-        id: 3,
-        roomNumber: null,
-        name: 'Рыбаций причал',
-        nameEn: '"Angler’s Rest" Cabin',
-        price: 350,
-        size: 25,
-        capacity: 2,
-        beds: '2 односпальные кровати',
-        bedsEn: '2 single beds',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 25"'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '25" TV'],
-        image: anglerRestCabin7,
-      },
-      {
-        id: 4,
-        roomNumber: null,
-        name: 'Лодж "Очаг и дом"',
-        nameEn: '"Hearth & Home" Lodge',
-        price: 800,
-        size: 65,
-        capacity: 4,
-        beds: '2 двуспальные кровати',
-        bedsEn: '2 double beds',
-        amenities: [
-          'Wi-Fi',
-          'Кондиционер',
-          'Мини-бар премиум',
-          'Сейф',
-          'Телевизор 75"',
-          'Балкон с видом',
-          'Гостиная зона',
-          'Отдельная спальня',
-          'Камин',
-        ],
-        amenitiesEn: [
-          'Wi-Fi',
-          'Air conditioning',
-          'Premium mini-bar',
-          'Safe',
-          '75" TV',
-          'Balcony with view',
-          'Living area',
-          'Separate bedroom',
-          'Fireplace',
-        ],
-        image: hearthHomeLodge7,
-      },
-      {
-        id: 5,
-        roomNumber: null,
-        name: 'Аппартаменты "Золотой час"',
-        nameEn: '"The Golden Hour" Lounge',
-        price: 650,
-        size: 55,
-        capacity: 4,
-        beds: '2 двуспальные кровати',
-        bedsEn: '2 double beds',
-        amenities: [
-          'Wi-Fi',
-          'Кондиционер',
-          'Мини-бар',
-          'Сейф',
-          'Телевизор 45"',
-          'Балкон с видом',
-          'Гостиная зона',
-        ],
-        amenitiesEn: [
-          'Wi-Fi',
-          'Air conditioning',
-          'Mini-bar',
-          'Safe',
-          '45" TV',
-          'Balcony with view',
-          'Living area',
-        ],
-        image: goldenHourLounge7,
-      },
-      {
-        id: 6,
-        roomNumber: null,
-        name: 'Студия "Золотая рыбка"',
-        nameEn: '"Gold Fish" Studio',
-        price: 500,
-        size: 55,
-        capacity: 3,
-        beds: '1 двуспальная + 1 односпальная',
-        bedsEn: '1 double + 1 single bed',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 45"', 'Гостиная зона'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '45" TV', 'Living area'],
-        image: goldFishStudio7,
-      },
-      {
-        id: 7,
-        roomNumber: null,
-        name: 'Лоджия пчеловода',
-        nameEn: '"The Beekeeper’s" Balcony',
-        price: 250,
-        size: 25,
-        capacity: 2,
-        beds: '2 односпальные кровати',
-        bedsEn: '2 single beds',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 35"', 'Аптечка'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Safe', '35" TV', 'First aid kit'],
-        image: beekeeperBalcony7,
-      },
-      {
-        id: 8,
-        roomNumber: null,
-        name: 'Первая помощь',
-        nameEn: '"First Aid" Suite',
-        price: 350,
-        size: 25,
-        capacity: 2,
-        beds: '2 односпальные кровати',
-        bedsEn: '2 single beds',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Сейф', 'Телевизор 45"', 'Балкон с видом', 'Аптечка'],
-        amenitiesEn: [
-          'Wi-Fi',
-          'Air conditioning',
-          'Safe',
-          '45" TV',
-          'Balcony with view',
-          'First aid kit',
-        ],
-        image: firstAidSuite7,
-      },
-      {
-        id: 9,
-        roomNumber: null,
-        name: 'Мансарда "Прилив"',
-        nameEn: '"High Tide" Attic',
-        price: 250,
-        size: 20,
-        capacity: 2,
-        beds: '1 двуспальная кровать',
-        bedsEn: '1 double bed',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Мини-бар премиум', 'Сейф', 'Телевизор 25"'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Premium mini-bar', 'Safe', '25" TV'],
-        image: highTideAttic7,
-      },
-      {
-        id: 10,
-        roomNumber: null,
-        name: 'Полная чаша',
-        nameEn: '"Nightcap" Deluxe',
-        price: 500,
-        size: 55,
-        capacity: 4,
-        beds: '2 двуспальные кровати',
-        bedsEn: '2 double beds',
-        amenities: [
-          'Wi-Fi',
-          'Кондиционер',
-          'Мини-бар премиум',
-          'Сейф',
-          'Телевизор 75"',
-          'Балкон с видом',
-          'Гостиная зона',
-          'Отдельная спальня',
-        ],
-        amenitiesEn: [
-          'Wi-Fi',
-          'Air conditioning',
-          'Premium mini-bar',
-          'Safe',
-          '75" TV',
-          'Balcony with view',
-          'Living area',
-          'Separate bedroom',
-        ],
-        image: nightcapDeluxe7,
-      },
-      {
-        id: 11,
-        roomNumber: null,
-        name: 'Гранд-люкс "Вердикт"',
-        nameEn: '"The Verdict" Grand Suite',
-        price: 450,
-        size: 25,
-        capacity: 2,
-        beds: '1 двуспальная кровать',
-        bedsEn: '1 double bed',
-        amenities: ['Wi-Fi', 'Кондиционер', 'Мини-бар', 'Сейф', 'Телевизор 35"', 'Гостиная зона'],
-        amenitiesEn: ['Wi-Fi', 'Air conditioning', 'Mini-bar', 'Safe', '35" TV', 'Living area'],
-        image: verdictGrandSuite7,
-      },
-    ],
-    lostandfaund: [
-      {
-        id: 1,
-        name: 'Молоток судьи',
-        nameEn: 'Judges Hummer',
-        image: judgesHummer7,
-      },
-    ],
-    prize: {
-      name: 'Бутылка с запиской',
-      nameEn: 'Bottle with a Note',
-      image: bottleWithNote7,
-    },
-    chatMassages: [
-      'Десять негритят отправились обедать, Один поперхнулся, их осталось девять.',
-      'Девять негритят, поев, клевали носом, Один проглотил себя, их осталось восемь.',
-      'Восемь негритят пошли гулять в Девон, Один не возвратился, их осталось семь.',
-      'Семь негритят дрова рубили вместе, Зарубил один себя — и осталось шесть их.',
-      'Шесть негритят пошли на пасеку гулять, Одного ужалил шмель, их осталось пять.',
-      'Пять негритят судейство учинили, Засудили одного, их осталось четыре.',
-      'Четыре негритёнка пошли купаться в море, Один попался на приманку, их осталось трое.',
-      'Три негритёнка в зоопарке гуляли',
-      'Одного загрыз медведь, их осталось двое.',
-      'Два негритёнка легли на солнцепёке, Один сгорел дотла, и вот один, несчастный.',
-      'Последний негритёнок поглядел устало, Он пошёл повесился, и никого не стало.',
-    ],
-    chatMassegesEn: [
-      'Ten little soldiers went out to dine, One choked himself and then there were nine.',
-      'Nine little soldiers sat up very late, One overslept himself and then there were eight.',
-      'Eight little soldiers traveling in Devon, One said he’d stay there and then there were seven.',
-      'Seven little soldiers chopping up sticks, One chopped himself in halves and then there were six.',
-      'Six little soldiers playing with a hive, A bumblebee stung one and then there were five.',
-      'Five little soldiers going in for law, One got into Chancery and then there were four.',
-      'Four little soldiers going out to sea, A red herring swallowed one and then there were three.',
-      'Three little soldiers walking in the zoo, A big bear hugged one and then there were two.',
-      'Two little soldiers sitting in the sun, One got frizzled up and then there was one.',
-      'One little soldier left all alone, He went and hanged himself and then there were none.',
-    ],
-    feedBacks: [
-      {
-        id: 1,
-        author: 'Justice_W',
-        text: 'Отель просто выше всяких похвал! Архитектура Ар-деко, идеальная изоляция и, самое главное — поразительное чувство справедливости в каждой детали. Я выбрал номер "The Verdict" и не прогадал: тишина там такая, что слышно собственную совесть. Единственный минус — мой сосед из номера с топором постоянно шумел',
-        textEn:
-          'The hotel is simply beyond praise! Art Deco architecture, perfect isolation, and most importantly — an astonishing sense of justice in every detail. I chose "The Verdict" room and it was the right choice: the silence there is such that you can hear your own conscience. The only downside is that my neighbor from the axe room was constantly noisy, but by morning everything quieted down. I recommend it to those who want to settle all old scores. 5 stars out of 5... or 10 out of 10?',
-      },
-      {
-        id: 2,
-        author: 'Owen',
-        text: 'Прилив здесь — это не просто природное явление, а часть се��виса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
-        textEn:
-          'The tide here is not just a natural phenomenon but part of the service. When the water cuts off the island from the world, you finally realize that no one will come and disturb your relaxation. The cuisine is exquisite, especially the mackerel. Too bad guests quickly disperse to their rooms and never come out for dinner again. The hotel truly gives each person exactly what they deserve. See you in court... no, in the lobby.',
-      },
-      {
-        id: 3,
-        author: 'Vera_C',
-        text: 'Вид из мансарды ("High Tide" Attic) открывается головокружительный. Настолько, что хочется просто сделать шаг вперед и ни о чем не думать. Крюк в потолке очень прочный, проверено. Сервис незаметный — за всё время пребывания я не видела ни одного живого человека, только голос из граммофона. Идеально для тех, кто хочет остаться наедине с собой навсегда',
-        textEn:
-          'The view from the attic ("High Tide" Attic) is breathtaking. So much so that you just want to take a step forward and not think about anything. The hook in the ceiling is very sturdy, tested. The service is unobtrusive — during my entire stay I didn’t see a single living person, only a voice from the gramophone. Perfect for those who want to be alone with themselves forever.',
-      },
-    ],
-    noise: '',
-    endBookingMassege: 'Приговор утвержден. Все комнаты заняты',
-    endBookingMassegeEn: 'The verdict is in. All rooms are occupied',
-    passingConditions: {
-      roomId: 'verdict',
-      mealTypes: ['no-meal', 'half-board'],
-      additionalServices: ['Cater-transfer'],
-      inventory: ['Judges Hummer'],
-    },
-    wrongOptions: {
-      additionalServices: ['sauna', 'excursion', 'diving'],
-      mealTypes: [],
-    },
-  },
+};
+
+// Combine base hotels with game hotels
+export const hotelData: Record<string, Hotel> = {
+  ...baseHotels,
+  '7': soldierHotel,
+  '8': lastPeakHotel,
 };

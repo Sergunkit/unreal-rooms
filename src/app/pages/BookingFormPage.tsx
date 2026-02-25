@@ -63,6 +63,7 @@ interface HotelMealType {
 
 interface BookingFormPageProps {
   onClose?: () => void;
+  isSafeToBook?: boolean;
 }
 
 export function BookingFormPage({ onClose }: BookingFormPageProps) {
@@ -183,7 +184,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
     applyPromo: language === 'ru' ? 'Применить' : 'Apply',
     totalCost: language === 'ru' ? 'Общая стоимость' : 'Total cost',
     withDiscount: language === 'ru' ? 'С учетом скидок' : 'With discounts',
-    back: language === 'ru' ? 'Назад' : 'Back',
+    reset: language === 'ru' ? 'Сбросить' : 'Reset',
     continue: language === 'ru' ? 'Продолжить' : 'Continue',
     confirmTitle: language === 'ru' ? 'Подтверждение бронирования' : 'Booking Confirmation',
     confirmDesc:
@@ -356,37 +357,40 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
                 {t.section1}
               </h2>
 
-              <div className="space-y-6">
-                {/* Guests */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-primary" />
-                    {t.guests}
-                  </Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={guests}
-                    onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
-                    className="bg-input-background border-border"
-                  />
-                </div>
+              <div className="space-y-4">
+                {/* Guests & Rooms Count - on one row */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Guests */}
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-sm">
+                      <Users className="h-4 w-4 text-primary" />
+                      {t.guests}
+                    </Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={guests}
+                      onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
+                      className="bg-input-background border-border h-9"
+                    />
+                  </div>
 
-                {/* Rooms Count */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <BedDouble className="h-4 w-4 text-primary" />
-                    {t.roomsCount}
-                  </Label>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={5}
-                    value={rooms}
-                    onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
-                    className="bg-input-background border-border"
-                  />
+                  {/* Rooms Count */}
+                  <div className="space-y-1">
+                    <Label className="flex items-center gap-2 text-sm">
+                      <BedDouble className="h-4 w-4 text-primary" />
+                      {t.roomsCount}
+                    </Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={5}
+                      value={rooms}
+                      onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
+                      className="bg-input-background border-border h-9"
+                    />
+                  </div>
                 </div>
 
                 {/* Room Type */}
@@ -509,9 +513,9 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
                   </Label>
                 </div>
 
-                {/* Check-in Time */}
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
+                {/* Check-in Time - inline with label */}
+                <div className="flex items-center gap-4">
+                  <Label className="flex items-center gap-2 whitespace-nowrap">
                     <Clock className="h-4 w-4 text-primary" />
                     {t.checkInTime}
                   </Label>
@@ -519,7 +523,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
                     type="time"
                     value={checkInTime}
                     onChange={(e) => setCheckInTime(e.target.value)}
-                    className="bg-input-background border-border [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    className="bg-input-background border-border flex-1 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
 
@@ -672,10 +676,37 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
             <div className="flex gap-4">
               <Button
                 variant="outline"
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  setGuests(2);
+                  setRooms(1);
+                  setRoomType(roomTypes[0]?.value || 'standard');
+                  setCheckInDate(undefined);
+                  setCheckOutDate(undefined);
+                  setMealType(mealTypes[0]?.value || 'no-meal');
+                  setNeedTransfer(false);
+                  setCheckInTime('14:00');
+                  setSelectedServices([]);
+                  setPaymentMethod('cash');
+                  setCardType('visa');
+                  setPromoCode('');
+                  setAppliedPromo('');
+                  setDiscount(0);
+                  // Clear saved temp form
+                  saveTempBookingForm({
+                    guests: 2,
+                    rooms: 1,
+                    roomType: roomTypes[0]?.value || 'standard',
+                    checkInDate: null,
+                    checkOutDate: null,
+                    mealType: mealTypes[0]?.value || 'no-meal',
+                    needTransfer: false,
+                    checkInTime: '14:00',
+                    selectedServices: [],
+                  });
+                }}
                 className="flex-1 border-border hover:bg-secondary"
               >
-                {t.back}
+                {t.reset}
               </Button>
               <Button
                 onClick={handleContinue}
