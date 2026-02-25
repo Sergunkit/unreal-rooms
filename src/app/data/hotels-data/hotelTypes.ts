@@ -92,6 +92,26 @@ export interface WrongOptions {
   date?: string;
 }
 
+export interface CaptchaItem {
+  id: string;
+  isCorrect: boolean;
+  label: string;
+  image: string;
+}
+
+export interface Captcha {
+  question: string;
+  questionEn: string;
+  items: CaptchaItem[];
+  errorResponse: string;
+  errorResponseEn: string;
+  alienQuestion?: string;
+  alienQuestionEn?: string;
+  alienItems?: CaptchaItem[];
+  alienCorrectAnswers?: string[];
+  humanCorrectAnswers?: string[];
+}
+
 export interface Hotel {
   id: number;
   name: string;
@@ -124,8 +144,11 @@ export interface Hotel {
   noise?: string;
   endBookingMassege?: string;
   endBookingMassegeEn?: string;
+  endAlienBookingMassege?: string;
+  endAlienBookingMassegeEn?: string;
   endWrongBookingMassege?: string;
   endWrongBookingMassegeEn?: string;
   passingConditions?: PassingConditions;
   wrongOptions?: WrongOptions;
+  captcha?: Captcha;
 }

@@ -158,6 +158,10 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
   const [discount, setDiscount] = useState(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
+  const [captchaError, setCaptchaError] = useState(false);
+  const [isAlienCaptcha, setIsAlienCaptcha] = useState(false);
   const [roomNumber] = useState(() => Math.floor(Math.random() * 900 + 100));
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
@@ -290,6 +294,16 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
     saveTempBookingForm,
   ]);
 
+  // Check if hotel has captcha and if user selected wrong options
+  const hasHotelCaptcha = hotel?.captcha && hotelId === '8';
+  const hasWrongSelections =
+    hotel?.wrongOptions &&
+    ((hotel.wrongOptions.roomId && roomType === hotel.wrongOptions.roomId) ||
+      (hotel.wrongOptions.mealTypes && hotel.wrongOptions.mealTypes.includes(mealType)) ||
+      (hotel.wrongOptions.additionalServices &&
+        hotel.wrongOptions.additionalServices.some((s: string) => selectedServices.includes(s))) ||
+      (hotel.wrongOptions.checkInTime && checkInTime === hotel.wrongOptions.checkInTime));
+
   const handleContinue = () => {
     if (!checkInDate || !checkOutDate) {
       alert(
@@ -299,10 +313,66 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
       );
       return;
     }
-    setShowConfirmDialog(true);
+
+    // If hotel has captcha, show it instead of confirmation
+    if (hasHotelCaptcha) {
+      setIsAlienCaptcha(hasWrongSelections);
+      setCaptchaSelected([]);
+      setCaptchaError(false);
+      setShowCaptcha(true);
+    } else {
+      setShowConfirmDialog(true);
+    }
   };
 
-  const handleConfirmBooking = () => {
+  const handleCaptchaSubmit = () => {
+    const captcha = hotel?.captcha;
+    if (!captcha) return;
+
+    if (isAlienCaptcha) {
+      // Check alien captcha answers
+      const correctAnswers = captcha.alienCorrectAnswers || [];
+      const isCorrect =
+        correctAnswers.every((id) => captchaSelected.includes(id)) &&
+        captchaSelected.length === correctAnswers.length;
+
+      if (isCorrect) {
+        // Alien passed - show alien success and complete booking
+        setShowCaptcha(false);
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          finalizeBooking(true);
+        }, 3000);
+      } else {
+        setCaptchaError(true);
+      }
+    } else {
+      // Check human captcha answers
+      const correctAnswers = captcha.humanCorrectAnswers || ['apple', 'bread'];
+      const isCorrect =
+        correctAnswers.every((id) => captchaSelected.includes(id)) &&
+        captchaSelected.length === correctAnswers.length;
+
+      if (isCorrect) {
+        // Human passed - show human success and complete booking
+        setShowCaptcha(false);
+        setShowConfirmDialog(true);
+      } else {
+        // Wrong answer - show error
+        setCaptchaError(true);
+      }
+    }
+  };
+
+  const handleCaptchaToggle = (itemId: string) => {
+    setCaptchaSelected((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+    );
+    setCaptchaError(false);
+  };
+
+  const finalizeBooking = (isAlien: boolean = false) => {
     const selectedRoom = roomTypes.find((r) => r.value === roomType);
 
     // Save booking to game state
@@ -806,7 +876,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
                 {t.cancel}
               </Button>
               <Button
-                onClick={handleConfirmBooking}
+                onClick={() => finalizeBooking(false)}
                 className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
               >
                 {t.confirm}
@@ -839,8 +909,77 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
                   {language === 'ru' ? 'Бронирование подтверждено!' : 'Booking Confirmed!'}
                 </h3>
                 <p className="text-muted-foreground">
-                  {language === 'ru' ? hotel?.endBookingMassege : hotel?.endBookingMassegeEn}
+                  {isAlienCaptcha
+                    ? language === 'ru'
+                      ? hotel?.endAlienBookingMassege
+                      : hotel?.endAlienBookingMassegeEn
+                    : language === 'ru'
+                      ? hotel?.endBookingMassege
+                      : hotel?.endBookingMassegeEn}
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Captcha Modal */}
+        {showCaptcha && hotel?.captcha && (
+          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl text-foreground font-medium mb-2">
+                  {isAlienCaptcha
+                    ? language === 'ru'
+                      ? hotel.captcha.alienQuestion
+                      : hotel.captcha.alienQuestionEn
+                    : language === 'ru'
+                      ? hotel.captcha.question
+                      : hotel.captcha.questionEn}
+                </h3>
+                {captchaError && (
+                  <p className="text-red-500 text-sm">
+                    {language === 'ru'
+                      ? hotel.captcha.errorResponse
+                      : hotel.captcha.errorResponseEn}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                {(isAlienCaptcha ? hotel.captcha.alienItems : hotel.captcha.items).map(
+                  (item: any) => (
+                    <div
+                      key={item.id}
+                      onClick={() => handleCaptchaToggle(item.id)}
+                      className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                        captchaSelected.includes(item.id)
+                          ? 'border-primary ring-2 ring-primary/50'
+                          : 'border-transparent hover:border-primary/50'
+                      }`}
+                    >
+                      <img src={item.image} alt={item.label} className="w-full h-32 object-cover" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">
+                        {item.label}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+
+              <div className="flex justify-end gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowCaptcha(false)}
+                  className="border-border"
+                >
+                  {t.cancel}
+                </Button>
+                <Button
+                  onClick={handleCaptchaSubmit}
+                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
+                >
+                  {language === 'ru' ? 'Подтвердить' : 'Confirm'}
+                </Button>
               </div>
             </div>
           </div>

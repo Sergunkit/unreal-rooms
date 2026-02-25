@@ -17,6 +17,26 @@ import bronzeHand8 from '../images/artefacts/Bronze-Hand.jpg';
 import strangeWatch8 from '../images/artefacts/Strange-Watch.jpg';
 import mountaineers_hammer8 from '../images/artefacts/Mountaineers-Hammer.jpg';
 
+// Captcha images
+import captchaApple from '../images/LastPeak/captcha-apple.jpeg';
+import captchaNail from '../images/LastPeak/captcha-nail.jpeg';
+import captchaFish from '../images/LastPeak/captcha-fish.jpg';
+import captchaCheese from '../images/LastPeak/captcha-cheese.jpg';
+import captchaIce from '../images/LastPeak/captcha-ice.jpg';
+import captchaCat from '../images/LastPeak/captcha-cat.jpg';
+import captchaClock from '../images/LastPeak/captcha-clock.jpg';
+import captchaBread from '../images/LastPeak/captcha-bread.jpg';
+import captchaEgg from '../images/LastPeak/captcha-egg.jpg';
+
+// Alien captcha images
+import alienCaptcha1 from '../images/LastPeak/alien-capcha.jpg';
+import alienCaptcha2 from '../images/LastPeak/alien-capcha1.jpg';
+import alienCaptcha3 from '../images/LastPeak/alien-capcha2.jpg';
+import alienCaptcha4 from '../images/LastPeak/alien-capcha3.jpg';
+import alienCaptcha5 from '../images/LastPeak/alien-capcha4.jpg';
+import alienCaptcha6 from '../images/LastPeak/alien-capcha5.jpg';
+import alienCaptcha7 from '../images/LastPeak/alien-capcha6.jpg';
+
 export const lastPeakData = {
     id: 8,
     name: 'The Last Peak Lodge',
@@ -46,7 +66,7 @@ export const lastPeakData = {
         imageIndex: 1,
         type: 'hint' as const,
         alternateImage: galleryImageAlt1_8,
-        coords: { x1: 70, y1: 65, x2: 95, y2: 90 },
+        coords: { x1: 40, y1: 50, x2: 60, y2: 70 },
         message: 'Сенбернар Лель проявляет беспокойство. Он чувствует нечеловеческую активность.',
         messageEn: 'Lel the St. Bernard is anxious. He senses non-human activity.',
       },
@@ -54,7 +74,7 @@ export const lastPeakData = {
         imageIndex: 2,
         type: 'artifact-find' as const,
         alternateImage: galleryImageAlt2_8,
-        coords: { x1: 40, y1: 20, x2: 55, y2: 45 },
+        coords: { x1: 5, y1: 30, x2: 20, y2: 50 },
         message: 'Вы всмотрелись в лицо Альпиниста. Теперь вы видите мир его глазами.',
         messageEn: 'You gazed into the face of the Mountaineer. Now you see the world through his eyes.',
         artefact: { id: 2, name: 'Молоток альпиниста', nameEn: 'Mountaineer\'s Hammer', image: mountaineers_hammer8 },
@@ -216,8 +236,8 @@ export const lastPeakData = {
     noise: '◌●◦.˳◯. ‹‹ ⊜ ◔◡◔ ⊘ ››',
     endBookingMassege: 'Бронирование подтверждено. Биологический статус: Человек.',
     endBookingMassegeEn: 'Booking confirmed. Biological status: Human.', //капча?
-    endWrongBookingMassege: 'Ошибка. Кремниевые формы жизни не допускаются в этот сектор.',
-    endWrongBookingMassegeEn: 'Error. Silicon life forms are not allowed in this sector.',
+    endAlienBookingMassege: 'Бронирование подтверждено. Биологический статус: Другое.',
+    endAlienBookingMassegeEn: 'Booking confirmed. Biological status: Other.',
     passingConditions: {
       roomId: 'classic-comfort',
       mealTypes: ['standard'],
@@ -231,16 +251,35 @@ export const lastPeakData = {
       checkInTime: '00:00', // Инопланетяне заезжают в полночь
     },
     captcha: {
-      question: 'Выберите изображения с органическими продуктами в стадии распада (испорченная еда):',
-      questionEn: 'Select images with organic products in a state of decay (spoiled food):',
+      question: 'Выберите изображения с портящейся едой:',
+      questionEn: 'Select images with spoiled food:',
       items: [
-        { id: 'apple', isCorrect: true, label: 'Гнилое яблоко', image: 'captcha-apple.jpg' },
-        { id: 'nail', isCorrect: false, label: 'Ржавый гвоздь', image: 'captcha-nail.jpg' },
-        { id: 'fish', isCorrect: true, label: 'Вяленая рыба', image: 'captcha-fish.jpg' },
-        { id: 'cheese', isCorrect: true, label: 'Сыр с плесенью', image: 'captcha-cheese.jpg' },
-        { id: 'ice', isCorrect: false, label: 'Тающий лед', image: 'captcha-ice.jpg' },
+        { id: 'apple', isCorrect: true, label: 'Яблоко', image: captchaApple },
+        { id: 'nail', isCorrect: false, label: 'Гвоздь', image: captchaNail },
+        { id: 'fish', isCorrect: false, label: 'Рыба', image: captchaFish },
+        { id: 'cheese', isCorrect: false, label: 'Сыр', image: captchaCheese },
+        { id: 'ice', isCorrect: false, label: 'Лед', image: captchaIce },
+        { id: 'cat', isCorrect: false, label: 'Кот', image: captchaCat },
+        { id: 'clock', isCorrect: false, label: 'Часы', image: captchaClock },
+        { id: 'bread', isCorrect: true, label: 'Хлеб', image: captchaBread },
+        { id: 'egg', isCorrect: false, label: 'Яйцо', image: captchaEgg },
       ],
-      errorResponse: 'Ошибка. Окисление металла не является биологическим распадом. Кремниевые формы жизни не допускаются.',
-      errorResponseEn: 'Error. Metal oxidation is not biological decay. Silicon life forms are not permitted.'
+      errorResponse: 'Ошибка. Вы выбрали неправильные изображения. Пожалуйста, проверьте условия проживания и попробуйте снова.',
+      errorResponseEn: 'Error. You selected the wrong images. Please check the accommodation conditions and try again.',
+      alienQuestion: '◌●◦.˳◯. ‹‹ ⊜ ◔◡◔ ⊘ ›› .◯˳.◦●◌',
+      alienQuestionEn: '◌●◦.˳◯. ‹‹ ⊜ ◔◡◔ ⊘ ›› .◯˳.◦●◌',
+      alienItems: [
+        { id: 'alien1', isCorrect: true, label: '◖ ◕_◕ ◗', image: alienCaptcha1 },
+        { id: 'alien2', isCorrect: false, label: '⚬( ๏ )⚬', image: alienCaptcha2 },
+        { id: 'alien3', isCorrect: false, label: '───◦◉◎⦿◉◦───', image: alienCaptcha3 },
+        { id: 'alien4', isCorrect: false, label: '◌●◦⊜ ⊘◖ ◕_◕ ◗', image: alienCaptcha4 },
+        { id: 'alien5', isCorrect: false, label: '( . ) ( o ) ( O )', image: alienCaptcha5 },
+        { id: 'cat', isCorrect: false, label: '⊜ ◔◡◔ ⊘ ››', image: captchaCat },
+        { id: 'clock', isCorrect: false, label: '◌●◦.˳◯. ‹‹', image: captchaClock },
+        { id: 'alien6', isCorrect: false, label: '◖ ◕_◕ ◗', image: alienCaptcha6 },
+        { id: 'alien7', isCorrect: true, label: '⚬( ๏ )⚬ [ o O 0 ○ ]', image: alienCaptcha7 },
+      ],
+      alienCorrectAnswers: ['cat', 'clock'], // cat and clock from human captcha
+      humanCorrectAnswers: ['apple', 'bread'], // correct spoiled food items
     },
 };
