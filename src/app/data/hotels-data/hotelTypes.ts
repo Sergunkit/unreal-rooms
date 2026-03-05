@@ -38,7 +38,7 @@ export interface FeedBack {
 }
 
 export interface LostAndFoundItem {
-  id: number;
+  id: number | string;
   name: string;
   nameEn: string;
   image: string;

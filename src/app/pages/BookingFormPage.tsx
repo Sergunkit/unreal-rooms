@@ -64,9 +64,13 @@ interface HotelMealType {
 interface BookingFormPageProps {
   onClose?: () => void;
   isSafeToBook?: boolean;
+  selectedRoomType?: string | null;
 }
 
-export function BookingFormPage({ onClose }: BookingFormPageProps) {
+export function BookingFormPage({
+  onClose,
+  selectedRoomType: selectedRoomTypeProp,
+}: BookingFormPageProps) {
   const { language } = useLanguage();
   const { id: hotelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -132,7 +136,8 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
   const [guests, setGuests] = useState(tempForm?.guests || 2);
   const [rooms, setRooms] = useState(tempForm?.rooms || 1);
   const [roomType, setRoomType] = useState(
-    tempForm?.roomType ||
+    selectedRoomTypeProp ||
+      tempForm?.roomType ||
       (savedBooking ? String(savedBooking.roomId) : roomTypes[0]?.value || 'standard')
   );
   const [checkInDate, setCheckInDate] = useState<Date | undefined>(
@@ -197,8 +202,8 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
         : 'Please review your booking details',
     warning:
       language === 'ru'
-        ? '⚠️ Отменить данное бронирование невозможно'
-        : '⚠️ This booking cannot be cancelled',
+        ? 'Отменить данное бронирование невозможно'
+        : 'This booking cannot be cancelled',
     cancel: language === 'ru' ? 'Отменить' : 'Cancel',
     confirm: language === 'ru' ? 'Подтвердить' : 'Confirm',
     room: language === 'ru' ? 'Номер' : 'Room',
@@ -256,6 +261,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
       UNREAL10: 10,
       UNREAL20: 20,
       MYSTERY15: 15,
+      NEVERMORE: 20, // Usher Guest House promo code
     };
 
     const upperPromo = promoCode.toUpperCase();
@@ -280,6 +286,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
       needTransfer,
       checkInTime,
       selectedServices,
+      promoCode: appliedPromo || undefined,
     });
   }, [
     guests,
@@ -291,18 +298,20 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
     needTransfer,
     checkInTime,
     selectedServices,
+    appliedPromo,
     saveTempBookingForm,
   ]);
 
   // Check if hotel has captcha and if user selected wrong options
   const hasHotelCaptcha = hotel?.captcha && hotelId === '8';
-  const hasWrongSelections =
+  const hasWrongSelections: boolean = !!(
     hotel?.wrongOptions &&
     ((hotel.wrongOptions.roomId && roomType === hotel.wrongOptions.roomId) ||
       (hotel.wrongOptions.mealTypes && hotel.wrongOptions.mealTypes.includes(mealType)) ||
       (hotel.wrongOptions.additionalServices &&
         hotel.wrongOptions.additionalServices.some((s: string) => selectedServices.includes(s))) ||
-      (hotel.wrongOptions.checkInTime && checkInTime === hotel.wrongOptions.checkInTime));
+      (hotel.wrongOptions.checkInTime && checkInTime === hotel.wrongOptions.checkInTime))
+  );
 
   const handleContinue = () => {
     if (!checkInDate || !checkOutDate) {
@@ -372,7 +381,7 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
     setCaptchaError(false);
   };
 
-  const finalizeBooking = (isAlien: boolean = false) => {
+  const finalizeBooking = (_isAlien: boolean = false) => {
     const selectedRoom = roomTypes.find((r) => r.value === roomType);
 
     // Save booking to game state
@@ -946,8 +955,8 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
               </div>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
-                {(isAlienCaptcha ? hotel.captcha.alienItems : hotel.captcha.items).map(
-                  (item: any) => (
+                {(isAlienCaptcha ? (hotel.captcha.alienItems ?? []) : hotel.captcha.items).map(
+                  (item) => (
                     <div
                       key={item.id}
                       onClick={() => handleCaptchaToggle(item.id)}
@@ -957,7 +966,13 @@ export function BookingFormPage({ onClose }: BookingFormPageProps) {
                           : 'border-transparent hover:border-primary/50'
                       }`}
                     >
-                      <img src={item.image} alt={item.label} className="w-full h-32 object-cover" />
+                      <div className="w-full aspect-[1/1] bg-secondary flex items-center justify-center overflow-hidden">
+                        <img
+                          src={item.image}
+                          alt={item.label}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                       <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">
                         {item.label}
                       </div>

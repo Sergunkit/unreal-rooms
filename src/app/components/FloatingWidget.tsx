@@ -183,11 +183,13 @@ export function FloatingWidget({ isGlowing = false }: FloatingWidgetProps) {
                         className="bg-secondary/50 rounded-lg p-3 text-center"
                       >
                         {artefact.image && (
-                          <img
-                            src={artefact.image}
-                            alt={language === 'ru' ? artefact.name : artefact.nameEn}
-                            className="w-full h-16 object-cover rounded-md mb-2"
-                          />
+                          <div className="w-full aspect-[2/3] bg-secondary rounded-md mb-2 flex items-center justify-center overflow-hidden">
+                            <img
+                              src={artefact.image}
+                              alt={language === 'ru' ? artefact.name : artefact.nameEn}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
                         )}
                         <p className="text-sm font-medium text-foreground">
                           {language === 'ru' ? artefact.name : artefact.nameEn}

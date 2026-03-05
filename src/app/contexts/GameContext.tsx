@@ -29,6 +29,7 @@ export interface TempBookingFormData {
   needTransfer: boolean;
   checkInTime: string;
   selectedServices: string[];
+  promoCode?: string;
 }
 
 /**

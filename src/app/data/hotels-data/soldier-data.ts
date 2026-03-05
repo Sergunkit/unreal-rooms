@@ -438,7 +438,7 @@ export const soldierData = {
     ],
     lostandfaund: [
       {
-        id: 1,
+        id: 'judges-hummer',
         name: 'Молоток судьи',
         nameEn: 'Judges Hummer',
         image: judgesHummer7,

@@ -5,6 +5,9 @@
 
 import judgesHummer7 from './images/artefacts/Judges-Hummer.jpg';
 import bottleWithNote7 from './images/artefacts/Bottle-with-a-Note.jpg';
+import bronzeHand8 from './images/artefacts/Bronze-Hand.jpg';
+import strangeWatch8 from './images/artefacts/Strange-Watch.jpg';
+import mountaineersHammer8 from './images/artefacts/Mountaineers-Hammer.jpg';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -44,6 +47,36 @@ export const artefacts: Record<string, Artefact> = {
     image: bottleWithNote7,
     type: 'prize',
     hotelId: '7',
+  },
+  'bronze-hand': {
+    id: 'bronze-hand',
+    name: 'Бронзовая рука',
+    nameEn: 'Bronze Hand',
+    description: 'Загадочная бронзовая рука, найденная в отеле The Last Peak Lodge',
+    descriptionEn: 'A mysterious bronze hand found at The Last Peak Lodge',
+    image: bronzeHand8,
+    type: 'lost-and-found',
+    hotelId: '8',
+  },
+  'strange-watch': {
+    id: 'strange-watch',
+    name: 'Странные часы',
+    nameEn: 'Strange Wristwatch',
+    description: 'Наручные часы, идущие в обратную сторону',
+    descriptionEn: 'A wristwatch that runs backwards',
+    image: strangeWatch8,
+    type: 'prize',
+    hotelId: '8',
+  },
+  'mountaineers-hammer': {
+    id: 'mountaineers-hammer',
+    name: 'Молоток альпиниста',
+    nameEn: "Mountaineer's Hammer",
+    description: 'Молоток, принадлежащий погибшему альпинисту',
+    descriptionEn: 'A hammer belonging to a fallen mountaineer',
+    image: mountaineersHammer8,
+    type: 'lost-and-found',
+    hotelId: '8',
   },
 };
 

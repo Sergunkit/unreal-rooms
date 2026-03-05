@@ -67,6 +67,7 @@ export function HotelDetailPage() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedRoomTypeForBooking, setSelectedRoomTypeForBooking] = useState<string | null>(null);
   const [galleryImageStates, setGalleryImageStates] = useState<Record<number, boolean>>({});
   const [showGalleryMessage, setShowGalleryMessage] = useState<{ show: boolean; text: string }>({ show: false, text: '' });
   const [showArtifactModal, setShowArtifactModal] = useState(false);
@@ -110,16 +111,20 @@ export function HotelDetailPage() {
   const activeServices = showBookingModal && tempForm?.selectedServices
     ? tempForm.selectedServices
     : (currentBooking?.additionalServices || tempForm?.selectedServices || []);
+  const activePromoCode = showBookingModal && tempForm?.promoCode
+    ? tempForm.promoCode
+    : '';
 
   const hasRoom = !conditions || activeRoomId === conditions.roomId;
   const hasMeal = !conditions || conditions.mealTypes?.includes(activeMealType);
   const hasService = !conditions || conditions.additionalServices?.every(s => activeServices.includes(s));
   const hasInventory = conditions?.inventory?.every(i => playerStatus.inventory.includes(i));
-  
+  const hasPromoCode = !conditions?.promoCode || activePromoCode.toUpperCase() === conditions.promoCode.toUpperCase();
+
   // Проверка на запрещенные опции (wrongOptions)
   const hasWrongOptions = wrongOptions?.additionalServices?.some(s => activeServices.includes(s)) ?? false;
-  
-  const isSafeToBook = !conditions || (hasRoom && hasMeal && hasService && hasInventory && !hasWrongOptions);
+
+  const isSafeToBook = !conditions || (hasRoom && hasMeal && hasService && hasInventory && hasPromoCode && !hasWrongOptions);
 
   if (!hotel) {
     return (
@@ -146,7 +151,7 @@ export function HotelDetailPage() {
 
   const lostFoundItems = hotel.lostandfaund;
   
-  const handleCollectArtefact = (item: { id: number; name: string; nameEn: string; image: string }) => {
+  const handleCollectArtefact = (item: { id: number | string; name: string; nameEn: string; image: string }) => {
     if (!hasArtefact(String(item.id))) {
       addArtefact({
         artefactId: String(item.id),
@@ -614,7 +619,17 @@ export function HotelDetailPage() {
                   </div>
                 </div>
                 <button
-                  onClick={() => setShowBookingModal(true)}
+                  onClick={() => {
+                    // Find matching roomType by name
+                    const matchingRoomType = hotel.roomTypes?.find(
+                      (rt) =>
+                        rt.label === selectedRoom.name || rt.labelEn === selectedRoom.nameEn
+                    );
+                    if (matchingRoomType) {
+                      setSelectedRoomTypeForBooking(matchingRoomType.value);
+                    }
+                    setShowBookingModal(true);
+                  }}
                   className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
                 >
                   {language === 'ru' ? 'Забронировать' : 'Book Now'}
@@ -746,13 +761,15 @@ export function HotelDetailPage() {
                   <div
                     key={item.id}
                     className={`rounded-lg p-4 transition-colors cursor-pointer ${
-                      alreadyCollected 
-                        ? 'opacity-50 cursor-not-allowed bg-secondary/30' 
+                      alreadyCollected
+                        ? 'opacity-50 cursor-not-allowed bg-secondary/30'
                         : 'bg-secondary/50 hover:bg-secondary'
                     }`}
                     onClick={() => !alreadyCollected && handleCollectArtefact({ id: item.id, name: item.name, nameEn: item.nameEn, image: item.image })}
                   >
-                    <img src={item.image} alt={item.name} className="w-full h-32 object-cover mb-3 rounded-lg" />
+                    <div className="w-full aspect-[2/3] bg-secondary rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                    </div>
                     <h4 className="text-sm font-medium text-foreground">
                       {language === 'ru' ? item.name : item.nameEn}
                     </h4>
@@ -790,11 +807,13 @@ export function HotelDetailPage() {
               </button>
             </div>
             <div className="overflow-y-auto flex-1 p-6 flex flex-col items-center">
-              <img 
-                src={foundArtifact.image} 
-                alt={foundArtifact.name} 
-                className="w-full h-48 object-contain mb-4 rounded-lg" 
-              />
+              <div className="w-full max-w-xs aspect-[2/3] bg-secondary rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                <img
+                  src={foundArtifact.image}
+                  alt={foundArtifact.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 {language === 'ru' ? foundArtifact.name : foundArtifact.nameEn}
               </h3>
@@ -835,7 +854,10 @@ export function HotelDetailPage() {
                 </h2>
               </div>
               <button
-                onClick={() => setShowBookingModal(false)}
+                onClick={() => {
+                  setSelectedRoomTypeForBooking(null);
+                  setShowBookingModal(false);
+                }}
                 className="p-2 hover:bg-secondary rounded-lg transition-colors"
               >
                 <X className="w-5 h-5 text-foreground" />
@@ -843,8 +865,12 @@ export function HotelDetailPage() {
             </div>
             <div className="overflow-y-auto flex-1 p-6">
               <BookingFormPage
-                onClose={() => setShowBookingModal(false)}
+                onClose={() => {
+                  setSelectedRoomTypeForBooking(null);
+                  setShowBookingModal(false);
+                }}
                 isSafeToBook={isSafeToBook}
+                selectedRoomType={selectedRoomTypeForBooking}
               />
             </div>
           </div>

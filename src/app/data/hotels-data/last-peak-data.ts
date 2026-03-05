@@ -75,8 +75,8 @@ export const lastPeakData = {
         type: 'artifact-find' as const,
         alternateImage: galleryImageAlt2_8,
         coords: { x1: 5, y1: 30, x2: 20, y2: 50 },
-        message: 'Вы всмотрелись в лицо Альпиниста. Теперь вы видите мир его глазами.',
-        messageEn: 'You gazed into the face of the Mountaineer. Now you see the world through his eyes.',
+        message: 'Вы увидели лицо Альпиниста. Теперь вы видите мир его глазами.',
+        messageEn: 'You saw the face of the Mountaineer. Now you see the world through his eyes.',
         artefact: { id: 2, name: 'Молоток альпиниста', nameEn: 'Mountaineer\'s Hammer', image: mountaineers_hammer8 },
       },
     ],
@@ -199,7 +199,7 @@ export const lastPeakData = {
       },
     ],
     lostandfaund: [
-      { id: 1, name: 'Бронзовая рука', nameEn: 'Bronze Hand', image: bronzeHand8 },
+      { id: 'bronze-hand', name: 'Бронзовая рука', nameEn: 'Bronze Hand', image: bronzeHand8 },
     //   { id: 2, name: 'Фрагмент портрета', nameEn: 'Portrait Piece', image: portraitPiece8 },
     ],
     prize: {
@@ -246,7 +246,7 @@ export const lastPeakData = {
     },
     wrongOptions: {
       additionalServices: ['entropy-fix'],
-      roomId: 'infinity-view',
+      roomId: ['infinity-view', 'specialist-suite'],
       mealTypes: ['molecular-regeneration', 'high-energy'],
       checkInTime: '00:00', // Инопланетяне заезжают в полночь
     },
