@@ -16,6 +16,13 @@ export interface Amenities {
   additionalServices?: { id: string; name: string; nameEn: string; price: number }[];
 }
 
+export interface PromoCode {
+  code: string;
+  discount: number; // percentage
+  description?: string;
+  descriptionEn?: string;
+}
+
 export interface RoomType {
   value: string;
   label: string;
@@ -77,9 +84,10 @@ export interface Prize {
 
 export interface PassingConditions {
   roomId: string;
-  mealTypes: string[];
-  additionalServices: string[];
-  inventory: string[];
+  mealTypes?: string[];
+  additionalServices?: string[];
+  inventory?: string[];
+  promoCode?: string;
 }
 
 export interface WrongOptions {
@@ -151,4 +159,5 @@ export interface Hotel {
   passingConditions?: PassingConditions;
   wrongOptions?: WrongOptions;
   captcha?: Captcha;
+  promoCodes?: PromoCode[];
 }

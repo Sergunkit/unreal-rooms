@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useGame } from '../contexts/GameContext';
+import { useGame, type MealType, type AdditionalService } from '../contexts/GameContext';
 import { hotelData } from '../data/hotels';
+// import { Sparkles } from 'lucide-react';
 import {
   Users,
   BedDouble,
@@ -14,6 +15,7 @@ import {
   Wallet,
   Tag,
   Sparkles,
+  X,
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
@@ -67,6 +69,14 @@ interface BookingFormPageProps {
   selectedRoomType?: string | null;
 }
 
+interface FoundPrize {
+  artefactId: string;
+  name: string;
+  nameEn: string;
+  image: string;
+  alreadyCollected: boolean;
+}
+
 export function BookingFormPage({
   onClose,
   selectedRoomType: selectedRoomTypeProp,
@@ -74,7 +84,14 @@ export function BookingFormPage({
   const { language } = useLanguage();
   const { id: hotelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { setCurrentBooking, addVisitedHotel, playerStatus, saveTempBookingForm } = useGame();
+  const {
+    setCurrentBooking,
+    addVisitedHotel,
+    playerStatus,
+    saveTempBookingForm,
+    addArtefact,
+    hasArtefact,
+  } = useGame();
 
   // Get temp booking form data if exists
   const tempForm = playerStatus.tempBookingForm;
@@ -84,53 +101,18 @@ export function BookingFormPage({
 
   // Get hotel data from hotels.ts
   const hotel = hotelId ? hotelData[hotelId] : null;
+
+  const [foundPrize, setFoundPrize] = useState<FoundPrize | null>(null);
   const hotelAdditionalServices: HotelAdditionalService[] =
     hotel?.amenities?.additionalServices || [];
   const hotelRoomTypes: HotelRoomType[] = hotel?.roomTypes || [];
   const hotelMealTypes: HotelMealType[] = hotel?.mealTypes || [];
+  const hotelPromoCodes = hotel?.promoCodes || [];
 
-  // Fallback data if hotel data is not available
-  const additionalServices: HotelAdditionalService[] =
-    hotelAdditionalServices.length > 0
-      ? hotelAdditionalServices
-      : [
-          { id: 'spa', name: 'СПА-процедуры', nameEn: 'SPA treatments', price: 5000 },
-          { id: 'massage', name: 'Массаж', nameEn: 'Massage', price: 3500 },
-          { id: 'excursion', name: 'Экскурсия', nameEn: 'Excursion', price: 2500 },
-          {
-            id: 'breakfast-in-room',
-            name: 'Завтрак в номер',
-            nameEn: 'Breakfast in room',
-            price: 1500,
-          },
-          { id: 'late-checkout', name: 'Поздний выезд', nameEn: 'Late checkout', price: 2000 },
-          {
-            id: 'airport-meeting',
-            name: 'Встреча в аэропорту',
-            nameEn: 'Airport pickup',
-            price: 3000,
-          },
-        ];
-
-  const roomTypes: HotelRoomType[] =
-    hotelRoomTypes.length > 0
-      ? hotelRoomTypes
-      : [
-          { value: 'standard', label: 'Стандартный', labelEn: 'Standard', basePrice: 8000 },
-          { value: 'deluxe', label: 'Делюкс', labelEn: 'Deluxe', basePrice: 12000 },
-          { value: 'suite', label: 'Люкс', labelEn: 'Suite', basePrice: 18000 },
-          { value: 'premium', label: 'Премиум', labelEn: 'Premium', basePrice: 25000 },
-        ];
-
-  const mealTypes: HotelMealType[] =
-    hotelMealTypes.length > 0
-      ? hotelMealTypes
-      : [
-          { value: 'no-meal', label: 'Без питания', labelEn: 'No meals', price: 0 },
-          { value: 'breakfast', label: 'Завтрак', labelEn: 'Breakfast', price: 1500 },
-          { value: 'half-board', label: 'Полупансион', labelEn: 'Half board', price: 3000 },
-          { value: 'full-board', label: 'Полный пансион', labelEn: 'Full board', price: 5000 },
-        ];
+  // Use hotel data or empty arrays if not available
+  const additionalServices: HotelAdditionalService[] = hotelAdditionalServices;
+  const roomTypes: HotelRoomType[] = hotelRoomTypes;
+  const mealTypes: HotelMealType[] = hotelMealTypes;
 
   // Form state
   const [guests, setGuests] = useState(tempForm?.guests || 2);
@@ -138,7 +120,7 @@ export function BookingFormPage({
   const [roomType, setRoomType] = useState(
     selectedRoomTypeProp ||
       tempForm?.roomType ||
-      (savedBooking ? String(savedBooking.roomId) : roomTypes[0]?.value || 'standard')
+      (savedBooking ? String(savedBooking.roomId) : roomTypes[0]?.value)
   );
   const [checkInDate, setCheckInDate] = useState<Date | undefined>(
     tempForm?.checkInDate ? new Date(tempForm.checkInDate) : undefined
@@ -147,7 +129,7 @@ export function BookingFormPage({
     tempForm?.checkOutDate ? new Date(tempForm.checkOutDate) : undefined
   );
   const [mealType, setMealType] = useState(
-    tempForm?.mealType || savedBooking?.mealType || mealTypes[0]?.value || 'no-meal'
+    tempForm?.mealType || savedBooking?.mealType || mealTypes[0]?.value
   );
   const [needTransfer, setNeedTransfer] = useState(
     tempForm?.needTransfer ?? savedBooking?.additionalServices?.includes('Cater-transfer') ?? false
@@ -163,6 +145,7 @@ export function BookingFormPage({
   const [discount, setDiscount] = useState(0);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showPrizeModal, setShowPrizeModal] = useState(false);
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
   const [captchaError, setCaptchaError] = useState(false);
@@ -256,18 +239,13 @@ export function BookingFormPage({
   };
 
   const handleApplyPromo = () => {
-    // Mock promo codes
-    const validPromos: { [key: string]: number } = {
-      UNREAL10: 10,
-      UNREAL20: 20,
-      MYSTERY15: 15,
-      NEVERMORE: 20, // Usher Guest House promo code
-    };
-
+    // Find promo code in hotel config
     const upperPromo = promoCode.toUpperCase();
-    if (validPromos[upperPromo]) {
-      setAppliedPromo(upperPromo);
-      setDiscount(validPromos[upperPromo]);
+    const foundPromo = hotelPromoCodes.find((p) => p.code.toUpperCase() === upperPromo);
+
+    if (foundPromo) {
+      setAppliedPromo(foundPromo.code.toUpperCase());
+      setDiscount(foundPromo.discount);
     } else {
       setAppliedPromo('');
       setDiscount(0);
@@ -384,21 +362,20 @@ export function BookingFormPage({
   const finalizeBooking = (_isAlien: boolean = false) => {
     const selectedRoom = roomTypes.find((r) => r.value === roomType);
 
+    // Build additional services array including transfer if selected
+    const finalAdditionalServices = [...selectedServices];
+    if (needTransfer) {
+      finalAdditionalServices.push('Cater-transfer');
+    }
+
     // Save booking to game state
     setCurrentBooking({
       roomId: roomType,
       roomName: selectedRoom?.label || '',
       roomNameEn: selectedRoom?.labelEn || '',
       price: finalTotal,
-      mealType: mealType as 'no-meal' | 'diet-menu' | 'half-board' | 'all-inclusive',
-      additionalServices: selectedServices as (
-        | 'sauna'
-        | 'fishing'
-        | 'excursion'
-        | 'breakfast-in-room'
-        | 'diving'
-        | 'Cater-transfer'
-      )[],
+      mealType: mealType as MealType,
+      additionalServices: finalAdditionalServices as AdditionalService[],
       bookedAt: new Date().toISOString(),
     });
 
@@ -409,15 +386,37 @@ export function BookingFormPage({
         hotelName: hotel?.name || '',
         hotelNameEn: hotel?.nameEn || '',
         visitedAt: new Date().toISOString(),
-        completed: false,
+        completed: true,
       });
+    }
+
+    // Give prize if hotel has one
+    const prize = hotel?.prize;
+    if (prize) {
+      // Check if already collected
+      const alreadyCollected = hasArtefact(`prize-${hotelId}`);
+      if (!alreadyCollected) {
+        // Show prize modal
+        setFoundPrize({
+          artefactId: `prize-${hotelId}`,
+          name: prize.name,
+          nameEn: prize.nameEn,
+          image: prize.image,
+          alreadyCollected,
+        });
+        setShowPrizeModal(true);
+      }
     }
 
     setShowConfirmDialog(false);
     setShowSuccessModal(true);
     setTimeout(() => {
       setShowSuccessModal(false);
-      navigate('/bookings');
+      if (prize) {
+        navigate('/bookings');
+      } else {
+        navigate('/bookings');
+      }
     }, 3000);
   };
 
@@ -926,6 +925,76 @@ export function BookingFormPage({
                       ? hotel?.endBookingMassege
                       : hotel?.endBookingMassegeEn}
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Prize Modal */}
+        {showPrizeModal && foundPrize && (
+          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-lg max-w-md w-full max-h-[95vh] overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                  <h2 className="text-2xl text-foreground font-medium">
+                    {foundPrize.alreadyCollected
+                      ? language === 'ru'
+                        ? 'Артефакт уже получен'
+                        : 'Artifact Already Collected'
+                      : language === 'ru'
+                        ? 'Артефакт найден!'
+                        : 'Artifact Found!'}
+                  </h2>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowPrizeModal(false);
+                    navigate('/bookings');
+                  }}
+                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 p-6 flex flex-col items-center">
+                <div className="w-full max-w-xs aspect-[2/3] bg-secondary rounded-lg mb-4 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={foundPrize.image}
+                    alt={foundPrize.name}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  {language === 'ru' ? foundPrize.name : foundPrize.nameEn}
+                </h3>
+                <p className="text-sm text-muted-foreground text-center mb-6">
+                  {foundPrize.alreadyCollected
+                    ? language === 'ru'
+                      ? 'Этот артефакт уже есть в вашем чемодане.'
+                      : 'This artifact is already in your suitcase.'
+                    : language === 'ru'
+                      ? 'Вы нашли артефакт! Нажмите кнопку ниже, чтобы добавить его в чемодан.'
+                      : 'You found an artifact! Click the button below to add it to your suitcase.'}
+                </p>
+                {!foundPrize.alreadyCollected && (
+                  <button
+                    onClick={() => {
+                      addArtefact({
+                        artefactId: foundPrize.artefactId,
+                        name: foundPrize.name,
+                        nameEn: foundPrize.nameEn,
+                        image: foundPrize.image,
+                        collectedAt: new Date().toISOString(),
+                      });
+                      setShowPrizeModal(false);
+                      navigate('/bookings');
+                    }}
+                    className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
+                  >
+                    {language === 'ru' ? 'Забрать в чемодан' : 'Add to Suitcase'}
+                  </button>
+                )}
               </div>
             </div>
           </div>

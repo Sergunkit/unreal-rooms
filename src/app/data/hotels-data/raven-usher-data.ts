@@ -12,7 +12,6 @@ import roomTellTale9 from '../images/Usher/Room2.jpg'; // С котом
 import roomBlackCat9 from '../images/Usher/Room3.jpg'; // С кочергой и зеркалом
 
 import goldBug9 from '../images/artefacts/Gold-Bug.jpeg';
-import gavel9 from '../images/artefacts/Judges-Hummer.jpg';
 import ravenFeather from '../images/artefacts/Raven-Feather.jpg';
 
 export const usherData = {
@@ -80,8 +79,8 @@ export const usherData = {
         'Stairs are narrow and steep; please consider this if you have heavy luggage.',
         'Since the building is historic, we ask you to treat the walls and ceilings of the hotel with great care.',
       ],
-      heart_tool_tip: 'Нужно оставить здесь сердце, чтоб продолжить свой жизненный путь',
-      heart_tool_tipEn: 'You must leave your heart here to continue your journey',
+      heart_tool_tip: 'Нужно принести сюда чужое сердце, чтобы не оставить здесь свое',
+      heart_tool_tipEn: 'You need to bring someone else\'s heart here to not leave yours here',
       additionalServices: [
         { id: 'spa-access', name: 'Абонемент в бассейн и SPA', nameEn: 'Pool and SPA membership', price: 15 },
         { id: 'masquerade', name: 'Участие в маскараде (включая прокат костюмов)', nameEn: 'Masquerade participation (including costume rental)', price: 20 },
@@ -141,8 +140,7 @@ export const usherData = {
       },
     ],
     lostandfaund: [
-      { id: 1, name: 'Черное перо', nameEn: 'Black Feather', image: ravenFeather },
-      { id: 3, name: 'Молоток судьи', nameEn: 'Judges Gavel', image: gavel9 },
+      { id: 'raven-feather', name: 'Черное перо', nameEn: 'Black Feather', image: ravenFeather },
     ],
     prize: {
       name: 'Золотой жук',
@@ -182,7 +180,7 @@ export const usherData = {
     endWrongBookingMassegeEn: 'Your heart will beat here forever.',
     passingConditions: {
       roomId: 'carl', // Выбрать комнату без кошки и зеркал на потолке
-    //   inventory: ['Mechanical-Heart'], // Нужно принести сердце из инвентаря
+      inventory: ['mechanical-heart'], // Нужно принести сердце из инвентаря
       promoCode: 'NEVERMORE', // Ввести промокод, который можно получить, кликнув на ворона на фото ресторана
     },
     wrongOptions: {
@@ -190,4 +188,7 @@ export const usherData = {
       additionalServices: ['masquerade'], // Маскарад — это смерть (Friday event)
     //   checkInTime: 'Friday', // Не бронировать на пятницу
     },
+    promoCodes: [
+      { code: 'NEVERMORE', discount: 20, description: 'Скидка за выбор правильной комнаты', descriptionEn: 'Discount for choosing the right room' },
+    ],
   };

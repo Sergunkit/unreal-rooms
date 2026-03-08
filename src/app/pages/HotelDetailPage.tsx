@@ -116,10 +116,10 @@ export function HotelDetailPage() {
     : '';
 
   const hasRoom = !conditions || activeRoomId === conditions.roomId;
-  const hasMeal = !conditions || conditions.mealTypes?.includes(activeMealType);
-  const hasService = !conditions || conditions.additionalServices?.every(s => activeServices.includes(s));
-  const hasInventory = conditions?.inventory?.every(i => playerStatus.inventory.includes(i));
-  const hasPromoCode = !conditions?.promoCode || activePromoCode.toUpperCase() === conditions.promoCode.toUpperCase();
+  const hasMeal = !conditions || !conditions.mealTypes || conditions.mealTypes.includes(activeMealType);
+  const hasService = !conditions || !conditions.additionalServices || conditions.additionalServices.every(s => activeServices.includes(s));
+  const hasInventory = !conditions || !conditions.inventory || conditions.inventory.every(i => playerStatus.inventory.includes(i));
+  const hasPromoCode = !conditions || !conditions.promoCode || activePromoCode.toUpperCase() === conditions.promoCode.toUpperCase();
 
   // Проверка на запрещенные опции (wrongOptions)
   const hasWrongOptions = wrongOptions?.additionalServices?.some(s => activeServices.includes(s)) ?? false;

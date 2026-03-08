@@ -144,6 +144,8 @@ interface GameContextType {
   incrementStat: (stat: keyof PlayerStats, amount?: number) => void;
   // Сброс прогресса
   resetProgress: () => void;
+  // Сброс ID пользователя (для тестирования)
+  resetUserId: () => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -151,25 +153,51 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 /**
  * Ключ для localStorage
  */
-const STORAGE_KEY = 'unreal-rooms-player-status';
+const STORAGE_KEY_USER_ID = 'unreal-rooms-user-id';
+const STORAGE_KEY_PREFIX = 'unreal-rooms-player-';
+
+/**
+ * Получить или создать ID пользователя
+ */
+function getUserId(): string {
+  if (typeof window === 'undefined') return 'local-player';
+
+  let userId = localStorage.getItem(STORAGE_KEY_USER_ID);
+  if (!userId) {
+    userId = `user-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(STORAGE_KEY_USER_ID, userId);
+  }
+  return userId;
+}
+
+/**
+ * Получить ключ localStorage для текущего пользователя
+ */
+function getUserStorageKey(userId: string): string {
+  return `${STORAGE_KEY_PREFIX}${userId}`;
+}
 
 /**
  * Провайдер контекста игры
  */
 export function GameProvider({ children }: { children: ReactNode }) {
+  const [userId, setUserId] = useState<string>(() => getUserId());
   const [playerStatus, setPlayerStatus] = useState<PlayerStatus>(() => {
-    // Загрузка из localStorage
+    // Загрузка из localStorage для текущего пользователя
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const storageKey = getUserStorageKey(userId);
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
         try {
-          return JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          // Обновляем ID пользователя в загруженных данных
+          return { ...parsed, id: userId };
         } catch {
-          return initialPlayerStatus;
+          return { ...initialPlayerStatus, id: userId };
         }
       }
     }
-    return initialPlayerStatus;
+    return { ...initialPlayerStatus, id: userId };
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -177,9 +205,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
   // Сохранение в localStorage при изменении статуса
   useEffect(() => {
     if (!isLoading) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(playerStatus));
+      const storageKey = getUserStorageKey(userId);
+      localStorage.setItem(storageKey, JSON.stringify(playerStatus));
     }
-  }, [playerStatus, isLoading]);
+  }, [playerStatus, isLoading, userId]);
 
   // Имитация загрузки (можно заменить на реальный API вызов)
   useEffect(() => {
@@ -368,6 +397,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  /**
+   * Сбросить ID пользователя (начать с новым пользователем)
+   */
+  const resetUserId = () => {
+    localStorage.removeItem(STORAGE_KEY_USER_ID);
+    const newId = getUserId();
+    setUserId(newId);
+    setPlayerStatus({ ...initialPlayerStatus, id: newId });
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -387,6 +426,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         hasInInventory,
         incrementStat,
         resetProgress,
+        resetUserId,
       }}
     >
       {children}

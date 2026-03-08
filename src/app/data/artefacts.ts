@@ -8,6 +8,9 @@ import bottleWithNote7 from './images/artefacts/Bottle-with-a-Note.jpg';
 import bronzeHand8 from './images/artefacts/Bronze-Hand.jpg';
 import strangeWatch8 from './images/artefacts/Strange-Watch.jpg';
 import mountaineersHammer8 from './images/artefacts/Mountaineers-Hammer.jpg';
+import ravenFeather9 from './images/artefacts/Raven-Feather.jpg';
+import goldBug9 from './images/artefacts/Gold-Bug.jpeg';
+import mechanicalHeart from './images/artefacts/Mechanical- Heart.jpg';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -77,6 +80,36 @@ export const artefacts: Record<string, Artefact> = {
     image: mountaineersHammer8,
     type: 'lost-and-found',
     hotelId: '8',
+  },
+  'raven-feather': {
+    id: 'raven-feather',
+    name: 'Черное перо',
+    nameEn: 'Black Feather',
+    description: 'Перо ворона из отеля Usher Guest House',
+    descriptionEn: 'A raven feather from Usher Guest House',
+    image: ravenFeather9,
+    type: 'lost-and-found',
+    hotelId: '9',
+  },
+  'gold-bug': {
+    id: 'gold-bug',
+    name: 'Золотой жук',
+    nameEn: 'The Gold Bug',
+    description: 'Загадочный золотой жук — приз из отеля Usher',
+    descriptionEn: 'A mysterious gold bug — prize from Usher hotel',
+    image: goldBug9,
+    type: 'prize',
+    hotelId: '9',
+  },
+  'mechanical-heart': {
+    id: 'mechanical-heart',
+    name: 'Механическое сердце',
+    nameEn: 'Mechanical Heart',
+    description: 'Загадочное механическое сердце для прохождения в отеле Usher',
+    descriptionEn: 'A mysterious mechanical heart needed to pass Usher hotel',
+    image: mechanicalHeart,
+    type: 'lost-and-found',
+    hotelId: '9',
   },
 };
 
