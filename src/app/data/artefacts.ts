@@ -10,7 +10,8 @@ import strangeWatch8 from './images/artefacts/Strange-Watch.jpg';
 import mountaineersHammer8 from './images/artefacts/Mountaineers-Hammer.jpg';
 import ravenFeather9 from './images/artefacts/Raven-Feather.jpg';
 import goldBug9 from './images/artefacts/Gold-Bug.jpeg';
-import mechanicalHeart from './images/artefacts/Mechanical- Heart.jpg';
+import mechanicalHeart from './images/artefacts/Mechanical-Heart.jpg';
+import secureCode from './images/artefacts/Secure-Code.jpg';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -108,6 +109,16 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Загадочное механическое сердце для прохождения в отеле Usher',
     descriptionEn: 'A mysterious mechanical heart needed to pass Usher hotel',
     image: mechanicalHeart,
+    type: 'lost-and-found',
+    hotelId: '9',
+  },
+  'secure-code': {
+    id: 'secure-code',
+    name: 'Безопасный код',
+    nameEn: 'Secure Code',
+    description: 'Секретный код для бронирования отеля Stay-Ceil',
+    descriptionEn: 'A secret code for accessing Stay-Ceil hotel',
+    image: secureCode,
     type: 'lost-and-found',
     hotelId: '9',
   },

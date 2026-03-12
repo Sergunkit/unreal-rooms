@@ -68,12 +68,13 @@ export interface Room {
 
 export interface GalleryImageAction {
   imageIndex: number;
-  type: 'toggle' | 'hint' | 'figurines' | 'artifact-find';
+  type: 'toggle' | 'hint' | 'figurines' | 'artifact-find' | 'capcha-get';
   alternateImage?: string;
   coords?: { x1: number; y1: number; x2: number; y2: number };
   message?: string;
   messageEn?: string;
   artefact?: { id: number; name: string; nameEn: string; image: string };
+  capcha?: Captcha; // Капча для capcha-get действия
 }
 
 export interface Prize {
@@ -98,6 +99,9 @@ export interface WrongOptions {
   checkInTime?: string;
   paymentMethod?: string;
   date?: string;
+  floor?: string;
+  exitCode?: string;
+  avoidRoom?: string;
 }
 
 export interface CaptchaItem {
@@ -113,11 +117,32 @@ export interface Captcha {
   items: CaptchaItem[];
   errorResponse: string;
   errorResponseEn: string;
+  successResponse?: string;
+  successResponseEn?: string;
+  correctSequence?: Array<string | number>;
   alienQuestion?: string;
   alienQuestionEn?: string;
   alienItems?: CaptchaItem[];
   alienCorrectAnswers?: string[];
   humanCorrectAnswers?: string[];
+}
+
+export interface InitialBookingState {
+  roomNumber?: string;
+  roomNumberTemplate?: string; // e.g. '{floor}{suffix}'
+  defaultFloor?: number;
+  floorOptions?: number[];
+  suffixByRoomType?: Record<string, string>;
+  roomType?: string;
+  guests?: number;
+  rooms?: number;
+  mealType?: string;
+  needTransfer?: boolean;
+  checkInDate?: string;
+  checkOutDate?: string;
+  checkInTime?: string;
+  selectedServices?: string[];
+  promoCode?: string;
 }
 
 export interface Hotel {
@@ -160,4 +185,5 @@ export interface Hotel {
   wrongOptions?: WrongOptions;
   captcha?: Captcha;
   promoCodes?: PromoCode[];
+  initialBookingState?: InitialBookingState;
 }

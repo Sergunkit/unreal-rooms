@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useGame, type MealType, type AdditionalService } from '../contexts/GameContext';
 import { hotelData } from '../data/hotels';
+import { CaptchaModal } from '../components/CaptchaModal';
 // import { Sparkles } from 'lucide-react';
 import {
   Users,
@@ -41,6 +42,7 @@ import {
 } from '@/app/components/ui/dialog';
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
+import React from 'react';
 
 interface HotelAdditionalService {
   id: string;
@@ -91,10 +93,11 @@ export function BookingFormPage({
     saveTempBookingForm,
     addArtefact,
     hasArtefact,
+    setCurrentHotelProgress,
   } = useGame();
 
   // Get temp booking form data if exists
-  const tempForm = playerStatus.tempBookingForm;
+  const tempForm = playerStatus.currentHotelProgress?.tempBookingForm;
 
   // Get saved booking if exists
   const savedBooking = playerStatus.currentBooking;
@@ -150,9 +153,22 @@ export function BookingFormPage({
   const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
   const [captchaError, setCaptchaError] = useState(false);
   const [isAlienCaptcha, setIsAlienCaptcha] = useState(false);
-  const [roomNumber] = useState(() => Math.floor(Math.random() * 900 + 100));
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
+
+  const computeRoomNumber = React.useCallback(
+    (floor: number, roomTypeValue: string) => {
+      const template = hotel?.initialBookingState?.roomNumberTemplate ?? '{floor}{suffix}';
+      const suffix = hotel?.initialBookingState?.suffixByRoomType?.[roomTypeValue] ?? '';
+      return template.replace('{floor}', String(floor)).replace('{suffix}', suffix);
+    },
+    [hotel]
+  );
+
+  const currentFloor =
+    playerStatus.currentHotelProgress?.floor ?? hotel?.initialBookingState?.defaultFloor ?? 14;
+  const roomNumber =
+    playerStatus.currentHotelProgress?.roomNumber ?? computeRoomNumber(currentFloor, roomType);
 
   const t = {
     title: language === 'ru' ? 'Бронирование номера' : 'Room Booking',
@@ -280,6 +296,57 @@ export function BookingFormPage({
     saveTempBookingForm,
   ]);
 
+  // Update room number whenever selected room type or floor changes
+  useEffect(() => {
+    if (!hotel) return;
+
+    const floor =
+      playerStatus.currentHotelProgress?.floor ?? hotel.initialBookingState?.defaultFloor ?? 14;
+    const newRoomNumber = computeRoomNumber(floor, roomType);
+
+    if (playerStatus.currentHotelProgress?.roomNumber !== newRoomNumber) {
+      setCurrentHotelProgress({
+        hotelId: hotelId || '',
+        tempBookingForm: playerStatus.currentHotelProgress?.tempBookingForm ??
+          tempForm ?? {
+            guests,
+            rooms,
+            roomType,
+            checkInDate: checkInDate?.toISOString() || null,
+            checkOutDate: checkOutDate?.toISOString() || null,
+            mealType,
+            needTransfer,
+            checkInTime,
+            selectedServices,
+            promoCode: appliedPromo || undefined,
+          },
+        floor,
+        roomNumber: newRoomNumber,
+        startedAt: playerStatus.currentHotelProgress?.startedAt ?? new Date().toISOString(),
+      });
+    }
+  }, [
+    hotel,
+    hotelId,
+    roomType,
+    playerStatus.currentHotelProgress?.floor,
+    playerStatus.currentHotelProgress?.roomNumber,
+    playerStatus.currentHotelProgress?.tempBookingForm,
+    playerStatus.currentHotelProgress?.startedAt,
+    tempForm,
+    guests,
+    rooms,
+    checkInDate,
+    checkOutDate,
+    mealType,
+    needTransfer,
+    checkInTime,
+    selectedServices,
+    appliedPromo,
+    computeRoomNumber,
+    setCurrentHotelProgress,
+  ]);
+
   // Check if hotel has captcha and if user selected wrong options
   const hasHotelCaptcha = hotel?.captcha && hotelId === '8';
   const hasWrongSelections: boolean = !!(
@@ -350,13 +417,6 @@ export function BookingFormPage({
         setCaptchaError(true);
       }
     }
-  };
-
-  const handleCaptchaToggle = (itemId: string) => {
-    setCaptchaSelected((prev) =>
-      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
-    );
-    setCaptchaError(false);
   };
 
   const finalizeBooking = (_isAlien: boolean = false) => {
@@ -820,7 +880,7 @@ export function BookingFormPage({
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {language === 'ru' ? 'Номер комнаты:' : 'Room number:'}:
+                    {language === 'ru' ? 'Номер комнаты' : 'Room number'}:
                   </span>
                   <span>#{roomNumber}</span>
                 </div>
@@ -1002,71 +1062,37 @@ export function BookingFormPage({
 
         {/* Captcha Modal */}
         {showCaptcha && hotel?.captcha && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl text-foreground font-medium mb-2">
-                  {isAlienCaptcha
-                    ? language === 'ru'
-                      ? hotel.captcha.alienQuestion
-                      : hotel.captcha.alienQuestionEn
-                    : language === 'ru'
-                      ? hotel.captcha.question
-                      : hotel.captcha.questionEn}
-                </h3>
-                {captchaError && (
-                  <p className="text-red-500 text-sm">
-                    {language === 'ru'
-                      ? hotel.captcha.errorResponse
-                      : hotel.captcha.errorResponseEn}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {(isAlienCaptcha ? (hotel.captcha.alienItems ?? []) : hotel.captcha.items).map(
-                  (item) => (
-                    <div
-                      key={item.id}
-                      onClick={() => handleCaptchaToggle(item.id)}
-                      className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
-                        captchaSelected.includes(item.id)
-                          ? 'border-primary ring-2 ring-primary/50'
-                          : 'border-transparent hover:border-primary/50'
-                      }`}
-                    >
-                      <div className="w-full aspect-[1/1] bg-secondary flex items-center justify-center overflow-hidden">
-                        <img
-                          src={item.image}
-                          alt={item.label}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">
-                        {item.label}
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-
-              <div className="flex justify-end gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowCaptcha(false)}
-                  className="border-border"
-                >
-                  {t.cancel}
-                </Button>
-                <Button
-                  onClick={handleCaptchaSubmit}
-                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
-                >
-                  {language === 'ru' ? 'Подтвердить' : 'Confirm'}
-                </Button>
-              </div>
-            </div>
-          </div>
+          <CaptchaModal
+            open={showCaptcha}
+            onClose={() => {
+              setShowCaptcha(false);
+              setCaptchaSelected([]);
+              setCaptchaError(false);
+            }}
+            captcha={hotel.captcha}
+            selection={captchaSelected}
+            setSelection={setCaptchaSelected}
+            errorMessage={
+              captchaError
+                ? language === 'ru'
+                  ? hotel.captcha.errorResponse
+                  : hotel.captcha.errorResponseEn
+                : undefined
+            }
+            title={
+              isAlienCaptcha
+                ? language === 'ru'
+                  ? hotel.captcha.alienQuestion
+                  : hotel.captcha.alienQuestionEn
+                : language === 'ru'
+                  ? hotel.captcha.question
+                  : hotel.captcha.questionEn
+            }
+            confirmLabel={language === 'ru' ? 'Подтвердить' : 'Confirm'}
+            mode="toggle"
+            showSelection={false}
+            onConfirm={handleCaptchaSubmit}
+          />
         )}
       </div>
     </div>

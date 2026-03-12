@@ -33,6 +33,26 @@ export interface TempBookingFormData {
 }
 
 /**
+ * Прогресс капчи отеля (последовательность выбранных элементов)
+ */
+export interface CaptchaProgress {
+  selectedSequence: string[]; // Последовательность выбранных ID элементов капчи
+  completedAt?: string; // Время завершения капчи
+}
+
+/**
+ * Прогресс прохождения текущего отеля
+ */
+export interface CurrentHotelProgress {
+  hotelId?: string;
+  tempBookingForm: TempBookingFormData | null;
+  floor?: number;
+  roomNumber?: string;
+  captchaProgress?: CaptchaProgress;
+  startedAt: string;
+}
+
+/**
  * Статус бронирования комнаты
  */
 export interface RoomBooking {
@@ -87,7 +107,7 @@ export interface PlayerStatus {
   id: string;
   visitedHotels: VisitedHotel[];
   currentBooking: RoomBooking | null;
-  tempBookingForm: TempBookingFormData | null;
+  currentHotelProgress: CurrentHotelProgress | null;
   collectedArtefacts: CollectedArtefact[];
   inventory: string[];
   stats: PlayerStats;
@@ -102,7 +122,7 @@ const initialPlayerStatus: PlayerStatus = {
   id: 'local-player',
   visitedHotels: [],
   currentBooking: null,
-  tempBookingForm: null,
+  currentHotelProgress: null,
   collectedArtefacts: [],
   inventory: [],
   stats: {
@@ -126,10 +146,18 @@ interface GameContextType {
   // Методы для работы с бронированиями
   setCurrentBooking: (booking: RoomBooking | null) => void;
   clearCurrentBooking: () => void;
+  // Методы для текущего прогресса отеля
+  setCurrentHotelProgress: (progress: CurrentHotelProgress | null) => void;
+  clearCurrentHotelProgress: () => void;
+  getCurrentHotelProgress: () => CurrentHotelProgress | null;
   // Методы для временных данных формы бронирования
   saveTempBookingForm: (data: TempBookingFormData) => void;
   clearTempBookingForm: () => void;
   getTempBookingForm: () => TempBookingFormData | null;
+  // Методы для капчи
+  updateCaptchaProgress: (sequence: string[], completedAt?: string) => void;
+  getCaptchaProgress: () => CaptchaProgress | undefined;
+  clearCaptchaProgress: () => void;
   // Методы для посещённых отелей
   addVisitedHotel: (hotel: VisitedHotel) => void;
   completeHotelVisit: (hotelId: string) => void;
@@ -241,18 +269,56 @@ export function GameProvider({ children }: { children: ReactNode }) {
   };
 
   /**
+   * Установить прогресс текущего отеля
+   */
+  const setCurrentHotelProgress = (progress: CurrentHotelProgress | null) => {
+    setPlayerStatus((prev) => ({
+      ...prev,
+      currentHotelProgress: progress,
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  /**
+   * Очистить прогресс текущего отеля
+   */
+  const clearCurrentHotelProgress = () => {
+    setPlayerStatus((prev) => ({
+      ...prev,
+      currentHotelProgress: null,
+      updatedAt: new Date().toISOString(),
+    }));
+  };
+
+  /**
+   * Получить прогресс текущего отеля
+   */
+  const getCurrentHotelProgress = () => {
+    return playerStatus.currentHotelProgress;
+  };
+
+  /**
    * Сохранить временные данные формы бронирования
    */
   const saveTempBookingForm = (data: TempBookingFormData) => {
     setPlayerStatus((prev) => {
+      const currentProgress = prev.currentHotelProgress || {
+        tempBookingForm: null,
+        startedAt: new Date().toISOString(),
+      };
+
       // Only update if data has actually changed to avoid unnecessary re-renders
-      const hasChanged = JSON.stringify(prev.tempBookingForm) !== JSON.stringify(data);
+      const hasChanged = JSON.stringify(currentProgress.tempBookingForm) !== JSON.stringify(data);
       if (!hasChanged) {
         return prev;
       }
+
       return {
         ...prev,
-        tempBookingForm: data,
+        currentHotelProgress: {
+          ...currentProgress,
+          tempBookingForm: data,
+        },
         updatedAt: new Date().toISOString(),
       };
     });
@@ -262,18 +328,76 @@ export function GameProvider({ children }: { children: ReactNode }) {
    * Очистить временные данные формы бронирования
    */
   const clearTempBookingForm = () => {
-    setPlayerStatus((prev) => ({
-      ...prev,
-      tempBookingForm: null,
-      updatedAt: new Date().toISOString(),
-    }));
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) {
+        return prev;
+      }
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          tempBookingForm: null,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
   };
 
   /**
    * Получить временные данные формы бронирования
    */
   const getTempBookingForm = () => {
-    return playerStatus.tempBookingForm;
+    return playerStatus.currentHotelProgress?.tempBookingForm || null;
+  };
+
+  /**
+   * Обновить прогресс капчи (последовательность выбранных элементов)
+   */
+  const updateCaptchaProgress = (sequence: string[], completedAt?: string) => {
+    setPlayerStatus((prev) => {
+      const currentProgress = prev.currentHotelProgress || {
+        tempBookingForm: null,
+        startedAt: new Date().toISOString(),
+      };
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...currentProgress,
+          captchaProgress: {
+            selectedSequence: sequence,
+            completedAt,
+          },
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Получить прогресс капчи
+   */
+  const getCaptchaProgress = () => {
+    return playerStatus.currentHotelProgress?.captchaProgress;
+  };
+
+  /**
+   * Очистить прогресс капчи
+   */
+  const clearCaptchaProgress = () => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) {
+        return prev;
+      }
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          captchaProgress: undefined,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
   };
 
   /**
@@ -414,9 +538,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         isLoading,
         setCurrentBooking,
         clearCurrentBooking,
+        setCurrentHotelProgress,
+        clearCurrentHotelProgress,
+        getCurrentHotelProgress,
         saveTempBookingForm,
         clearTempBookingForm,
         getTempBookingForm,
+        updateCaptchaProgress,
+        getCaptchaProgress,
+        clearCaptchaProgress,
         addVisitedHotel,
         completeHotelVisit,
         addArtefact,
