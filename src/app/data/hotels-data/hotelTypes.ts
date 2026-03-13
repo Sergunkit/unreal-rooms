@@ -27,7 +27,14 @@ export interface RoomType {
   value: string;
   label: string;
   labelEn: string;
-  basePrice: number;
+  price: number;
+  size: number;
+  capacity: number;
+  beds: string;
+  bedsEn: string;
+  amenities: string[];
+  amenitiesEn: string[];
+  image: string;
 }
 
 export interface MealType {
@@ -45,10 +52,7 @@ export interface FeedBack {
 }
 
 export interface LostAndFoundItem {
-  id: number | string;
-  name: string;
-  nameEn: string;
-  image: string;
+  id: string;
 }
 
 export interface Room {
@@ -73,14 +77,8 @@ export interface GalleryImageAction {
   coords?: { x1: number; y1: number; x2: number; y2: number };
   message?: string;
   messageEn?: string;
-  artefact?: { id: number; name: string; nameEn: string; image: string };
+  artefact?: string; // id артефакта
   capcha?: Captcha; // Капча для capcha-get действия
-}
-
-export interface Prize {
-  name: string;
-  nameEn: string;
-  image: string;
 }
 
 export interface PassingConditions {
@@ -172,11 +170,11 @@ export interface Hotel {
   heart_tool_tip?: string;
   heart_tool_tipEn?: string;
   feedBacks: FeedBack[];
-  lostandfaund: LostAndFoundItem[];
+  lostandfaund: string[];
   rooms: Room[];
   roomTypes?: RoomType[];
   mealTypes?: MealType[];
-  prize?: Prize;
+  prize?: string;
   chatMassages?: string[];
   chatMassegesEn?: string[];
   noise?: string;

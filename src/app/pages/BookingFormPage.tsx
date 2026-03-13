@@ -18,6 +18,7 @@ import {
   Sparkles,
   X,
 } from 'lucide-react';
+import { artefacts } from '../data/artefacts';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
@@ -42,7 +43,7 @@ import {
 } from '@/app/components/ui/dialog';
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
-import React from 'react';
+import { Room } from '../data/hotels-data/hotelTypes';
 
 interface HotelAdditionalService {
   id: string;
@@ -51,7 +52,7 @@ interface HotelAdditionalService {
   price: number;
 }
 
-interface HotelRoomType {
+interface HotelRoomType extends Room {
   value: string;
   label: string;
   labelEn: string;
@@ -74,7 +75,6 @@ interface FoundPrize {
   artefactId: string;
   name: string;
   nameEn: string;
-  image: string;
   alreadyCollected: boolean;
 }
 
@@ -104,13 +104,19 @@ export function BookingFormPage({
   const [foundPrize, setFoundPrize] = useState<FoundPrize | null>(null);
   const hotelAdditionalServices: HotelAdditionalService[] =
     hotel?.amenities?.additionalServices || [];
-  const hotelRoomTypes: HotelRoomType[] = hotel?.roomTypes || [];
+  const hotelRoomTypes: Room[] = hotel?.rooms || [];
   const hotelMealTypes: HotelMealType[] = hotel?.mealTypes || [];
   const hotelPromoCodes = hotel?.promoCodes || [];
 
   // Use hotel data or empty arrays if not available
   const additionalServices: HotelAdditionalService[] = hotelAdditionalServices;
-  const roomTypes: HotelRoomType[] = hotelRoomTypes;
+  const roomTypes: HotelRoomType[] = hotelRoomTypes.map((room) => ({
+    ...room,
+    value: room.name,
+    label: room.name,
+    labelEn: room.nameEn,
+    basePrice: room.price,
+  }));
   const mealTypes: HotelMealType[] = hotelMealTypes;
 
   // Form state
@@ -212,7 +218,7 @@ export function BookingFormPage({
 
     let total = 0;
     if (selectedRoom && nights > 0) {
-      total = selectedRoom.basePrice * rooms * nights;
+      total = selectedRoom.price * rooms * nights;
     }
 
     if (selectedMeal) {
@@ -391,12 +397,12 @@ export function BookingFormPage({
       // Check if already collected
       const alreadyCollected = hasArtefact(`prize-${hotelId}`);
       if (!alreadyCollected) {
+        const artefact = artefacts[prize];
         // Show prize modal
         setFoundPrize({
           artefactId: `prize-${hotelId}`,
-          name: prize.name,
-          nameEn: prize.nameEn,
-          image: prize.image,
+          name: artefact.name,
+          nameEn: artefact.nameEn,
           alreadyCollected,
         });
         setShowPrizeModal(true);
@@ -962,11 +968,9 @@ export function BookingFormPage({
               </div>
               <div className="overflow-y-auto flex-1 p-6 flex flex-col items-center">
                 <div className="w-full max-w-xs aspect-[2/3] bg-secondary rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={foundPrize.image}
-                    alt={foundPrize.name}
-                    className="w-full h-full object-contain"
-                  />
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                    <Sparkles className="w-12 h-12 text-primary/50" />
+                  </div>
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">
                   {language === 'ru' ? foundPrize.name : foundPrize.nameEn}
@@ -987,7 +991,7 @@ export function BookingFormPage({
                         artefactId: foundPrize.artefactId,
                         name: foundPrize.name,
                         nameEn: foundPrize.nameEn,
-                        image: foundPrize.image,
+                        image: '', // No image available for prizes
                         collectedAt: new Date().toISOString(),
                       });
                       setShowPrizeModal(false);

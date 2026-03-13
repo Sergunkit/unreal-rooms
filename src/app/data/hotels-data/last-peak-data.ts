@@ -13,10 +13,6 @@ import classicComfort8 from '../images/LastPeak/standart.jpg';
 import infinityView8 from '../images/LastPeak/infinity_view.jpg';
 import specialistSuite8 from '../images/LastPeak/lux-specialist.jpg';
 
-import bronzeHand8 from '../images/artefacts/Bronze-Hand.jpg';
-import strangeWatch8 from '../images/artefacts/Strange-Watch.jpg';
-import mountaineers_hammer8 from '../images/artefacts/Mountaineers-Hammer.jpg';
-
 // Captcha images
 import captchaApple from '../images/LastPeak/captcha-apple.jpeg';
 import captchaNail from '../images/LastPeak/captcha-nail.jpeg';
@@ -85,12 +81,7 @@ export const lastPeakData = {
       coords: { x1: 5, y1: 30, x2: 20, y2: 50 },
       message: 'Вы увидели лицо Альпиниста. Теперь вы видите мир его глазами.',
       messageEn: 'You saw the face of the Mountaineer. Now you see the world through his eyes.',
-      artefact: {
-        id: 2,
-        name: 'Молоток альпиниста',
-        nameEn: "Mountaineer's Hammer",
-        image: mountaineers_hammer8,
-      },
+      artefact: 'mountaineers-hammer',
     },
   ],
   amenities: {
@@ -174,26 +165,6 @@ export const lastPeakData = {
     needTransfer: false,
     checkInTime: '15:00',
   },
-  roomTypes: [
-    {
-      value: 'classic-comfort',
-      label: 'Классический комфорт',
-      labelEn: 'Classic Comfort',
-      basePrice: 120,
-    },
-    {
-      value: 'infinity-view',
-      label: 'Вид на вечность',
-      labelEn: 'Infinity View',
-      basePrice: 450,
-    },
-    {
-      value: 'specialist-suite',
-      label: 'Люкс "Специалист"',
-      labelEn: 'Specialist Suite',
-      basePrice: 850,
-    },
-  ],
   mealTypes: [
     { value: 'standard', label: 'Стандарт (Органика)', labelEn: 'Standard (Organic)', price: 20 },
     {
@@ -211,9 +182,9 @@ export const lastPeakData = {
   ],
   rooms: [
     {
-      id: 1,
-      name: 'Классический комфорт',
-      nameEn: 'Classic Comfort',
+      value: 'classic-comfort',
+      label: 'Классический комфорт',
+      labelEn: 'Classic Comfort',
       price: 120,
       size: 25,
       capacity: 2,
@@ -224,9 +195,9 @@ export const lastPeakData = {
       image: classicComfort8,
     },
     {
-      id: 2,
-      name: 'Вид на вечность',
-      nameEn: 'Infinity View',
+      value: 'infinity-view',
+      label: 'Вид на вечность',
+      labelEn: 'Infinity View',
       price: 450,
       size: 40,
       capacity: 2,
@@ -237,9 +208,9 @@ export const lastPeakData = {
       image: infinityView8,
     },
     {
-      id: 3,
-      name: 'Люкс "Специалист"',
-      nameEn: 'Specialist Suite',
+      value: 'specialist-suite',
+      label: 'Люкс "Специалист"',
+      labelEn: 'Specialist Suite',
       price: 850,
       size: 50,
       capacity: 1,
@@ -250,15 +221,8 @@ export const lastPeakData = {
       image: specialistSuite8,
     },
   ],
-  lostandfaund: [
-    { id: 'bronze-hand', name: 'Бронзовая рука', nameEn: 'Bronze Hand', image: bronzeHand8 },
-    //   { id: 2, name: 'Фрагмент портрета', nameEn: 'Portrait Piece', image: portraitPiece8 },
-  ],
-  prize: {
-    name: 'Странные наручные часы',
-    nameEn: 'Strange Wristwatch',
-    image: strangeWatch8,
-  },
+  lostandfaund: ['bronze-hand'],
+  prize: 'strange-watch',
   chatMassages: [
     'Лавина перекрыла доступ. Выход невозможен.',
     'Вы уверены, что ваши часы идут вперед?',
@@ -296,7 +260,7 @@ export const lastPeakData = {
     roomId: 'classic-comfort',
     mealTypes: ['standard'],
     additionalServices: ['dog-service'],
-    inventory: ["Mountaineer's Hammer"],
+    inventory: ['mountaineers-hammer'],
   },
 
   // Поток квеста

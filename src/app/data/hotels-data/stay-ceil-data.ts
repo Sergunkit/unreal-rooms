@@ -15,7 +15,6 @@ import captcha6 from '../images/StayCeil/capcha6.jpg';
 import captcha7 from '../images/StayCeil/capcha7.jpg';
 import captcha8 from '../images/StayCeil/capcha8.jpg';
 import captcha9 from '../images/StayCeil/capcha9.jpg';
-import paperCodeArtefact from '../images/artefacts/Secure-Code.jpg'; // Листок с кодом 1911 для отеля Stay-Ceil
 
 import roomStandard from '../images/StayCeil/Room-Standard.jpeg'; // Аскетичный номер с раковиной и общими удобствами
 import roomSuperior from '../images/StayCeil/Room-Superior.jpeg'; // С ТВ и кондеем
@@ -142,26 +141,6 @@ export const stayCeilData = {
     },
   },
 
-  roomTypes: [
-    {
-      value: 'standard',
-      label: 'Standard (без ТВ, общая ванна)',
-      labelEn: 'Standard (No TV, Shared Bath)',
-      basePrice: 45,
-    },
-    {
-      value: 'superior',
-      label: 'Superior (ТВ, частная ванна, кондей)',
-      labelEn: 'Superior (TV, Private Bath, AC)',
-      basePrice: 75,
-    },
-    {
-      value: 'rehab',
-      label: 'Studio "Изоляция" (рехаб-режим)',
-      labelEn: 'Studio "Isolation" (Rehab mode)',
-      basePrice: 110,
-    },
-  ],
   mealTypes: [
     {
       value: 'breakfast',
@@ -180,10 +159,14 @@ export const stayCeilData = {
   rooms: [
     {
       id: 1,
-      roomNumber: 101,
+      roomNumber: null,
       name: 'Standard "Светлый путь"',
       nameEn: 'Standard "Bright Path"',
+      value: 'standard',
+      label: 'Standard "Светлый путь"',
+      labelEn: 'Standard "Bright Path"',
       price: 45,
+      basePrice: 45,
       size: 12,
       capacity: 2,
       beds: '1 двуспальная кровать',
@@ -199,10 +182,14 @@ export const stayCeilData = {
     },
     {
       id: 2,
-      roomNumber: 201,
+      roomNumber: null,
       name: 'Superior "Горизонт"',
       nameEn: 'Superior "Horizon"',
+      value: 'superior',
+      label: 'Superior "Горизонт"',
+      labelEn: 'Superior "Horizon"',
       price: 75,
+      basePrice: 75,
       size: 18,
       capacity: 2,
       beds: '1 двуспальная кровать',
@@ -213,10 +200,14 @@ export const stayCeilData = {
     },
     {
       id: 3,
-      roomNumber: 1402,
+      roomNumber: null,
       name: 'Rehab "Изоляция"',
       nameEn: 'Rehab "Isolation"',
+      value: 'rehab',
+      label: 'Rehab "Изоляция"',
+      labelEn: 'Rehab "Isolation"',
       price: 110,
+      basePrice: 110,
       size: 10,
       capacity: 1,
       beds: '1 двуспальная кровать',
@@ -239,15 +230,7 @@ export const stayCeilData = {
     },
   ],
 
-  lostandfaund: [
-    {
-      id: 'secure-code',
-      name: 'Листок с кодом 0191',
-      nameEn: 'Scrap of paper with code 1191',
-      image: paperCodeArtefact,
-    },
-    // { id: 'syringe', name: 'Использованный шприц', nameEn: 'Used syringe', image: syringeArtefact },
-  ],
+  lostandfaund: ['secure-code'],
 
   chatMassages: [
     'Проверка связи. Вы чувствуете себя в безопасности?',

@@ -16,8 +16,6 @@ import highTideAttic7 from '../images/Soldier/High-Tide-Attic.jpeg';
 import nightcapDeluxe7 from '../images/Soldier/Nightcap-Deluxe.jpg';
 import verdictGrandSuite7 from '../images/Soldier/Verdict-Grand-Suite.jpg';
 import headImage7 from '../images/Soldier/head-image.jpg';
-import judgesHummer7 from '../images/artefacts/Judges-Hummer.jpg';
-import bottleWithNote7 from '../images/artefacts/Bottle-with-a-Note.jpg';
 
 export const soldierData = {
   id: 7,
@@ -147,64 +145,6 @@ export const soldierData = {
     needTransfer: false,
     checkInTime: '14:00',
   },
-  roomTypes: [
-    {
-      value: 'last-stand',
-      label: 'Люкс "Последний рубеж"',
-      labelEn: '"The Last Stand" Suite',
-      basePrice: 800,
-    },
-    {
-      value: 'deep-sleep',
-      label: 'Комната "Глубокий сон"',
-      labelEn: '"Deep Sleep" Room',
-      basePrice: 250,
-    },
-    {
-      value: 'angler’s-rest',
-      label: 'Рыбаций причал',
-      labelEn: '"Angler’s Rest" Cabin',
-      basePrice: 350,
-    },
-    {
-      value: 'hearth-Home',
-      label: 'Лодж "Очаг и дом"',
-      labelEn: '"Hearth & Home" Lodge',
-      basePrice: 800,
-    },
-    {
-      value: 'golden-hour',
-      label: 'Аппартаменты "Золотой час"',
-      labelEn: '"The Golden Hour" Lounge',
-      basePrice: 650,
-    },
-    {
-      value: 'gold-fish',
-      label: 'Студия "Золотая рыбка"',
-      labelEn: '"Gold Fish" Studio',
-      basePrice: 500,
-    },
-    {
-      value: 'beekeeper',
-      label: 'Лоджия пчеловода',
-      labelEn: '"The Beekeeper’s" Balcony',
-      basePrice: 250,
-    },
-    { value: 'first-aid', label: 'Первая помощь', labelEn: '"First Aid" Suite', basePrice: 350 },
-    {
-      value: 'high-tide',
-      label: 'Мансарда "Прилив"',
-      labelEn: '"High Tide" Attic',
-      basePrice: 250,
-    },
-    { value: 'nightcap', label: 'Полная чаша', labelEn: '"Nightcap" Deluxe', basePrice: 500 },
-    {
-      value: 'verdict',
-      label: 'Гранд-люкс "Вердикт"',
-      labelEn: '"The Verdict" Grand Suite',
-      basePrice: 450,
-    },
-  ],
   mealTypes: [
     { value: 'no-meal', label: 'Без питания', labelEn: 'No meals', price: 0 },
     {
@@ -228,10 +168,9 @@ export const soldierData = {
   ],
   rooms: [
     {
-      id: 1,
-      roomNumber: null,
-      name: 'Люкс "Последний рубеж"',
-      nameEn: '"The Last Stand" Suite',
+      value: 'last-stand',
+      label: 'Люкс "Последний рубеж"',
+      labelEn: '"The Last Stand" Suite',
       price: 800,
       size: 40,
       capacity: 4,
@@ -258,10 +197,9 @@ export const soldierData = {
       image: lastStandSuite7,
     },
     {
-      id: 2,
-      roomNumber: null,
-      name: 'Комната "Глубокий сон"',
-      nameEn: '"Deep Sleep" Room',
+      value: 'deep-sleep',
+      label: 'Комната "Глубокий сон"',
+      labelEn: '"Deep Sleep" Room',
       price: 250,
       size: 28,
       capacity: 2,
@@ -272,10 +210,9 @@ export const soldierData = {
       image: deepSleepRoom7,
     },
     {
-      id: 3,
-      roomNumber: null,
-      name: 'Рыбаций причал',
-      nameEn: '"Angler’s Rest" Cabin',
+      value: 'angler’s-rest',
+      label: 'Рыбаций причал',
+      labelEn: '"Angler’s Rest" Cabin',
       price: 350,
       size: 25,
       capacity: 2,
@@ -286,10 +223,9 @@ export const soldierData = {
       image: anglerRestCabin7,
     },
     {
-      id: 4,
-      roomNumber: null,
-      name: 'Лодж "Очаг и дом"',
-      nameEn: '"Hearth & Home" Lodge',
+      value: 'hearth-Home',
+      label: 'Лодж "Очаг и дом"',
+      labelEn: '"Hearth & Home" Lodge',
       price: 800,
       size: 65,
       capacity: 4,
@@ -320,10 +256,9 @@ export const soldierData = {
       image: hearthHomeLodge7,
     },
     {
-      id: 5,
-      roomNumber: null,
-      name: 'Аппартаменты "Золотой час"',
-      nameEn: '"The Golden Hour" Lounge',
+      value: 'golden-hour',
+      label: 'Аппартаменты "Золотой час"',
+      labelEn: '"The Golden Hour" Lounge',
       price: 650,
       size: 55,
       capacity: 4,
@@ -350,10 +285,9 @@ export const soldierData = {
       image: goldenHourLounge7,
     },
     {
-      id: 6,
-      roomNumber: null,
-      name: 'Студия "Золотая рыбка"',
-      nameEn: '"Gold Fish" Studio',
+      value: 'gold-fish',
+      label: 'Студия "Золотая рыбка"',
+      labelEn: '"Gold Fish" Studio',
       price: 500,
       size: 55,
       capacity: 3,
@@ -364,10 +298,9 @@ export const soldierData = {
       image: goldFishStudio7,
     },
     {
-      id: 7,
-      roomNumber: null,
-      name: 'Лоджия пчеловода',
-      nameEn: '"The Beekeeper’s" Balcony',
+      value: 'beekeeper',
+      label: 'Лоджия пчеловода',
+      labelEn: '"The Beekeeper’s" Balcony',
       price: 250,
       size: 25,
       capacity: 2,
@@ -378,10 +311,9 @@ export const soldierData = {
       image: beekeeperBalcony7,
     },
     {
-      id: 8,
-      roomNumber: null,
-      name: 'Первая помощь',
-      nameEn: '"First Aid" Suite',
+      value: 'first-aid',
+      label: 'Первая помощь',
+      labelEn: '"First Aid" Suite',
       price: 350,
       size: 25,
       capacity: 2,
@@ -399,10 +331,9 @@ export const soldierData = {
       image: firstAidSuite7,
     },
     {
-      id: 9,
-      roomNumber: null,
-      name: 'Мансарда "Прилив"',
-      nameEn: '"High Tide" Attic',
+      value: 'high-tide',
+      label: 'Мансарда "Прилив"',
+      labelEn: '"High Tide" Attic',
       price: 250,
       size: 20,
       capacity: 2,
@@ -413,10 +344,9 @@ export const soldierData = {
       image: highTideAttic7,
     },
     {
-      id: 10,
-      roomNumber: null,
-      name: 'Полная чаша',
-      nameEn: '"Nightcap" Deluxe',
+      value: 'nightcap',
+      label: 'Полная чаша',
+      labelEn: '"Nightcap" Deluxe',
       price: 500,
       size: 55,
       capacity: 4,
@@ -445,10 +375,9 @@ export const soldierData = {
       image: nightcapDeluxe7,
     },
     {
-      id: 11,
-      roomNumber: null,
-      name: 'Гранд-люкс "Вердикт"',
-      nameEn: '"The Verdict" Grand Suite',
+      value: 'verdict',
+      label: 'Гранд-люкс "Вердикт"',
+      labelEn: '"The Verdict" Grand Suite',
       price: 450,
       size: 25,
       capacity: 2,
@@ -459,19 +388,8 @@ export const soldierData = {
       image: verdictGrandSuite7,
     },
   ],
-  lostandfaund: [
-    {
-      id: 'judges-hummer',
-      name: 'Молоток судьи',
-      nameEn: 'Judges Hummer',
-      image: judgesHummer7,
-    },
-  ],
-  prize: {
-    name: 'Бутылка с запиской',
-    nameEn: 'Bottle with a Note',
-    image: bottleWithNote7,
-  },
+  lostandfaund: ['judges-hummer'],
+  prize: 'bottle-with-note',
   chatMassages: [
     'Десять негритят отправились обедать, Один поперхнулся, их осталось девять.',
     'Девять негритят, поев, клевали носом, Один проглотил себя, их осталось восемь.',
@@ -527,7 +445,7 @@ export const soldierData = {
     roomId: 'verdict',
     mealTypes: ['no-meal', 'half-board'],
     additionalServices: ['Cater-transfer'],
-    inventory: ['Judges Hummer'],
+    inventory: ['judges-hummer'],
   },
   wrongOptions: {
     additionalServices: ['sauna', 'excursion', 'diving', 'fishing', 'breakfast-in-room'],

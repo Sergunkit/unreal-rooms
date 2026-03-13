@@ -11,9 +11,6 @@ import roomMorgue9 from '../images/Usher/Room1.jpg'; // С пером
 import roomTellTale9 from '../images/Usher/Room2.jpg'; // С котом
 import roomBlackCat9 from '../images/Usher/Room3.jpg'; // С кочергой и зеркалом
 
-import goldBug9 from '../images/artefacts/Gold-Bug.jpeg';
-import ravenFeather from '../images/artefacts/Raven-Feather.jpg';
-
 export const usherData = {
   id: 9,
   name: 'Usher Guest House',
@@ -128,21 +125,6 @@ export const usherData = {
     needTransfer: false,
     checkInTime: '15:00',
   },
-  roomTypes: [
-    {
-      value: 'carl',
-      label: 'Гостевая "Карл III"',
-      labelEn: '"Charles III" Guest Room',
-      basePrice: 85,
-    },
-    { value: 'napoleon', label: 'Комната "Наполеон"', labelEn: '"Napoleon" Room', basePrice: 90 },
-    {
-      value: 'tamerlan',
-      label: 'Уютная студия "Тамерлан"',
-      labelEn: '"Tamerlan" Studio',
-      basePrice: 85,
-    },
-  ],
   mealTypes: [
     {
       value: 'breakfast',
@@ -165,12 +147,12 @@ export const usherData = {
   ],
   rooms: [
     {
-      id: 1,
-      name: 'Гостевая "Карл III"',
-      nameEn: '"Charles III" Guest Room',
+      value: 'carl',
+      label: 'Гостевая "Карл III"',
+      labelEn: '"Charles III" Guest Room',
       price: 85,
       size: 25,
-      apacity: 2,
+      capacity: 2,
       beds: '1 двуспальная кровать с балдахином',
       bedsEn: '1 double bed with canopy',
       amenities: ['Фен', 'Вид на сад', 'Шумопоглащающий ковролин'],
@@ -178,12 +160,12 @@ export const usherData = {
       image: roomMorgue9,
     },
     {
-      id: 2,
-      name: 'Комната "Наполеон"',
-      nameEn: '"Napoleon" Room',
+      value: 'napoleon',
+      label: 'Комната "Наполеон"',
+      labelEn: '"Napoleon" Room',
       price: 90,
       size: 25,
-      apacity: 2,
+      capacity: 2,
       beds: '1 двуспальная кровать с тестером',
       bedsEn: '1 double bed with tester',
       amenities: ['Камин', 'Балкон с видом на пруд', 'Ковролин', 'Дополнительная шумоизоляция'],
@@ -191,12 +173,12 @@ export const usherData = {
       image: roomTellTale9,
     },
     {
-      id: 3,
-      name: 'Уютная студия "Тамерлан"',
-      nameEn: '"Tamerlan" Studio',
+      value: 'tamerlan',
+      label: 'Уютная студия "Тамерлан"',
+      labelEn: '"Tamerlan" Studio',
       price: 85,
       size: 25,
-      apacity: 2,
+      capacity: 2,
       beds: '1 двуспальная кровать с мягким изголовьем',
       bedsEn: '1 double bed with soft headboard',
       amenities: ['Камин', 'Мягкий ковролин', 'Вид на пруд', 'Зеркало на потолке'],
@@ -204,14 +186,8 @@ export const usherData = {
       image: roomBlackCat9,
     },
   ],
-  lostandfaund: [
-    { id: 'raven-feather', name: 'Черное перо', nameEn: 'Black Feather', image: ravenFeather },
-  ],
-  prize: {
-    name: 'Золотой жук',
-    nameEn: 'The Gold Bug',
-    image: goldBug9,
-  },
+  lostandfaund: ['raven-feather'],
+  prize: 'gold-bug',
   chatMassages: [
     'И ворон недвижим, сидит он, сидит он...',
     'Слышите ли вы этоти звуки под половицами?',

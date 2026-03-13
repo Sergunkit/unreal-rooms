@@ -120,7 +120,7 @@ export const artefacts: Record<string, Artefact> = {
     descriptionEn: 'A secret code for accessing Stay-Ceil hotel',
     image: secureCode,
     type: 'lost-and-found',
-    hotelId: '9',
+    hotelId: '10',
   },
 };
 

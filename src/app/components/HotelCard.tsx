@@ -1,6 +1,7 @@
 import { Star, Sparkles, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useGame } from '../contexts/GameContext';
 
 interface HotelCardProps {
   id: number;
@@ -28,7 +29,14 @@ export function HotelCard({
   language,
 }: HotelCardProps) {
   const navigate = useNavigate();
+  const { playerStatus } = useGame();
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // Сердечко красное, если отель не завершен
+  const isHotelCompleted = playerStatus.visitedHotels.some(
+    (hotel) => hotel.hotelId === id.toString() && hotel.completed
+  );
+  const hasSafeBooking = isHotelCompleted;
 
   return (
     <div
@@ -51,13 +59,20 @@ export function HotelCard({
         <button
           onClick={(e) => {
             e.stopPropagation();
+            if (!hasSafeBooking) return; // Не кликабельно, пока не безопасно
             setIsFavorite(!isFavorite);
           }}
-          className="absolute top-4 left-4 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-all"
+          className={`absolute top-4 left-4 p-2 bg-black/50 backdrop-blur-sm rounded-full transition-all ${
+            hasSafeBooking ? 'hover:bg-black/70' : 'cursor-not-allowed opacity-75'
+          }`}
         >
           <Heart
             className={`w-5 h-5 transition-all ${
-              isFavorite ? 'fill-red-500 text-red-500' : 'text-white hover:text-red-500'
+              !hasSafeBooking
+                ? 'fill-red-500 text-red-500'
+                : isFavorite
+                  ? 'fill-red-500 text-red-500'
+                  : 'text-white hover:text-red-500'
             }`}
           />
         </button>

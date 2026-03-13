@@ -37,6 +37,7 @@ import { CaptchaModal } from '../components/CaptchaModal';
 import { useHotelProgress } from '../hooks/useHotelProgress';
 import { useHotelFlow } from '../hooks/useHotelFlow';
 import { useGame } from '../contexts/GameContext';
+import { artefacts } from '../data/artefacts';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 
 export function HotelDetailPage() {
@@ -73,7 +74,7 @@ export function HotelDetailPage() {
   const [showArtifactModal, setShowArtifactModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [foundArtifact, setFoundArtifact] = useState<{
-    id: number;
+    id: string;
     name: string;
     nameEn: string;
     image: string;
@@ -128,7 +129,7 @@ export function HotelDetailPage() {
 
   const feedbacks = hotel.feedBacks;
 
-  const lostFoundItems = hotel.lostandfaund;
+  const lostFoundItems = hotel.lostandfaund?.map((item) => artefacts[item]).filter(Boolean) || [];
 
   const handleCollectArtefact = (item: {
     id: number | string;
@@ -208,18 +209,20 @@ export function HotelDetailPage() {
                                 y >= galleryAction.coords.y1 &&
                                 y <= galleryAction.coords.y2
                               ) {
-                                handleGalleryClick(index, { x, y });
-                                setShowGalleryMessage({
-                                  show: true,
-                                  text:
-                                    language === 'ru'
-                                      ? galleryAction.message!
-                                      : galleryAction.messageEn!,
-                                });
-                                setTimeout(
-                                  () => setShowGalleryMessage({ show: false, text: '' }),
-                                  3000
-                                );
+                                const triggeredAction = handleGalleryClick(index, { x, y });
+                                if (triggeredAction) {
+                                  setShowGalleryMessage({
+                                    show: true,
+                                    text:
+                                      language === 'ru'
+                                        ? galleryAction.message!
+                                        : galleryAction.messageEn!,
+                                  });
+                                  setTimeout(
+                                    () => setShowGalleryMessage({ show: false, text: '' }),
+                                    3000
+                                  );
+                                }
                               }
                             }}
                           >
@@ -253,19 +256,23 @@ export function HotelDetailPage() {
                                 y >= galleryAction.coords.y1 &&
                                 y <= galleryAction.coords.y2
                               ) {
-                                handleGalleryClick(index, { x, y });
-
-                                // Show artifact modal
-                                if (galleryAction.artefact) {
-                                  const alreadyHas = hasArtefact(String(galleryAction.artefact.id));
-                                  setFoundArtifact({
-                                    id: galleryAction.artefact.id,
-                                    name: galleryAction.artefact.name,
-                                    nameEn: galleryAction.artefact.nameEn,
-                                    image: galleryAction.artefact.image,
-                                    alreadyCollected: alreadyHas,
-                                  });
-                                  setShowArtifactModal(true);
+                                const triggeredAction = handleGalleryClick(index, { x, y });
+                                if (triggeredAction) {
+                                  // Show artifact modal
+                                  if (galleryAction.artefact) {
+                                    const artefactData = artefacts[galleryAction.artefact];
+                                    if (artefactData) {
+                                      const alreadyHas = hasArtefact(artefactData.id);
+                                      setFoundArtifact({
+                                        id: artefactData.id,
+                                        name: artefactData.name,
+                                        nameEn: artefactData.nameEn,
+                                        image: artefactData.image,
+                                        alreadyCollected: alreadyHas,
+                                      });
+                                      setShowArtifactModal(true);
+                                    }
+                                  }
                                 }
                               }
                             }}
@@ -295,18 +302,20 @@ export function HotelDetailPage() {
                                 y >= galleryAction.coords.y1 &&
                                 y <= galleryAction.coords.y2
                               ) {
-                                handleGalleryClick(index, { x, y });
-                                setShowGalleryMessage({
-                                  show: true,
-                                  text:
-                                    language === 'ru'
-                                      ? galleryAction.message!
-                                      : galleryAction.messageEn!,
-                                });
-                                setTimeout(
-                                  () => setShowGalleryMessage({ show: false, text: '' }),
-                                  3000
-                                );
+                                const triggeredAction = handleGalleryClick(index, { x, y });
+                                if (triggeredAction) {
+                                  setShowGalleryMessage({
+                                    show: true,
+                                    text:
+                                      language === 'ru'
+                                        ? galleryAction.message!
+                                        : galleryAction.messageEn!,
+                                  });
+                                  setTimeout(
+                                    () => setShowGalleryMessage({ show: false, text: '' }),
+                                    3000
+                                  );
+                                }
                               }
                             }}
                           >

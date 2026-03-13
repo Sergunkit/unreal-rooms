@@ -8,6 +8,7 @@ export interface FlowState {
   currentStep: FlowStep;
   completedSteps: FlowStep[];
   galleryStates: Record<number, boolean>; // imageIndex -> toggled
+  galleryActionsTriggered: Record<number, boolean>; // imageIndex -> action triggered for current state
   captchaCompleted: boolean;
   floorSelected: boolean;
 }
@@ -38,6 +39,7 @@ export function useHotelFlow(hotelId?: string) {
       currentStep: progress?.flowState?.currentStep ?? initialStep,
       completedSteps: progress?.flowState?.completedSteps ?? [],
       galleryStates: progress?.flowState?.galleryStates ?? {},
+      galleryActionsTriggered: progress?.flowState?.galleryActionsTriggered ?? {},
       captchaCompleted: progress?.flowState?.captchaCompleted ?? false,
       floorSelected: progress?.flowState?.floorSelected ?? false,
     };
@@ -52,6 +54,7 @@ export function useHotelFlow(hotelId?: string) {
         currentStep: currentProgress?.flowState?.currentStep ?? initialStep,
         completedSteps: currentProgress?.flowState?.completedSteps ?? [],
         galleryStates: currentProgress?.flowState?.galleryStates ?? {},
+        galleryActionsTriggered: currentProgress?.flowState?.galleryActionsTriggered ?? {},
         captchaCompleted: currentProgress?.flowState?.captchaCompleted ?? false,
         floorSelected: currentProgress?.flowState?.floorSelected ?? false,
       };
@@ -90,36 +93,63 @@ export function useHotelFlow(hotelId?: string) {
       const action = hotel?.galleryActions?.find((a) => a.imageIndex === imageIndex);
       if (!action) return;
 
+      const isTriggered = flowState.galleryActionsTriggered[imageIndex] ?? false;
+
       let shouldToggle = false;
+      let shouldTriggerAction = false;
 
       if (action.type === 'toggle') {
         shouldToggle = true;
+        shouldTriggerAction = true; // Для toggle действие - переключение, всегда
       } else if (action.type === 'hint' || action.type === 'artifact-find') {
         if (coords && action.coords) {
           const { x1, x2, y1, y2 } = action.coords;
           if (coords.x >= x1 && coords.x <= x2 && coords.y >= y1 && coords.y <= y2) {
             shouldToggle = true;
+            shouldTriggerAction = !isTriggered;
           }
         }
       } else if (action.type === 'capcha-get') {
         if (coords && action.coords) {
           const { x1, x2, y1, y2 } = action.coords;
           if (coords.x >= x1 && coords.x <= x2 && coords.y >= y1 && coords.y <= y2) {
-            // Для capcha-get не нужно toggle изображения
-            nextStep('captcha');
+            shouldTriggerAction = !isTriggered;
+            if (shouldTriggerAction) {
+              nextStep('captcha');
+            }
           }
         }
       }
+
+      const updates: Partial<FlowState> = {};
 
       if (shouldToggle) {
         const newGalleryStates = {
           ...flowState.galleryStates,
           [imageIndex]: !flowState.galleryStates[imageIndex],
         };
-        updateFlowState({ galleryStates: newGalleryStates });
+        updates.galleryStates = newGalleryStates;
+        // При toggle сбрасываем triggered, чтобы действие можно было выполнить снова
+        const newTriggered = { ...flowState.galleryActionsTriggered };
+        delete newTriggered[imageIndex];
+        updates.galleryActionsTriggered = newTriggered;
       }
+
+      if (shouldTriggerAction) {
+        updates.galleryActionsTriggered = {
+          ...flowState.galleryActionsTriggered,
+          [imageIndex]: true,
+        };
+      }
+
+      if (Object.keys(updates).length > 0) {
+        updateFlowState(updates);
+      }
+
+      // Возвращаем, нужно ли показать сообщение или выполнить действие
+      return shouldTriggerAction ? action : null;
     },
-    [hotel, flowState.galleryStates, updateFlowState, nextStep]
+    [hotel, flowState.galleryStates, flowState.galleryActionsTriggered, updateFlowState, nextStep]
   );
 
   // Обработка успешной captcha
