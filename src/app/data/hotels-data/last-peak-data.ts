@@ -158,6 +158,22 @@ export const lastPeakData = {
       },
     ],
   },
+  initialBookingState: {
+    roomNumberTemplate: '{floor}{suffix}',
+    defaultFloor: 10,
+    floorOptions: [10, 13, 17, 21, 24, 27],
+    suffixByRoomType: {
+      'classic-comfort': '01',
+      'infinity-view': '02',
+      'specialist-suite': '03',
+    },
+    roomType: 'classic-comfort',
+    guests: 2,
+    rooms: 1,
+    mealType: 'standard',
+    needTransfer: false,
+    checkInTime: '15:00',
+  },
   roomTypes: [
     {
       value: 'classic-comfort',
@@ -281,6 +297,14 @@ export const lastPeakData = {
     mealTypes: ['standard'],
     additionalServices: ['dog-service'],
     inventory: ["Mountaineer's Hammer"],
+  },
+
+  // Поток квеста
+  initialFlow: {
+    steps: ['gallery', 'booking'],
+    transitions: {
+      gallery: 'booking', // После действий в галерее -> бронирование с проверкой условий
+    },
   },
   wrongOptions: {
     additionalServices: ['entropy-fix'],

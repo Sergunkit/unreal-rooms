@@ -30,57 +30,48 @@ import {
 } from 'lucide-react';
 
 import { useLanguage } from '../contexts/LanguageContext';
-import { hotelData } from '../data/hotels';
 import { BookingFormPage } from './BookingFormPage';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ConciergeChat } from '../components/ConciergeChat';
 import { CaptchaModal } from '../components/CaptchaModal';
+import { useHotelProgress } from '../hooks/useHotelProgress';
+import { useHotelFlow } from '../hooks/useHotelFlow';
 import { useGame } from '../contexts/GameContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
-
-interface Room {
-  id: number;
-  roomNumber: number | null;
-  name: string;
-  nameEn: string;
-  price: number;
-  size: number;
-  capacity: number;
-  beds: string;
-  bedsEn: string;
-  amenities: string[];
-  amenitiesEn: string[];
-  image: string;
-}
 
 export function HotelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
 
-  const hotel = id ? hotelData[id as keyof typeof hotelData] : null;
-  const {
-    playerStatus,
-    addArtefact,
-    hasArtefact,
-    addToInventory,
-    updateCaptchaProgress,
-    setCurrentHotelProgress,
-  } = useGame();
+  const { playerStatus, addArtefact, hasArtefact, addToInventory } =
+    useGame();
+  const { hotel, floor } = useHotelProgress(id);
+  const { flowState, handleGalleryClick, handleCaptchaSuccess, handleFloorSelect, canBook } = useHotelFlow(id);
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedRoomTypeForBooking, setSelectedRoomTypeForBooking] = useState<string | null>(null);
-  const [galleryImageStates, setGalleryImageStates] = useState<Record<number, boolean>>({});
+  const [selectedRoom, setSelectedRoom] = useState<{
+    id: number;
+    name: string;
+    nameEn: string;
+    image: string;
+    size: number;
+    capacity: number;
+    beds: string;
+    bedsEn: string;
+    price: number;
+    amenities: string[];
+    amenitiesEn: string[];
+  } | null>(null);
   const [showGalleryMessage, setShowGalleryMessage] = useState<{ show: boolean; text: string }>({
     show: false,
     text: '',
   });
   const [showArtifactModal, setShowArtifactModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [foundArtifact, setFoundArtifact] = useState<{
     id: number;
     name: string;
@@ -88,76 +79,10 @@ export function HotelDetailPage() {
     image: string;
     alreadyCollected?: boolean;
   } | null>(null);
-  const [showCaptchaModal, setShowCaptchaModal] = useState(false);
   const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
   const [captchaError, setCaptchaError] = useState(false);
-  const [currentCaptchaData, setCurrentCaptchaData] = useState<
-    import('../data/hotels-data/hotelTypes').Captcha | null
-  >(null);
   const [showFloorSelectModal, setShowFloorSelectModal] = useState(false);
-  const [selectedFloor, setSelectedFloor] = useState<number>(
-    playerStatus.currentHotelProgress?.floor || hotel?.initialBookingState?.defaultFloor || 14
-  );
-
-  const computeRoomNumber = React.useCallback(
-    (floor: number, roomType: string) => {
-      const template = hotel?.initialBookingState?.roomNumberTemplate ?? '{floor}{suffix}';
-      const suffix = hotel?.initialBookingState?.suffixByRoomType?.[roomType] ?? '';
-      return template.replace('{floor}', String(floor)).replace('{suffix}', suffix);
-    },
-    [hotel]
-  );
-
-  // Initialize or re-sync hotel progress (room number / floor / temp form)
-  React.useEffect(() => {
-    if (!hotel) return;
-
-    const progress = playerStatus.currentHotelProgress;
-    const base = hotel.initialBookingState;
-    const floor = progress?.floor ?? base?.defaultFloor ?? 14;
-    const roomType =
-      progress?.tempBookingForm?.roomType ?? base?.roomType ?? hotel.roomTypes?.[0]?.value ?? '';
-    const roomNumber = computeRoomNumber(floor, roomType);
-
-    const tempBookingForm = progress?.tempBookingForm ?? {
-      guests: base?.guests ?? 1,
-      rooms: base?.rooms ?? 1,
-      roomType,
-      checkInDate: base?.checkInDate ?? null,
-      checkOutDate: base?.checkOutDate ?? null,
-      mealType: base?.mealType ?? '',
-      needTransfer: base?.needTransfer ?? false,
-      checkInTime: base?.checkInTime ?? '14:00',
-      selectedServices: base?.selectedServices ?? [],
-      promoCode: base?.promoCode,
-    };
-
-    const needUpdate =
-      !progress ||
-      progress.hotelId !== id ||
-      progress.floor !== floor ||
-      progress.roomNumber !== roomNumber ||
-      JSON.stringify(progress.tempBookingForm) !== JSON.stringify(tempBookingForm);
-
-    if (needUpdate) {
-      setCurrentHotelProgress({
-        hotelId: id,
-        tempBookingForm,
-        floor,
-        roomNumber,
-        startedAt: progress?.startedAt ?? new Date().toISOString(),
-      });
-      setSelectedFloor(floor);
-    }
-  }, [hotel, id, playerStatus.currentHotelProgress, setCurrentHotelProgress, computeRoomNumber]);
-
-  // Sync selectedFloor with current progress when it changes
-  React.useEffect(() => {
-    if (!hotel) return;
-    const floor =
-      playerStatus.currentHotelProgress?.floor ?? hotel.initialBookingState?.defaultFloor ?? 14;
-    setSelectedFloor(floor);
-  }, [hotel, playerStatus.currentHotelProgress]);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   // Force re-render when tempBookingForm changes to update heart icon in real-time
   const [, forceUpdate] = React.useState(0);
@@ -169,7 +94,7 @@ export function HotelDetailPage() {
     if (!emblaApi) return;
 
     const onSelect = () => {
-      setGalleryImageStates({});
+      // Reset gallery image states when carousel changes
     };
 
     emblaApi.on('select', onSelect);
@@ -178,49 +103,7 @@ export function HotelDetailPage() {
     };
   }, [emblaApi]);
 
-  const conditions = hotel?.passingConditions;
-  const wrongOptions = hotel?.wrongOptions;
-  // Check both confirmed booking and temporary form data
-  const currentBooking = playerStatus.currentBooking;
-  const tempForm = playerStatus.currentHotelProgress?.tempBookingForm;
-  // При открытой форме бронирования используем tempForm, иначе currentBooking
-  const activeRoomId =
-    showBookingModal && tempForm?.roomType
-      ? tempForm.roomType
-      : currentBooking?.roomId || tempForm?.roomType || '';
-  const activeMealType =
-    showBookingModal && tempForm?.mealType
-      ? tempForm.mealType
-      : currentBooking?.mealType || tempForm?.mealType || '';
-  const activeServices =
-    showBookingModal && tempForm?.selectedServices
-      ? tempForm.selectedServices
-      : currentBooking?.additionalServices || tempForm?.selectedServices || [];
-  const activePromoCode = showBookingModal && tempForm?.promoCode ? tempForm.promoCode : '';
-
-  const hasRoom = !conditions || activeRoomId === conditions.roomId;
-  const hasMeal =
-    !conditions || !conditions.mealTypes || conditions.mealTypes.includes(activeMealType);
-  const hasService =
-    !conditions ||
-    !conditions.additionalServices ||
-    conditions.additionalServices.every((s) => activeServices.includes(s));
-  const hasInventory =
-    !conditions ||
-    !conditions.inventory ||
-    conditions.inventory.every((i) => playerStatus.inventory.includes(i));
-  const hasPromoCode =
-    !conditions ||
-    !conditions.promoCode ||
-    activePromoCode.toUpperCase() === conditions.promoCode.toUpperCase();
-
-  // Проверка на запрещенные опции (wrongOptions)
-  const hasWrongOptions =
-    wrongOptions?.additionalServices?.some((s) => activeServices.includes(s)) ?? false;
-
-  const isSafeToBook =
-    !conditions ||
-    (hasRoom && hasMeal && hasService && hasInventory && hasPromoCode && !hasWrongOptions);
+  const isSafeToBook = canBook;
 
   if (!hotel) {
     return (
@@ -294,12 +177,12 @@ export function HotelDetailPage() {
                       (action) => action.imageIndex === index
                     );
                     const isHeadImageToggled =
-                      galleryAction?.type === 'toggle' && (galleryImageStates[index] ?? false);
+                      galleryAction?.type === 'toggle' && (flowState.galleryStates[index] ?? false);
                     const isFigurinesToggled =
-                      galleryAction?.type === 'hint' && (galleryImageStates[index] ?? false);
+                      galleryAction?.type === 'hint' && (flowState.galleryStates[index] ?? false);
                     const isArtifactToggled =
                       galleryAction?.type === 'artifact-find' &&
-                      (galleryImageStates[index] ?? false);
+                      (flowState.galleryStates[index] ?? false);
 
                     return (
                       <div key={index} className="flex-[0_0_100%] min-w-0">
@@ -308,9 +191,7 @@ export function HotelDetailPage() {
                             src={isHeadImageToggled ? galleryAction.alternateImage : image}
                             alt={`${hotel.name} ${index + 1}`}
                             className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
-                            onClick={() =>
-                              setGalleryImageStates((prev) => ({ ...prev, [index]: true }))
-                            }
+                            onClick={() => handleGalleryClick(index)}
                           />
                         ) : galleryAction?.type === 'hint' ? (
                           <div
@@ -327,7 +208,7 @@ export function HotelDetailPage() {
                                 y >= galleryAction.coords.y1 &&
                                 y <= galleryAction.coords.y2
                               ) {
-                                setGalleryImageStates((prev) => ({ ...prev, [index]: true }));
+                                handleGalleryClick(index, { x, y });
                                 setShowGalleryMessage({
                                   show: true,
                                   text:
@@ -372,8 +253,7 @@ export function HotelDetailPage() {
                                 y >= galleryAction.coords.y1 &&
                                 y <= galleryAction.coords.y2
                               ) {
-                                // Always set to true - no toggle back
-                                setGalleryImageStates((prev) => ({ ...prev, [index]: true }));
+                                handleGalleryClick(index, { x, y });
 
                                 // Show artifact modal
                                 if (galleryAction.artefact) {
@@ -415,16 +295,18 @@ export function HotelDetailPage() {
                                 y >= galleryAction.coords.y1 &&
                                 y <= galleryAction.coords.y2
                               ) {
-                                // Always set to true - no toggle back
-                                setGalleryImageStates((prev) => ({ ...prev, [index]: true }));
-
-                                // Show captcha modal
-                                if (hotel?.captcha) {
-                                  setCurrentCaptchaData(hotel.captcha);
-                                  setCaptchaSelected([]);
-                                  setCaptchaError(false);
-                                  setShowCaptchaModal(true);
-                                }
+                                handleGalleryClick(index, { x, y });
+                                setShowGalleryMessage({
+                                  show: true,
+                                  text:
+                                    language === 'ru'
+                                      ? galleryAction.message!
+                                      : galleryAction.messageEn!,
+                                });
+                                setTimeout(
+                                  () => setShowGalleryMessage({ show: false, text: '' }),
+                                  3000
+                                );
                               }
                             }}
                           >
@@ -1019,22 +901,18 @@ export function HotelDetailPage() {
           </div>
         )}
 
-        {currentCaptchaData && (
+        {hotel?.captcha && flowState.currentStep === 'captcha' && (
           <CaptchaModal
-            open={showCaptchaModal}
-            onClose={() => {
-              setShowCaptchaModal(false);
-              setCaptchaSelected([]);
-              setCaptchaError(false);
-            }}
-            captcha={currentCaptchaData}
+            open={true}
+            onClose={() => {}}
+            captcha={hotel.captcha}
             selection={captchaSelected}
             setSelection={setCaptchaSelected}
             errorMessage={
               captchaError
                 ? language === 'ru'
-                  ? currentCaptchaData.errorResponse
-                  : currentCaptchaData.errorResponseEn
+                  ? hotel.captcha.errorResponse
+                  : hotel.captcha.errorResponseEn
                 : undefined
             }
             title={language === 'ru' ? 'Капча' : 'Captcha'}
@@ -1042,7 +920,7 @@ export function HotelDetailPage() {
             mode="sequence"
             showSelection={true}
             onConfirm={() => {
-              const correctSequence = currentCaptchaData.correctSequence?.map(String) ?? [];
+              const correctSequence = hotel.captcha?.correctSequence?.map(String) ?? [];
               const entered = captchaSelected.map(String);
               const isCorrect =
                 correctSequence.length > 0 &&
@@ -1054,27 +932,12 @@ export function HotelDetailPage() {
                 return;
               }
 
-              updateCaptchaProgress(captchaSelected, new Date().toISOString());
-              setShowCaptchaModal(false);
-              setCaptchaSelected([]);
-              setCaptchaError(false);
-
-              setShowGalleryMessage({
-                show: true,
-                text:
-                  language === 'ru'
-                    ? currentCaptchaData.successResponse || 'Капча пройдена!'
-                    : currentCaptchaData.successResponseEn || 'Captcha passed!',
-              });
-              setTimeout(() => setShowGalleryMessage({ show: false, text: '' }), 3000);
-
-              // Unlock additional floors via captcha
-              setShowFloorSelectModal(true);
+              handleCaptchaSuccess(captchaSelected);
             }}
           />
         )}
 
-        {hotel?.initialBookingState?.floorOptions && showFloorSelectModal && (
+        {hotel?.initialBookingState?.floorOptions && flowState.currentStep === 'floor-select' && showFloorSelectModal && (
           <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
             <div className="bg-card border border-border rounded-lg max-w-md w-full overflow-hidden">
               <div className="p-6 border-b border-border flex items-center justify-between">
@@ -1101,11 +964,11 @@ export function HotelDetailPage() {
                       key={floorOption}
                       type="button"
                       className={`w-full rounded-lg border px-4 py-2 text-left transition ${
-                        selectedFloor === floorOption
+                        floor === floorOption
                           ? 'border-primary bg-primary/10 text-foreground'
                           : 'border-border bg-background text-foreground'
                       }`}
-                      onClick={() => setSelectedFloor(floorOption)}
+                      onClick={() => handleFloorSelect(floorOption)}
                     >
                       {language === 'ru' ? 'Этаж' : 'Floor'}{' '}
                       {floorOption.toString().padStart(2, '0')}
@@ -1117,34 +980,6 @@ export function HotelDetailPage() {
                   type="button"
                   className="w-full px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
                   onClick={() => {
-                    if (!hotel) return;
-                    const roomType =
-                      playerStatus.currentHotelProgress?.tempBookingForm?.roomType ??
-                      hotel.initialBookingState?.roomType ??
-                      hotel.roomTypes?.[0]?.value ??
-                      '';
-                    const roomNumber = computeRoomNumber(selectedFloor, roomType);
-
-                    setCurrentHotelProgress({
-                      hotelId: id,
-                      tempBookingForm: playerStatus.currentHotelProgress?.tempBookingForm ?? {
-                        guests: hotel.initialBookingState?.guests ?? 1,
-                        rooms: hotel.initialBookingState?.rooms ?? 1,
-                        roomType,
-                        checkInDate: hotel.initialBookingState?.checkInDate ?? null,
-                        checkOutDate: hotel.initialBookingState?.checkOutDate ?? null,
-                        mealType: hotel.initialBookingState?.mealType ?? '',
-                        needTransfer: hotel.initialBookingState?.needTransfer ?? false,
-                        checkInTime: hotel.initialBookingState?.checkInTime ?? '14:00',
-                        selectedServices: hotel.initialBookingState?.selectedServices ?? [],
-                        promoCode: hotel.initialBookingState?.promoCode,
-                      },
-                      floor: selectedFloor,
-                      roomNumber,
-                      startedAt:
-                        playerStatus.currentHotelProgress?.startedAt ?? new Date().toISOString(),
-                    });
-
                     setShowFloorSelectModal(false);
                   }}
                 >
@@ -1185,7 +1020,6 @@ export function HotelDetailPage() {
                     setSelectedRoomTypeForBooking(null);
                     setShowBookingModal(false);
                   }}
-                  isSafeToBook={isSafeToBook}
                   selectedRoomType={selectedRoomTypeForBooking}
                 />
               </div>

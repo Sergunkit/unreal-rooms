@@ -123,6 +123,30 @@ export const soldierData = {
       },
     ],
   },
+  initialBookingState: {
+    roomNumberTemplate: '{floor}{suffix}',
+    defaultFloor: 1,
+    floorOptions: [1, 4, 7, 9, 11, 14],
+    suffixByRoomType: {
+      'last-stand': '01',
+      'deep-sleep': '02',
+      "angler’s-rest": '03',
+      'hearth-Home': '04',
+      'golden-hour': '05',
+      'gold-fish': '06',
+      beekeeper: '07',
+      'first-aid': '08',
+      'high-tide': '09',
+      nightcap: '10',
+      verdict: '11',
+    },
+    roomType: 'last-stand',
+    guests: 2,
+    rooms: 1,
+    mealType: 'half-board',
+    needTransfer: false,
+    checkInTime: '14:00',
+  },
   roomTypes: [
     {
       value: 'last-stand',
@@ -508,5 +532,11 @@ export const soldierData = {
   wrongOptions: {
     additionalServices: ['sauna', 'excursion', 'diving', 'fishing', 'breakfast-in-room'],
     mealTypes: [],
+  },
+
+  // Поток квеста
+  initialFlow: {
+    steps: ['booking'], // Прямое бронирование с проверкой условий
+    transitions: {},
   },
 };

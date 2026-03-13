@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useGame, type MealType, type AdditionalService } from '../contexts/GameContext';
-import { hotelData } from '../data/hotels';
+import { useHotelProgress } from '../hooks/useHotelProgress';
 import { CaptchaModal } from '../components/CaptchaModal';
 // import { Sparkles } from 'lucide-react';
 import {
@@ -67,7 +67,6 @@ interface HotelMealType {
 
 interface BookingFormPageProps {
   onClose?: () => void;
-  isSafeToBook?: boolean;
   selectedRoomType?: string | null;
 }
 
@@ -86,24 +85,21 @@ export function BookingFormPage({
   const { language } = useLanguage();
   const { id: hotelId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { setCurrentBooking, addVisitedHotel, playerStatus, addArtefact, hasArtefact } = useGame();
   const {
-    setCurrentBooking,
-    addVisitedHotel,
-    playerStatus,
-    saveTempBookingForm,
-    addArtefact,
-    hasArtefact,
-    setCurrentHotelProgress,
-  } = useGame();
+    hotel,
+    roomNumber,
+    floor,
+    tempBookingForm,
+    setRoomType: setRoomTypeInProgress,
+    setTempBookingForm,
+  } = useHotelProgress(hotelId);
 
   // Get temp booking form data if exists
-  const tempForm = playerStatus.currentHotelProgress?.tempBookingForm;
+  const tempForm = tempBookingForm;
 
   // Get saved booking if exists
   const savedBooking = playerStatus.currentBooking;
-
-  // Get hotel data from hotels.ts
-  const hotel = hotelId ? hotelData[hotelId] : null;
 
   const [foundPrize, setFoundPrize] = useState<FoundPrize | null>(null);
   const hotelAdditionalServices: HotelAdditionalService[] =
@@ -125,6 +121,10 @@ export function BookingFormPage({
       tempForm?.roomType ||
       (savedBooking ? String(savedBooking.roomId) : roomTypes[0]?.value)
   );
+
+  useEffect(() => {
+    setRoomTypeInProgress(roomType);
+  }, [roomType, setRoomTypeInProgress]);
   const [checkInDate, setCheckInDate] = useState<Date | undefined>(
     tempForm?.checkInDate ? new Date(tempForm.checkInDate) : undefined
   );
@@ -155,20 +155,6 @@ export function BookingFormPage({
   const [isAlienCaptcha, setIsAlienCaptcha] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
-
-  const computeRoomNumber = React.useCallback(
-    (floor: number, roomTypeValue: string) => {
-      const template = hotel?.initialBookingState?.roomNumberTemplate ?? '{floor}{suffix}';
-      const suffix = hotel?.initialBookingState?.suffixByRoomType?.[roomTypeValue] ?? '';
-      return template.replace('{floor}', String(floor)).replace('{suffix}', suffix);
-    },
-    [hotel]
-  );
-
-  const currentFloor =
-    playerStatus.currentHotelProgress?.floor ?? hotel?.initialBookingState?.defaultFloor ?? 14;
-  const roomNumber =
-    playerStatus.currentHotelProgress?.roomNumber ?? computeRoomNumber(currentFloor, roomType);
 
   const t = {
     title: language === 'ru' ? 'Бронирование номера' : 'Room Booking',
@@ -270,7 +256,7 @@ export function BookingFormPage({
 
   // Save form data when it changes
   useEffect(() => {
-    saveTempBookingForm({
+    setTempBookingForm({
       guests,
       rooms,
       roomType,
@@ -293,58 +279,7 @@ export function BookingFormPage({
     checkInTime,
     selectedServices,
     appliedPromo,
-    saveTempBookingForm,
-  ]);
-
-  // Update room number whenever selected room type or floor changes
-  useEffect(() => {
-    if (!hotel) return;
-
-    const floor =
-      playerStatus.currentHotelProgress?.floor ?? hotel.initialBookingState?.defaultFloor ?? 14;
-    const newRoomNumber = computeRoomNumber(floor, roomType);
-
-    if (playerStatus.currentHotelProgress?.roomNumber !== newRoomNumber) {
-      setCurrentHotelProgress({
-        hotelId: hotelId || '',
-        tempBookingForm: playerStatus.currentHotelProgress?.tempBookingForm ??
-          tempForm ?? {
-            guests,
-            rooms,
-            roomType,
-            checkInDate: checkInDate?.toISOString() || null,
-            checkOutDate: checkOutDate?.toISOString() || null,
-            mealType,
-            needTransfer,
-            checkInTime,
-            selectedServices,
-            promoCode: appliedPromo || undefined,
-          },
-        floor,
-        roomNumber: newRoomNumber,
-        startedAt: playerStatus.currentHotelProgress?.startedAt ?? new Date().toISOString(),
-      });
-    }
-  }, [
-    hotel,
-    hotelId,
-    roomType,
-    playerStatus.currentHotelProgress?.floor,
-    playerStatus.currentHotelProgress?.roomNumber,
-    playerStatus.currentHotelProgress?.tempBookingForm,
-    playerStatus.currentHotelProgress?.startedAt,
-    tempForm,
-    guests,
-    rooms,
-    checkInDate,
-    checkOutDate,
-    mealType,
-    needTransfer,
-    checkInTime,
-    selectedServices,
-    appliedPromo,
-    computeRoomNumber,
-    setCurrentHotelProgress,
+    setTempBookingForm,
   ]);
 
   // Check if hotel has captcha and if user selected wrong options
@@ -829,8 +764,8 @@ export function BookingFormPage({
                   setPromoCode('');
                   setAppliedPromo('');
                   setDiscount(0);
-                  // Clear saved temp form
-                  saveTempBookingForm({
+                  // Reset temp form state in progress
+                  setTempBookingForm({
                     guests: 2,
                     rooms: 1,
                     roomType: roomTypes[0]?.value || 'standard',
@@ -884,6 +819,14 @@ export function BookingFormPage({
                   </span>
                   <span>#{roomNumber}</span>
                 </div>
+                {hotel?.initialBookingState?.floorOptions && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {language === 'ru' ? 'Этаж' : 'Floor'}:
+                    </span>
+                    <span>{floor}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{t.checkIn}:</span>
                   <span>

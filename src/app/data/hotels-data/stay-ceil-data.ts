@@ -5,7 +5,7 @@ import galleryCeil2 from '../images/StayCeil/cafeteria.jpeg'; // Столова�
 import galleryCeil3 from '../images/StayCeil/floor14.jpeg'; // Площадка 14-го этажа с выходом
 import galleryCeil4 from '../images/StayCeil/gallery-stay-ceil1.jpg'; //Вид с крыши на город
 import galleryCeil6 from '../images/StayCeil/gallery-stay-ceil3.png'; //Лифт
-import galleryCeil7 from '../images/StayCeil/gallery-stay-ceil4.jpeg'; //Лифт с табличкой EXIT
+import galleryCeil7 from '../images/StayCeil/gallery-stay-ceil4.jpeg'; //
 import captcha1 from '../images/StayCeil/capcha1.jpg';
 import captcha2 from '../images/StayCeil/capcha2.jpg';
 import captcha3 from '../images/StayCeil/capcha3.jpg';
@@ -31,16 +31,16 @@ export const stayCeilData = {
   stars: 2,
   rating: 7.5,
   price: 45,
-  slogan: 'Ваш дом там, где вы под защитой. Мы заботимся о вашей безопасности.',
-  sloganEn: 'Your home where you are protected. We care about your safety.',
+  slogan: 'Дом там, где вы чувствуете себя в безопасности. Мы заботимся чтоб вы чувствовали себя как дома.',
+  sloganEn: 'Home is where you feel safe. We care about making you feel at home.',
   description:
     'Добро пожаловать в тихую гавань в самом сердце Лос-Анджелеса. Мы предлагаем уникальный формат "защищенного проживания": усиленные оконные системы, круглосуточный пост фельдшера и полная изоляция от негативного контента (в стандартных номерах отсутствуют ТВ). Весь наш персонал проходит психологическую подготовку, чтобы обеспечить вам максимальный комфорт. Мы знаем, как важна безопасность в этом безжалостном мире.',
   descriptionEn:
     'Welcome to a quiet haven in the heart of Los Angeles. We offer a unique "protected stay" format: reinforced window systems, 24/7 paramedic post, and complete isolation from negative content (no TVs in standard rooms). All our staff undergo psychological training to ensure your maximum comfort. We understand how important safety is in this ruthless world.',
   location: 'Центр Лос-Анджелеса, неподалеку от Скид Роу',
   locationEn: 'Downtown Los Angeles, near Skid Row',
-  commonFeedback: '(Идеальное месторасположение. Чувствуется забота о гостях.)',
-  commonFeedbackEn: '(Ideal location. You can feel the care for guests.)',
+  commonFeedback: '(Идеальное месторасположение и забота о гостях.)',
+  commonFeedbackEn: '(Ideal location and care for guests.)',
   image: headImage10,
   images: [
     headImage10,
@@ -54,7 +54,7 @@ export const stayCeilData = {
 
   galleryActions: [
     {
-      imageIndex: 3, // Фото 14-го этажа
+      imageIndex: 3, // Фото лифта с табличкой EXIT
       type: 'capcha-get' as const,
       coords: { x1: 65, y1: 10, x2: 80, y2: 20 }, // Клик на табличку EXIT
       message: 'Для экстренного выхода введите код авторизации в капче.',
@@ -132,6 +132,16 @@ export const stayCeilData = {
     checkInTime: '14:00',
   },
 
+  // Поток квеста
+  initialFlow: {
+    steps: ['gallery', 'captcha', 'floor-select', 'booking'],
+    transitions: {
+      gallery: 'captcha', // После клика по галерее -> captcha
+      captcha: 'floor-select', // После captcha -> выбор этажа
+      'floor-select': 'booking', // После выбора этажа -> бронирование
+    },
+  },
+
   roomTypes: [
     {
       value: 'standard',
@@ -150,6 +160,20 @@ export const stayCeilData = {
       label: 'Studio "Изоляция" (рехаб-режим)',
       labelEn: 'Studio "Isolation" (Rehab mode)',
       basePrice: 110,
+    },
+  ],
+  mealTypes: [
+    {
+      value: 'breakfast',
+      label: 'Только завтрак (включено)',
+      labelEn: 'Breakfast only (included)',
+      price: 0,
+    },
+    {
+      value: 'food to room',
+      label: 'Доставка еды в номер',
+      labelEn: 'Food delivery to the room',
+      price: 60,
     },
   ],
 

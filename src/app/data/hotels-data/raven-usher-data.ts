@@ -112,6 +112,22 @@ export const usherData = {
       },
     ],
   },
+  initialBookingState: {
+    roomNumberTemplate: '{floor}{suffix}',
+    defaultFloor: 1,
+    floorOptions: [1, 4, 7, 9, 12],
+    suffixByRoomType: {
+      carl: '01',
+      napoleon: '02',
+      tamerlan: '03',
+    },
+    roomType: 'carl',
+    guests: 2,
+    rooms: 1,
+    mealType: 'breakfast',
+    needTransfer: false,
+    checkInTime: '15:00',
+  },
   roomTypes: [
     {
       value: 'carl',
@@ -246,4 +262,10 @@ export const usherData = {
       descriptionEn: 'Discount for choosing the right room',
     },
   ],
+
+  // Поток квеста
+  initialFlow: {
+    steps: ['booking'], // Прямое бронирование с проверкой условий
+    transitions: {},
+  },
 };

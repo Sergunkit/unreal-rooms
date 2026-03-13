@@ -50,6 +50,7 @@ export interface CurrentHotelProgress {
   roomNumber?: string;
   captchaProgress?: CaptchaProgress;
   startedAt: string;
+  flowState?: import('../hooks/useHotelFlow').FlowState;
 }
 
 /**

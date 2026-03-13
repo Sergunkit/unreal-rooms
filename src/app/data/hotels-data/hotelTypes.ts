@@ -104,6 +104,11 @@ export interface WrongOptions {
   avoidRoom?: string;
 }
 
+export interface InitialFlow {
+  steps: string[];
+  transitions: Record<string, string>;
+}
+
 export interface CaptchaItem {
   id: string;
   isCorrect: boolean;
@@ -186,4 +191,5 @@ export interface Hotel {
   captcha?: Captcha;
   promoCodes?: PromoCode[];
   initialBookingState?: InitialBookingState;
+  initialFlow?: InitialFlow;
 }
