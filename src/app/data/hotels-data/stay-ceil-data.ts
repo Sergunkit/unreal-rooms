@@ -58,6 +58,9 @@ export const stayCeilData = {
       coords: { x1: 65, y1: 10, x2: 80, y2: 20 }, // Клик на табличку EXIT
       message: 'Для экстренного выхода введите код авторизации в капче.',
       messageEn: 'For emergency exit, enter authorization code in captcha.',
+      actionChain: {
+        steps: ['captcha', 'floorSelect', 'bookingForm', 'bookingConfirm', 'bookingComplete', 'myBookingsPage'],
+      },
     },
   ],
 
@@ -139,6 +142,31 @@ export const stayCeilData = {
       captcha: 'floor-select', // После captcha -> выбор этажа
       'floor-select': 'booking', // После выбора этажа -> бронирование
     },
+  },
+  customBookingChain: {
+    steps: ['hotelPage', 'bookingForm', 'captcha', 'floorSelect', 'bookingConfirm', 'bookingComplete', 'myBookingsPage'],
+  },
+  bookingFormDataConditions: {
+    conditionsNotDone: 'initialBookingState',
+    conditionsIsDone: 'anotherBookingState',
+    afterReset: 'allEmpty',
+    afterComeback: 'tempBookingForm',
+    conditionType: 'floorSelected', // Если этаж выбран, используем anotherBookingState
+  },
+  anotherBookingState: {
+    roomNumberTemplate: '{floor}{suffix}',
+    floorOptions: [14, 2, 7, 11, 3, 8, 1, 12, 10, 6, 9, 4, 5, 13],
+    suffixByRoomType: {
+      standard: '02',
+      superior: '15',
+      rehab: '24',
+    },
+    roomType: 'rehab',
+    guests: 1,
+    rooms: 1,
+    mealType: 'no-meal',
+    needTransfer: false,
+    checkInTime: '14:00',
   },
 
   mealTypes: [

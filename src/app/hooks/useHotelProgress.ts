@@ -34,6 +34,39 @@ export function useHotelProgress(hotelId?: string) {
     };
   }, [hotel]);
 
+  const getBookingFormState = useMemo(() => {
+    if (!hotel?.bookingFormDataConditions) return defaultBookingState?.tempBookingForm;
+
+    const conditions = hotel.bookingFormDataConditions;
+    const progress = currentProgress;
+
+    // Проверяем условия
+    let stateKey: string;
+    if (conditions.conditionType === 'floorSelected' && progress?.floor !== undefined) {
+      stateKey = conditions.conditionsIsDone;
+    } else {
+      stateKey = conditions.conditionsNotDone;
+    }
+
+    const stateData = (hotel as any)[stateKey];
+    if (!stateData) return defaultBookingState?.tempBookingForm;
+
+    // Преобразуем в TempBookingFormData
+    const roomType = stateData.roomType ?? hotel.roomTypes?.[0]?.value ?? '';
+    return {
+      guests: stateData.guests ?? 1,
+      rooms: stateData.rooms ?? 1,
+      roomType,
+      checkInDate: stateData.checkInDate ?? null,
+      checkOutDate: stateData.checkOutDate ?? null,
+      mealType: stateData.mealType ?? '',
+      needTransfer: stateData.needTransfer ?? false,
+      checkInTime: stateData.checkInTime ?? '14:00',
+      selectedServices: stateData.selectedServices ?? [],
+      promoCode: stateData.promoCode,
+    };
+  }, [hotel, currentProgress, defaultBookingState]);
+
   const computeRoomNumber = useCallback(
     (floor: number, roomType: string) => {
       const template = hotel?.initialBookingState?.roomNumberTemplate ?? '{floor}{suffix}';
@@ -48,6 +81,11 @@ export function useHotelProgress(hotelId?: string) {
     currentProgress?.tempBookingForm?.roomType ?? defaultBookingState?.roomType ?? '';
   const progressRoomNumber =
     currentProgress?.roomNumber ?? computeRoomNumber(progressFloor, progressRoomType);
+
+  const tempBookingForm = useMemo(() => {
+    if (currentProgress?.tempBookingForm) return currentProgress.tempBookingForm;
+    return getBookingFormState;
+  }, [currentProgress, getBookingFormState]);
 
   const ensureProgress = useCallback(() => {
     if (!hotel || !defaultBookingState) return;
@@ -176,8 +214,7 @@ export function useHotelProgress(hotelId?: string) {
     progress: currentProgress,
     floor: progressFloor,
     roomNumber: progressRoomNumber,
-    tempBookingForm:
-      currentProgress?.tempBookingForm ?? defaultBookingState?.tempBookingForm ?? null,
+    tempBookingForm,
     setFloor,
     setRoomType,
     setTempBookingForm,

@@ -1,8 +1,9 @@
 import { useCallback, useMemo } from 'react';
 import { hotelData } from '../data/hotels';
 import { useGame } from '../contexts/GameContext';
+import type { ChainStep } from '../data/hotels-data/hotelTypes';
 
-export type FlowStep = 'gallery' | 'captcha' | 'floor-select' | 'booking';
+export type FlowStep = ChainStep;
 
 export interface FlowState {
   currentStep: FlowStep;
@@ -11,6 +12,9 @@ export interface FlowState {
   galleryActionsTriggered: Record<number, boolean>; // imageIndex -> action triggered for current state
   captchaCompleted: boolean;
   floorSelected: boolean;
+  currentChain: ChainStep[];
+  currentChainIndex: number;
+  activeChainType: 'standard' | 'custom' | 'action';
 }
 
 export function useHotelFlow(hotelId?: string) {
@@ -19,22 +23,27 @@ export function useHotelFlow(hotelId?: string) {
 
   const currentProgress = playerStatus.currentHotelProgress;
 
-  // Определяем начальный шаг на основе данных отеля
-  const initialStep: FlowStep = useMemo(() => {
-    if (!hotel) return 'gallery';
-
-    // Если есть galleryActions, начинаем с gallery
-    if (hotel.galleryActions && hotel.galleryActions.length > 0) {
-      return 'gallery';
+  // Определяем цепочку: кастомная, стандартная или action
+  const getChain = useMemo((): { chain: ChainStep[], type: 'standard' | 'custom' | 'action' } => {
+    if (hotel?.customBookingChain) {
+      return { chain: hotel.customBookingChain.steps, type: 'custom' };
     }
-
-    // Иначе сразу к бронированию
-    return 'booking';
+    // Стандартная цепочка
+    return {
+      chain: ['hotelPage', 'bookingForm', 'bookingConfirm', 'bookingComplete', 'prizeModal', 'myBookingsPage'],
+      type: 'standard'
+    };
   }, [hotel]);
+
+  // Начальный шаг на основе цепочки
+  const initialStep: FlowStep = useMemo(() => {
+    return getChain.chain[0] || 'gallery';
+  }, [getChain]);
 
   // Текущее состояние потока
   const flowState: FlowState = useMemo(() => {
     const progress = currentProgress;
+    const chainData = getChain;
     return {
       currentStep: progress?.flowState?.currentStep ?? initialStep,
       completedSteps: progress?.flowState?.completedSteps ?? [],
@@ -42,8 +51,11 @@ export function useHotelFlow(hotelId?: string) {
       galleryActionsTriggered: progress?.flowState?.galleryActionsTriggered ?? {},
       captchaCompleted: progress?.flowState?.captchaCompleted ?? false,
       floorSelected: progress?.flowState?.floorSelected ?? false,
+      currentChain: progress?.flowState?.currentChain ?? chainData.chain,
+      currentChainIndex: progress?.flowState?.currentChainIndex ?? 0,
+      activeChainType: progress?.flowState?.activeChainType ?? chainData.type,
     };
-  }, [currentProgress, initialStep]);
+  }, [currentProgress, initialStep, getChain]);
 
   // Обновление состояния потока
   const updateFlowState = useCallback(
@@ -57,6 +69,9 @@ export function useHotelFlow(hotelId?: string) {
         galleryActionsTriggered: currentProgress?.flowState?.galleryActionsTriggered ?? {},
         captchaCompleted: currentProgress?.flowState?.captchaCompleted ?? false,
         floorSelected: currentProgress?.flowState?.floorSelected ?? false,
+        currentChain: currentProgress?.flowState?.currentChain ?? getChain.chain,
+        currentChainIndex: currentProgress?.flowState?.currentChainIndex ?? 0,
+        activeChainType: currentProgress?.flowState?.activeChainType ?? getChain.type,
       };
       const newFlowState = { ...currentFlowState, ...updates };
       setCurrentHotelProgress({
@@ -71,21 +86,28 @@ export function useHotelFlow(hotelId?: string) {
     [hotelId, currentProgress, initialStep, setCurrentHotelProgress]
   );
 
-  // Переход к следующему шагу
-  const nextStep = useCallback(
-    (step: FlowStep) => {
-      const completedSteps = [...flowState.completedSteps];
-      if (!completedSteps.includes(step)) {
-        completedSteps.push(step);
-      }
-
+  // Переход к следующему шагу в цепочке
+  const nextChainStep = useCallback(() => {
+    const nextIndex = flowState.currentChainIndex + 1;
+    if (nextIndex < flowState.currentChain.length) {
+      const nextStep = flowState.currentChain[nextIndex];
       updateFlowState({
-        currentStep: step,
-        completedSteps,
+        currentStep: nextStep,
+        currentChainIndex: nextIndex,
+        completedSteps: [...flowState.completedSteps, nextStep],
       });
-    },
-    [flowState.completedSteps, updateFlowState]
-  );
+    }
+  }, [flowState, updateFlowState]);
+
+  // Запуск actionChain
+  const startActionChain = useCallback((actionChain: ChainStep[]) => {
+    updateFlowState({
+      currentChain: actionChain,
+      currentChainIndex: 0,
+      currentStep: actionChain[0],
+      activeChainType: 'action',
+    });
+  }, [updateFlowState]);
 
   // Обработка клика по галерее
   const handleGalleryClick = useCallback(
@@ -115,7 +137,7 @@ export function useHotelFlow(hotelId?: string) {
           if (coords.x >= x1 && coords.x <= x2 && coords.y >= y1 && coords.y <= y2) {
             shouldTriggerAction = !isTriggered;
             if (shouldTriggerAction) {
-              nextStep('captcha');
+              nextChainStep();
             }
           }
         }
@@ -140,6 +162,11 @@ export function useHotelFlow(hotelId?: string) {
           ...flowState.galleryActionsTriggered,
           [imageIndex]: true,
         };
+
+        // Если есть actionChain, запускаем её
+        if (action.actionChain) {
+          startActionChain(action.actionChain.steps);
+        }
       }
 
       if (Object.keys(updates).length > 0) {
@@ -149,7 +176,7 @@ export function useHotelFlow(hotelId?: string) {
       // Возвращаем, нужно ли показать сообщение или выполнить действие
       return shouldTriggerAction ? action : null;
     },
-    [hotel, flowState.galleryStates, flowState.galleryActionsTriggered, updateFlowState, nextStep]
+    [hotel, flowState.galleryStates, flowState.galleryActionsTriggered, updateFlowState, startActionChain]
   );
 
   // Обработка успешной captcha
@@ -160,19 +187,19 @@ export function useHotelFlow(hotelId?: string) {
 
       // Если есть floorOptions, переходим к floor-select
       if (hotel?.initialBookingState?.floorOptions) {
-        nextStep('floor-select');
+        nextChainStep();
       } else {
-        nextStep('booking');
+        nextChainStep();
       }
     },
-    [updateCaptchaProgress, updateFlowState, nextStep, hotel]
+    [updateCaptchaProgress, updateFlowState, nextChainStep, hotel]
   );
 
   // Обработка выбора этажа
   const handleFloorSelect = useCallback(
     (floor: number) => {
       updateFlowState({ floorSelected: true });
-      nextStep('booking');
+      nextChainStep();
 
       // Обновляем floor в прогрессе
       setCurrentHotelProgress({
@@ -181,10 +208,10 @@ export function useHotelFlow(hotelId?: string) {
         floor,
         roomNumber: currentProgress?.roomNumber,
         startedAt: currentProgress?.startedAt ?? new Date().toISOString(),
-        flowState: { ...flowState, floorSelected: true, currentStep: 'booking' },
+        flowState: { ...flowState, floorSelected: true, currentStep: 'bookingForm' },
       });
     },
-    [updateFlowState, nextStep, setCurrentHotelProgress, hotelId, currentProgress, flowState]
+    [updateFlowState, nextChainStep, setCurrentHotelProgress, hotelId, currentProgress, flowState]
   );
 
   // Проверка, можно ли бронировать
@@ -226,6 +253,6 @@ export function useHotelFlow(hotelId?: string) {
     handleCaptchaSuccess,
     handleFloorSelect,
     canBook,
-    nextStep,
+    nextChainStep,
   };
 }

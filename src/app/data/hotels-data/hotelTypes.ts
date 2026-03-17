@@ -79,6 +79,7 @@ export interface GalleryImageAction {
   messageEn?: string;
   artefact?: string; // id артефакта
   capcha?: Captcha; // Капча для capcha-get действия
+  actionChain?: ActionChain;
 }
 
 export interface PassingConditions {
@@ -105,6 +106,35 @@ export interface WrongOptions {
 export interface InitialFlow {
   steps: string[];
   transitions: Record<string, string>;
+}
+
+export type ChainStep =
+  | 'hotelPage'
+  | 'bookingForm'
+  | 'captcha'
+  | 'floorSelect'
+  | 'bookingConfirm'
+  | 'bookingComplete'
+  | 'prizeModal'
+  | 'myBookingsPage'
+  | 'gallery';
+
+export interface ChainConfig {
+  steps: ChainStep[];
+  conditions?: Record<string, any>;
+}
+
+export interface ActionChain {
+  steps: ChainStep[];
+  conditions?: Record<string, any>;
+}
+
+export interface BookingFormDataConditions {
+  conditionsNotDone: string;
+  conditionsIsDone: string;
+  afterReset: string;
+  afterComeback: string;
+  conditionType?: string; // Тип условия для проверки (например, 'floorSelected')
 }
 
 export interface CaptchaItem {
@@ -190,4 +220,7 @@ export interface Hotel {
   promoCodes?: PromoCode[];
   initialBookingState?: InitialBookingState;
   initialFlow?: InitialFlow;
+  customBookingChain?: ChainConfig;
+  bookingFormDataConditions?: BookingFormDataConditions;
+  anotherBookingState?: Partial<InitialBookingState>;
 }

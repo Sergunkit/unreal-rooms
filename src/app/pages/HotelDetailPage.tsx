@@ -91,18 +91,18 @@ export function HotelDetailPage() {
     forceUpdate((prev) => prev + 1);
   }, [playerStatus.currentHotelProgress, playerStatus.currentBooking]);
 
-  React.useEffect(() => {
-    if (!emblaApi) return;
+  // React.useEffect(() => {
+  //   if (!emblaApi) return;
 
-    const onSelect = () => {
-      // Reset gallery image states when carousel changes
-    };
+  //   const onSelect = () => {
+  //     // Reset gallery image states when carousel changes
+  //   };
 
-    emblaApi.on('select', onSelect);
-    return () => {
-      emblaApi.off('select', onSelect);
-    };
-  }, [emblaApi]);
+  //   emblaApi.on('select', onSelect);
+  //   return () => {
+  //     emblaApi.off('select', onSelect);
+  //   };
+  // }, [emblaApi]);
 
   const isSafeToBook = canBook;
 
@@ -946,7 +946,7 @@ export function HotelDetailPage() {
           />
         )}
 
-        {hotel?.initialBookingState?.floorOptions && flowState.currentStep === 'floor-select' && showFloorSelectModal && (
+        {hotel?.initialBookingState?.floorOptions && flowState.currentStep === 'floorSelect' && showFloorSelectModal && (
           <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
             <div className="bg-card border border-border rounded-lg max-w-md w-full overflow-hidden">
               <div className="p-6 border-b border-border flex items-center justify-between">

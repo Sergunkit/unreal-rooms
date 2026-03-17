@@ -270,6 +270,9 @@ export const lastPeakData = {
       gallery: 'booking', // После действий в галерее -> бронирование с проверкой условий
     },
   },
+  customBookingChain: {
+    steps: ['hotelPage', 'bookingForm', 'captcha', 'bookingConfirm', 'bookingComplete', 'prizeModal', 'myBookingsPage'],
+  },
   wrongOptions: {
     additionalServices: ['entropy-fix'],
     roomId: ['infinity-view', 'specialist-suite'],

@@ -158,7 +158,7 @@ export function BookingFormPage({
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
   const [captchaError, setCaptchaError] = useState(false);
-  const [isAlienCaptcha, setIsAlienCaptcha] = useState(false);
+  const [isAlienCaptcha] = useState(false);
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
 
@@ -288,16 +288,7 @@ export function BookingFormPage({
     setTempBookingForm,
   ]);
 
-  // Check if hotel has captcha and if user selected wrong options
-  const hasHotelCaptcha = hotel?.captcha && hotelId === '8';
-  const hasWrongSelections: boolean = !!(
-    hotel?.wrongOptions &&
-    ((hotel.wrongOptions.roomId && roomType === hotel.wrongOptions.roomId) ||
-      (hotel.wrongOptions.mealTypes && hotel.wrongOptions.mealTypes.includes(mealType)) ||
-      (hotel.wrongOptions.additionalServices &&
-        hotel.wrongOptions.additionalServices.some((s: string) => selectedServices.includes(s))) ||
-      (hotel.wrongOptions.checkInTime && checkInTime === hotel.wrongOptions.checkInTime))
-  );
+  // Капча больше не проверяется здесь - логика в цепочке
 
   const handleContinue = () => {
     if (!checkInDate || !checkOutDate) {
@@ -309,15 +300,8 @@ export function BookingFormPage({
       return;
     }
 
-    // If hotel has captcha, show it instead of confirmation
-    if (hasHotelCaptcha) {
-      setIsAlienCaptcha(hasWrongSelections);
-      setCaptchaSelected([]);
-      setCaptchaError(false);
-      setShowCaptcha(true);
-    } else {
-      setShowConfirmDialog(true);
-    }
+    // Confirmation is now handled by the chain
+    setShowConfirmDialog(true);
   };
 
   const handleCaptchaSubmit = () => {
