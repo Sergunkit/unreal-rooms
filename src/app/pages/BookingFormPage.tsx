@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useGame, type MealType, type AdditionalService } from '../contexts/GameContext';
+import { useGame } from '../contexts/GameContext';
 import { useHotelProgress } from '../hooks/useHotelProgress';
-import { CaptchaModal } from '../components/CaptchaModal';
-// import { Sparkles } from 'lucide-react';
 import {
   Users,
   BedDouble,
@@ -16,9 +14,7 @@ import {
   Wallet,
   Tag,
   Sparkles,
-  X,
 } from 'lucide-react';
-import { artefacts } from '../data/artefacts';
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
@@ -33,14 +29,7 @@ import {
 import { Checkbox } from '@/app/components/ui/checkbox';
 import { Calendar as CalendarComponent } from '@/app/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/popover';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/app/components/ui/dialog';
+
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 import { Room } from '../data/hotels-data/hotelTypes';
@@ -67,29 +56,26 @@ interface HotelMealType {
 }
 
 interface BookingFormPageProps {
-  onClose?: () => void;
+  onNextStep: () => void;
+  onFinalizeBooking: (isAlien: boolean) => void;
+  flowState: { currentStep: string };
   selectedRoomType?: string | null;
 }
 
-interface FoundPrize {
-  artefactId: string;
-  name: string;
-  nameEn: string;
-  alreadyCollected: boolean;
-}
-
 export function BookingFormPage({
-  onClose,
+  onNextStep,
+  onFinalizeBooking: _onFinalizeBooking, // Renamed to avoid unused variable warning
+  flowState, // This prop is not directly used in BookingFormPage for now, but kept for future expansion or clarity
   selectedRoomType: selectedRoomTypeProp,
 }: BookingFormPageProps) {
   const { language } = useLanguage();
   const { id: hotelId } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { setCurrentBooking, addVisitedHotel, playerStatus, addArtefact, hasArtefact } = useGame();
+  // navigate is no longer used in this component, and related prize logic moved
+  // const navigate = useNavigate();
+  // Removed unused variables from useGame destructuring
+  const { playerStatus } = useGame();
   const {
     hotel,
-    roomNumber,
-    floor,
     tempBookingForm,
     setRoomType: setRoomTypeInProgress,
     setTempBookingForm,
@@ -101,7 +87,6 @@ export function BookingFormPage({
   // Get saved booking if exists
   const savedBooking = playerStatus.currentBooking;
 
-  const [foundPrize, setFoundPrize] = useState<FoundPrize | null>(null);
   const hotelAdditionalServices: HotelAdditionalService[] =
     hotel?.amenities?.additionalServices || [];
   const hotelRoomTypes: Room[] = hotel?.rooms || [];
@@ -112,7 +97,7 @@ export function BookingFormPage({
   const additionalServices: HotelAdditionalService[] = hotelAdditionalServices;
   const roomTypes: HotelRoomType[] = hotelRoomTypes.map((room) => ({
     ...room,
-    value: room.name,
+    value: room.value ?? room.name,
     label: room.name,
     labelEn: room.nameEn,
     basePrice: room.price,
@@ -152,13 +137,7 @@ export function BookingFormPage({
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState('');
   const [discount, setDiscount] = useState(0);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showPrizeModal, setShowPrizeModal] = useState(false);
-  const [showCaptcha, setShowCaptcha] = useState(false);
-  const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
-  const [captchaError, setCaptchaError] = useState(false);
-  const [isAlienCaptcha] = useState(false);
+
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
 
@@ -237,6 +216,7 @@ export function BookingFormPage({
     });
 
     const discountAmount = total * (discount / 100);
+
     return { total, discountAmount, finalTotal: total - discountAmount };
   };
 
@@ -299,118 +279,22 @@ export function BookingFormPage({
       );
       return;
     }
-
-    // Confirmation is now handled by the chain
-    setShowConfirmDialog(true);
-  };
-
-  const handleCaptchaSubmit = () => {
-    const captcha = hotel?.captcha;
-    if (!captcha) return;
-
-    if (isAlienCaptcha) {
-      // Check alien captcha answers
-      const correctAnswers = captcha.alienCorrectAnswers || [];
-      const isCorrect =
-        correctAnswers.every((id) => captchaSelected.includes(id)) &&
-        captchaSelected.length === correctAnswers.length;
-
-      if (isCorrect) {
-        // Alien passed - show alien success and complete booking
-        setShowCaptcha(false);
-        setShowSuccessModal(true);
-        setTimeout(() => {
-          setShowSuccessModal(false);
-          finalizeBooking(true);
-        }, 3000);
-      } else {
-        setCaptchaError(true);
-      }
-    } else {
-      // Check human captcha answers
-      const correctAnswers = captcha.humanCorrectAnswers || ['apple', 'bread'];
-      const isCorrect =
-        correctAnswers.every((id) => captchaSelected.includes(id)) &&
-        captchaSelected.length === correctAnswers.length;
-
-      if (isCorrect) {
-        // Human passed - show human success and complete booking
-        setShowCaptcha(false);
-        setShowConfirmDialog(true);
-      } else {
-        // Wrong answer - show error
-        setCaptchaError(true);
-      }
-    }
-  };
-
-  const finalizeBooking = (_isAlien: boolean = false) => {
-    const selectedRoom = roomTypes.find((r) => r.value === roomType);
-
-    // Build additional services array including transfer if selected
-    const finalAdditionalServices = [...selectedServices];
-    if (needTransfer) {
-      finalAdditionalServices.push('Cater-transfer');
-    }
-
-    // Save booking to game state
-    setCurrentBooking({
-      roomId: roomType,
-      roomName: selectedRoom?.label || '',
-      roomNameEn: selectedRoom?.labelEn || '',
-      price: finalTotal,
-      mealType: mealType as MealType,
-      additionalServices: finalAdditionalServices as AdditionalService[],
-      bookedAt: new Date().toISOString(),
-    });
-
-    // Add hotel to visited if not already visited
-    if (hotelId) {
-      addVisitedHotel({
-        hotelId,
-        hotelName: hotel?.name || '',
-        hotelNameEn: hotel?.nameEn || '',
-        visitedAt: new Date().toISOString(),
-        completed: true,
-      });
-    }
-
-    // Give prize if hotel has one
-    const prize = hotel?.prize;
-    if (prize) {
-      // Check if already collected
-      const alreadyCollected = hasArtefact(`prize-${hotelId}`);
-      if (!alreadyCollected) {
-        const artefact = artefacts[prize];
-        // Show prize modal
-        setFoundPrize({
-          artefactId: `prize-${hotelId}`,
-          name: artefact.name,
-          nameEn: artefact.nameEn,
-          alreadyCollected,
-        });
-        setShowPrizeModal(true);
-      }
-    }
-
-    setShowConfirmDialog(false);
-    setShowSuccessModal(true);
-    setTimeout(() => {
-      setShowSuccessModal(false);
-      if (prize) {
-        navigate('/bookings');
-      } else {
-        navigate('/bookings');
-      }
-    }, 3000);
+    // Instead of showing internal confirm dialog, move to next step in flow
+    onNextStep();
   };
 
   const { total, discountAmount, finalTotal } = calculateTotal();
   const nights = calculateNights();
 
   return (
-    <div className={onClose ? '' : 'min-h-screen bg-background py-8'}>
-      <div className={onClose ? '' : 'container mx-auto px-4 max-w-5xl'}>
+    <div
+      className={flowState.currentStep === 'bookingForm' ? '' : 'min-h-screen bg-background py-8'}
+    >
+      <div
+        className={
+          flowState.currentStep === 'bookingForm' ? '' : 'container mx-auto px-4 max-w-5xl'
+        }
+      >
         <div className="grid md:grid-cols-2 gap-8">
           {/* Section I: Booking Parameters */}
           <div className="space-y-6">
@@ -780,251 +664,6 @@ export function BookingFormPage({
             </div>
           </div>
         </div>
-
-        {/* Confirmation Dialog */}
-        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-          <DialogContent className="bg-card border-border max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                {t.confirmTitle}
-              </DialogTitle>
-              <DialogDescription className="text-muted-foreground">
-                {t.confirmDesc}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-              <div className="bg-secondary/50 rounded-lg p-4 space-y-3 border border-border">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t.room}:</span>
-                  <span>
-                    {language === 'ru'
-                      ? roomTypes.find((r) => r.value === roomType)?.label
-                      : roomTypes.find((r) => r.value === roomType)?.labelEn}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {language === 'ru' ? 'Номер комнаты' : 'Room number'}:
-                  </span>
-                  <span>#{roomNumber}</span>
-                </div>
-                {hotel?.initialBookingState?.floorOptions && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {language === 'ru' ? 'Этаж' : 'Floor'}:
-                    </span>
-                    <span>{floor}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t.checkIn}:</span>
-                  <span>
-                    {checkInDate &&
-                      format(checkInDate, 'PP', { locale: language === 'ru' ? ru : enUS })}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t.checkOut}:</span>
-                  <span>
-                    {checkOutDate &&
-                      format(checkOutDate, 'PP', { locale: language === 'ru' ? ru : enUS })}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t.mealType}:</span>
-                  <span>
-                    {language === 'ru'
-                      ? mealTypes.find((m) => m.value === mealType)?.label
-                      : mealTypes.find((m) => m.value === mealType)?.labelEn}
-                  </span>
-                </div>
-                {selectedServices.length > 0 && (
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">{t.additionalServices}:</span>
-                    <ul className="list-disc list-inside mt-1 space-y-1">
-                      {selectedServices.map((serviceId) => {
-                        const service = additionalServices.find((s) => s.id === serviceId);
-                        return (
-                          <li key={serviceId}>
-                            {language === 'ru' ? service?.name : service?.nameEn}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                )}
-                <div className="flex justify-between pt-3 border-t border-border">
-                  <span>{t.totalCost}:</span>
-                  <span className="text-primary">₽{finalTotal.toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                <p className="text-destructive text-sm flex items-start gap-2">
-                  <span className="text-lg">⚠️</span>
-                  <span>{t.warning}</span>
-                </p>
-              </div>
-            </div>
-
-            <DialogFooter className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowConfirmDialog(false)}
-                className="flex-1 border-border"
-              >
-                {t.cancel}
-              </Button>
-              <Button
-                onClick={() => finalizeBooking(false)}
-                className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
-              >
-                {t.confirm}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Success Modal */}
-        {showSuccessModal && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-md w-full p-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl text-foreground font-medium mb-2">
-                  {language === 'ru' ? 'Бронирование подтверждено!' : 'Booking Confirmed!'}
-                </h3>
-                <p className="text-muted-foreground">
-                  {isAlienCaptcha
-                    ? language === 'ru'
-                      ? hotel?.endAlienBookingMassege
-                      : hotel?.endAlienBookingMassegeEn
-                    : language === 'ru'
-                      ? hotel?.endBookingMassege
-                      : hotel?.endBookingMassegeEn}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Prize Modal */}
-        {showPrizeModal && foundPrize && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-md w-full max-h-[95vh] overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="w-6 h-6 text-primary" />
-                  <h2 className="text-2xl text-foreground font-medium">
-                    {foundPrize.alreadyCollected
-                      ? language === 'ru'
-                        ? 'Артефакт уже получен'
-                        : 'Artifact Already Collected'
-                      : language === 'ru'
-                        ? 'Артефакт найден!'
-                        : 'Artifact Found!'}
-                  </h2>
-                </div>
-                <button
-                  onClick={() => {
-                    setShowPrizeModal(false);
-                    navigate('/bookings');
-                  }}
-                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-6 flex flex-col items-center">
-                <div className="w-full max-w-xs aspect-[2/3] bg-secondary rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                    <Sparkles className="w-12 h-12 text-primary/50" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {language === 'ru' ? foundPrize.name : foundPrize.nameEn}
-                </h3>
-                <p className="text-sm text-muted-foreground text-center mb-6">
-                  {foundPrize.alreadyCollected
-                    ? language === 'ru'
-                      ? 'Этот артефакт уже есть в вашем чемодане.'
-                      : 'This artifact is already in your suitcase.'
-                    : language === 'ru'
-                      ? 'Вы нашли артефакт! Нажмите кнопку ниже, чтобы добавить его в чемодан.'
-                      : 'You found an artifact! Click the button below to add it to your suitcase.'}
-                </p>
-                {!foundPrize.alreadyCollected && (
-                  <button
-                    onClick={() => {
-                      addArtefact({
-                        artefactId: foundPrize.artefactId,
-                        name: foundPrize.name,
-                        nameEn: foundPrize.nameEn,
-                        image: '', // No image available for prizes
-                        collectedAt: new Date().toISOString(),
-                      });
-                      setShowPrizeModal(false);
-                      navigate('/bookings');
-                    }}
-                    className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-                  >
-                    {language === 'ru' ? 'Забрать в чемодан' : 'Add to Suitcase'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Captcha Modal */}
-        {showCaptcha && hotel?.captcha && (
-          <CaptchaModal
-            open={showCaptcha}
-            onClose={() => {
-              setShowCaptcha(false);
-              setCaptchaSelected([]);
-              setCaptchaError(false);
-            }}
-            captcha={hotel.captcha}
-            selection={captchaSelected}
-            setSelection={setCaptchaSelected}
-            errorMessage={
-              captchaError
-                ? language === 'ru'
-                  ? hotel.captcha.errorResponse
-                  : hotel.captcha.errorResponseEn
-                : undefined
-            }
-            title={
-              isAlienCaptcha
-                ? language === 'ru'
-                  ? hotel.captcha.alienQuestion
-                  : hotel.captcha.alienQuestionEn
-                : language === 'ru'
-                  ? hotel.captcha.question
-                  : hotel.captcha.questionEn
-            }
-            confirmLabel={language === 'ru' ? 'Подтвердить' : 'Confirm'}
-            mode="toggle"
-            showSelection={false}
-            onConfirm={handleCaptchaSubmit}
-          />
-        )}
       </div>
     </div>
   );

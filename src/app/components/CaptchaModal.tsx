@@ -74,11 +74,25 @@ export function CaptchaModal({
           {showSelection && selection.length > 0 && (
             <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">
               <p className="text-sm text-primary font-medium mb-2">
-                {mode === 'sequence' ? 'Selected sequence:' : 'Selected:'} {selection.join(', ')}
+                {mode === 'sequence' ? 'Selected sequence:' : 'Selected:'}
               </p>
+              {mode === 'sequence' ? (
+                <div className="flex gap-2 flex-wrap">
+                  {selection.map((id, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center justify-center w-8 h-8 bg-primary text-primary-foreground rounded font-mono text-sm"
+                    >
+                      {id}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <span>{selection.join(', ')}</span>
+              )}
               <button
                 onClick={() => setSelection([])}
-                className="text-xs text-primary hover:underline"
+                className="text-xs text-primary hover:underline mt-2"
               >
                 Clear
               </button>
@@ -86,26 +100,32 @@ export function CaptchaModal({
           )}
 
           <div className="grid grid-cols-3 gap-3 mb-6">
-            {captcha.items.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleItemClick(item.id)}
-                className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
-                  selection.includes(item.id)
-                    ? 'border-primary bg-primary/10'
-                    : 'border-secondary hover:border-primary/50'
-                } ${selection.includes(item.id) ? 'opacity-70' : ''}`}
-              >
-                <div className="w-full aspect-[1/1] bg-secondary flex items-center justify-center overflow-hidden">
-                  <img src={item.image} alt={item.label} className="w-full h-full object-contain" />
-                </div>
-                {item.label && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">
-                    {item.label}
+            {captcha.items.map((item) => {
+              const isSelected = selection.includes(item.id);
+              // В sequence mode показываем все элементы, в toggle mode скрываем выбранные
+              if (mode === 'toggle' && isSelected) return null;
+              
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => handleItemClick(item.id)}
+                  className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                    isSelected
+                      ? 'border-primary bg-primary/10'
+                      : 'border-secondary hover:border-primary/50'
+                  }`}
+                >
+                  <div className="w-full aspect-[1/1] bg-secondary flex items-center justify-center overflow-hidden">
+                    <img src={item.image} alt={item.label} className="w-full h-full object-contain" />
                   </div>
-                )}
-              </div>
-            ))}
+                  {item.label && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">
+                      {item.label}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex justify-end gap-4">

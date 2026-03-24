@@ -12,6 +12,7 @@ import ravenFeather9 from './images/artefacts/Raven-Feather.jpg';
 import goldBug9 from './images/artefacts/Gold-Bug.jpeg';
 import mechanicalHeart from './images/artefacts/Mechanical-Heart.jpg';
 import secureCode from './images/artefacts/Secure-Code.jpg';
+import goldCoin from './images/artefacts/Gold-coin.jpg';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -121,6 +122,16 @@ export const artefacts: Record<string, Artefact> = {
     image: secureCode,
     type: 'lost-and-found',
     hotelId: '10',
+  },
+  'gold-coin': {
+    id: 'gold-coin',
+    name: 'Золотая монета',
+    nameEn: 'Gold coin',
+    description: 'Золотая монета для оплаты бронирования в NY Continental',
+    descriptionEn: 'Gold coin for booking at NY Continental',
+    image: goldCoin,
+    type: 'lost-and-found',
+    hotelId: '1',
   },
 };
 

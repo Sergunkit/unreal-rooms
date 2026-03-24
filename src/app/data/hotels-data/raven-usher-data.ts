@@ -147,9 +147,10 @@ export const usherData = {
   ],
   rooms: [
     {
+      id: 1,
       value: 'carl',
-      label: 'Гостевая "Карл III"',
-      labelEn: '"Charles III" Guest Room',
+      name: 'Гостевая "Карл III"',
+      nameEn: '"Charles III" Guest Room',
       price: 85,
       size: 25,
       capacity: 2,
@@ -160,9 +161,10 @@ export const usherData = {
       image: roomMorgue9,
     },
     {
+      id: 2,
       value: 'napoleon',
-      label: 'Комната "Наполеон"',
-      labelEn: '"Napoleon" Room',
+      name: 'Комната "Наполеон"',
+      nameEn: '"Napoleon" Room',
       price: 90,
       size: 25,
       capacity: 2,
@@ -173,9 +175,10 @@ export const usherData = {
       image: roomTellTale9,
     },
     {
+      id: 3,
       value: 'tamerlan',
-      label: 'Уютная студия "Тамерлан"',
-      labelEn: '"Tamerlan" Studio',
+      name: 'Уютная студия "Тамерлан"',
+      nameEn: '"Tamerlan" Studio',
       price: 85,
       size: 25,
       capacity: 2,

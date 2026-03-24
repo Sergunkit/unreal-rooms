@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import type { TempBookingFormData } from '../data/hotels-data/hotelTypes';
 
 /**
  * Тип питания
@@ -15,22 +16,6 @@ export type AdditionalService =
   | 'breakfast-in-room'
   | 'diving'
   | 'Cater-transfer';
-
-/**
- * Временные данные формы бронирования (сохраняются между переходами)
- */
-export interface TempBookingFormData {
-  guests: number;
-  rooms: number;
-  roomType: string;
-  checkInDate: string | null;
-  checkOutDate: string | null;
-  mealType: string;
-  needTransfer: boolean;
-  checkInTime: string;
-  selectedServices: string[];
-  promoCode?: string;
-}
 
 /**
  * Прогресс капчи отеля (последовательность выбранных элементов)
@@ -273,11 +258,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
    * Установить прогресс текущего отеля
    */
   const setCurrentHotelProgress = (progress: CurrentHotelProgress | null) => {
-    setPlayerStatus((prev) => ({
-      ...prev,
-      currentHotelProgress: progress,
-      updatedAt: new Date().toISOString(),
-    }));
+    setPlayerStatus((prev) => {
+      const isSame = JSON.stringify(prev.currentHotelProgress) === JSON.stringify(progress);
+      if (isSame) {
+        return prev;
+      }
+      return {
+        ...prev,
+        currentHotelProgress: progress,
+        updatedAt: new Date().toISOString(),
+      };
+    });
   };
 
   /**

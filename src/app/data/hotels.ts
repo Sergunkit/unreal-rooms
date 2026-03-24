@@ -1,4 +1,5 @@
 import { Hotel } from './hotels-data/hotelTypes';
+import { continentalData } from './hotels-data/ny-continental';
 import { soldierData } from './hotels-data/soldier-data';
 import { lastPeakData } from './hotels-data/last-peak-data';
 import { usherData } from './hotels-data/raven-usher-data';
@@ -15,6 +16,7 @@ const ravenUsherHotel = usherData as unknown as Hotel;
 // Combine base hotels with game hotels
 export const hotelData: Record<string, Hotel> = {
   // ...baseHotels,
+  '1': continentalData,
   '7': soldierHotel,
   '8': lastPeakHotel,
   '9': ravenUsherHotel,

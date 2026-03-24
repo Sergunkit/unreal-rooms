@@ -42,6 +42,8 @@ export interface MealType {
   label: string;
   labelEn: string;
   price: number;
+  description?: string;
+  descriptionEn?: string;
 }
 
 export interface FeedBack {
@@ -68,6 +70,7 @@ export interface Room {
   amenities: string[];
   amenitiesEn: string[];
   image: string;
+  value?: string;
 }
 
 export interface GalleryImageAction {
@@ -83,11 +86,12 @@ export interface GalleryImageAction {
 }
 
 export interface PassingConditions {
-  roomId: string;
+  roomId?: string;
   mealTypes?: string[];
   additionalServices?: string[];
   inventory?: string[];
   promoCode?: string;
+  paymentType?: string;
 }
 
 export interface WrongOptions {
@@ -101,6 +105,7 @@ export interface WrongOptions {
   floor?: string;
   exitCode?: string;
   avoidRoom?: string;
+  paymentType?: string;
 }
 
 export interface InitialFlow {
@@ -119,14 +124,37 @@ export type ChainStep =
   | 'myBookingsPage'
   | 'gallery';
 
+// Условия для перехода между шагами
+export interface TransitionCondition {
+  // Требуемые параметры для перехода
+  requires?: {
+    roomType?: string;
+    roomTypes?: string[]; // несколько вариантов
+    mealType?: string;
+    mealTypes?: string[];
+    services?: string[];
+    inventory?: string[];
+    floor?: number;
+    promoCode?: string;
+  };
+  // Альтернативный путь если основные условия не выполнены
+  alternative?: {
+    step: ChainStep;
+    reason?: 'alien' | 'wrong' | 'blocked';
+  };
+}
+
+// Конфигурация цепочки бронирования
 export interface ChainConfig {
   steps: ChainStep[];
-  conditions?: Record<string, any>;
+  // Условия переходов между шагами
+  transitions?: {
+    [from: string]: TransitionCondition;
+  };
 }
 
 export interface ActionChain {
   steps: ChainStep[];
-  conditions?: Record<string, any>;
 }
 
 export interface BookingFormDataConditions {
@@ -175,6 +203,22 @@ export interface InitialBookingState {
   checkOutDate?: string;
   checkInTime?: string;
   selectedServices?: string[];
+  promoCode?: string;
+  paymentMethod?: string;
+  hasCoin?: boolean;
+}
+
+// Временные данные формы бронирования
+export interface TempBookingFormData {
+  guests: number;
+  rooms: number;
+  roomType: string;
+  checkInDate: string | null;
+  checkOutDate: string | null;
+  mealType: string;
+  needTransfer: boolean;
+  checkInTime: string;
+  selectedServices: string[];
   promoCode?: string;
 }
 

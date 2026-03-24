@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { ChainStep } from './hotelTypes';
 import headImage10 from '../images/StayCeil/head-image2.jpg'; // Главная фотография отеля Stay-Ceil
 import galleryCeil1 from '../images/StayCeil/lobby-security.jpeg'; // Лобби с рамкой
 import galleryCeil2 from '../images/StayCeil/cafeteria.jpeg'; // Столовая
@@ -30,7 +31,8 @@ export const stayCeilData = {
   stars: 2,
   rating: 7.5,
   price: 45,
-  slogan: 'Дом там, где вы чувствуете себя в безопасности. Мы заботимся чтоб вы чувствовали себя как дома.',
+  slogan:
+    'Дом там, где вы чувствуете себя в безопасности. Мы заботимся чтоб вы чувствовали себя как дома.',
   sloganEn: 'Home is where you feel safe. We care about making you feel at home.',
   description:
     'Добро пожаловать в тихую гавань в самом сердце Лос-Анджелеса. Мы предлагаем уникальный формат "защищенного проживания": усиленные оконные системы, круглосуточный пост фельдшера и полная изоляция от негативного контента (в стандартных номерах отсутствуют ТВ). Весь наш персонал проходит психологическую подготовку, чтобы обеспечить вам максимальный комфорт. Мы знаем, как важна безопасность в этом безжалостном мире.',
@@ -59,7 +61,14 @@ export const stayCeilData = {
       message: 'Для экстренного выхода введите код авторизации в капче.',
       messageEn: 'For emergency exit, enter authorization code in captcha.',
       actionChain: {
-        steps: ['captcha', 'floorSelect', 'bookingForm', 'bookingConfirm', 'bookingComplete', 'myBookingsPage'],
+        steps: [
+          'captcha',
+          'floorSelect',
+          'bookingForm',
+          'bookingConfirm',
+          'bookingComplete',
+          'myBookingsPage',
+        ] as ChainStep[],
       },
     },
   ],
@@ -135,17 +144,12 @@ export const stayCeilData = {
   },
 
   // Поток квеста
+  // Начальный шаг — gallery, actionChain запускается при клике на лифт
   initialFlow: {
-    steps: ['gallery', 'captcha', 'floor-select', 'booking'],
-    transitions: {
-      gallery: 'captcha', // После клика по галерее -> captcha
-      captcha: 'floor-select', // После captcha -> выбор этажа
-      'floor-select': 'booking', // После выбора этажа -> бронирование
-    },
+    steps: ['gallery'],
+    transitions: {},
   },
-  customBookingChain: {
-    steps: ['hotelPage', 'bookingForm', 'captcha', 'floorSelect', 'bookingConfirm', 'bookingComplete', 'myBookingsPage'],
-  },
+  // customBookingChain не нужен — actionChain в galleryActions определяет цепочку
   bookingFormDataConditions: {
     conditionsNotDone: 'initialBookingState',
     conditionsIsDone: 'anotherBookingState',
@@ -191,8 +195,6 @@ export const stayCeilData = {
       name: 'Standard "Светлый путь"',
       nameEn: 'Standard "Bright Path"',
       value: 'standard',
-      label: 'Standard "Светлый путь"',
-      labelEn: 'Standard "Bright Path"',
       price: 45,
       basePrice: 45,
       size: 12,
@@ -214,8 +216,6 @@ export const stayCeilData = {
       name: 'Superior "Горизонт"',
       nameEn: 'Superior "Horizon"',
       value: 'superior',
-      label: 'Superior "Горизонт"',
-      labelEn: 'Superior "Horizon"',
       price: 75,
       basePrice: 75,
       size: 18,
@@ -232,8 +232,6 @@ export const stayCeilData = {
       name: 'Rehab "Изоляция"',
       nameEn: 'Rehab "Isolation"',
       value: 'rehab',
-      label: 'Rehab "Изоляция"',
-      labelEn: 'Rehab "Isolation"',
       price: 110,
       basePrice: 110,
       size: 10,

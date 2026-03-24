@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { ChainStep } from './hotelTypes';
 import headImage8 from '../images/LastPeak/head-Image.jpg';
 import headImageAlt8 from '../images/LastPeak/head-Image-alt.jpg';
 import galleryImage1_8 from '../images/LastPeak/gallery-1.jpg';
@@ -182,9 +183,10 @@ export const lastPeakData = {
   ],
   rooms: [
     {
+      id: 1,
       value: 'classic-comfort',
-      label: 'Классический комфорт',
-      labelEn: 'Classic Comfort',
+      name: 'Классический комфорт',
+      nameEn: 'Classic Comfort',
       price: 120,
       size: 25,
       capacity: 2,
@@ -195,9 +197,10 @@ export const lastPeakData = {
       image: classicComfort8,
     },
     {
+      id: 2,
       value: 'infinity-view',
-      label: 'Вид на вечность',
-      labelEn: 'Infinity View',
+      name: 'Вид на вечность',
+      nameEn: 'Infinity View',
       price: 450,
       size: 40,
       capacity: 2,
@@ -208,9 +211,10 @@ export const lastPeakData = {
       image: infinityView8,
     },
     {
+      id: 3,
       value: 'specialist-suite',
-      label: 'Люкс "Специалист"',
-      labelEn: 'Specialist Suite',
+      name: 'Люкс "Специалист"',
+      nameEn: 'Specialist Suite',
       price: 850,
       size: 50,
       capacity: 1,
@@ -267,11 +271,26 @@ export const lastPeakData = {
   initialFlow: {
     steps: ['gallery', 'booking'],
     transitions: {
-      gallery: 'booking', // После действий в галерее -> бронирование с проверкой условий
+      gallery: 'booking',
     },
   },
   customBookingChain: {
-    steps: ['hotelPage', 'bookingForm', 'captcha', 'bookingConfirm', 'bookingComplete', 'prizeModal', 'myBookingsPage'],
+    steps: ['hotelPage', 'bookingForm', 'captcha', 'bookingConfirm', 'bookingComplete', 'prizeModal', 'myBookingsPage'] as ChainStep[],
+    // Условия перехода от bookingForm к captcha
+    transitions: {
+      bookingForm: {
+        requires: {
+          roomType: 'classic-comfort',
+          mealTypes: ['standard'],
+          services: ['dog-service'],
+          inventory: ['mountaineers-hammer'],
+        },
+        alternative: {
+          step: 'captcha',
+          reason: 'alien',  // Если условия не выполнены — капча для инопланетян
+        },
+      },
+    },
   },
   wrongOptions: {
     additionalServices: ['entropy-fix'],
