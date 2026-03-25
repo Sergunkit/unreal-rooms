@@ -66,7 +66,10 @@ export function useHotelProgress(hotelId?: string) {
   const setRoomType = useCallback(
     (roomType: string) => {
       if (!hotelId || !currentProgress) return;
-      const roomNumber = computeRoomNumber(currentProgress.floor, roomType);
+      const roomNumber = computeRoomNumber(
+        currentProgress?.floor ?? defaultBookingState?.floor ?? 14,
+        roomType
+      );
       const newTempForm: TempBookingFormData = {
         ...currentProgress.tempBookingForm,
         roomType,
@@ -80,7 +83,7 @@ export function useHotelProgress(hotelId?: string) {
         flowState: currentProgress.flowState, // Сохраняем flowState!
       });
     },
-    [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress]
+    [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress, defaultBookingState]
   );
 
   // Обновление tempBookingForm
@@ -88,7 +91,10 @@ export function useHotelProgress(hotelId?: string) {
     (tempBookingForm: TempBookingFormData) => {
       if (!hotelId || !currentProgress) return;
       const roomType = tempBookingForm.roomType || currentProgress.tempBookingForm?.roomType || '';
-      const roomNumber = computeRoomNumber(currentProgress.floor, roomType);
+      const roomNumber = computeRoomNumber(
+        currentProgress?.floor ?? defaultBookingState?.floor ?? 14,
+        roomType
+      );
       setCurrentHotelProgress({
         hotelId,
         tempBookingForm,
@@ -98,7 +104,7 @@ export function useHotelProgress(hotelId?: string) {
         flowState: currentProgress.flowState, // Сохраняем flowState!
       });
     },
-    [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress]
+    [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress, defaultBookingState]
   );
 
   return {

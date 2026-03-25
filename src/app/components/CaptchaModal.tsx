@@ -104,7 +104,7 @@ export function CaptchaModal({
               const isSelected = selection.includes(item.id);
               // В sequence mode показываем все элементы, в toggle mode скрываем выбранные
               if (mode === 'toggle' && isSelected) return null;
-              
+
               return (
                 <div
                   key={item.id}
@@ -116,7 +116,11 @@ export function CaptchaModal({
                   }`}
                 >
                   <div className="w-full aspect-[1/1] bg-secondary flex items-center justify-center overflow-hidden">
-                    <img src={item.image} alt={item.label} className="w-full h-full object-contain" />
+                    <img
+                      src={item.image}
+                      alt={item.label}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                   {item.label && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">

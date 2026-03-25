@@ -70,6 +70,7 @@ export const stayCeilData = {
           'myBookingsPage',
         ] as ChainStep[],
       },
+      resetOnReentry: true, // При повторном входе сбрасываем прогресс капчи и этажа
     },
   ],
 

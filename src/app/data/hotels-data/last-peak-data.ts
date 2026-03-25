@@ -275,7 +275,15 @@ export const lastPeakData = {
     },
   },
   customBookingChain: {
-    steps: ['hotelPage', 'bookingForm', 'captcha', 'bookingConfirm', 'bookingComplete', 'prizeModal', 'myBookingsPage'] as ChainStep[],
+    steps: [
+      'hotelPage',
+      'bookingForm',
+      'captcha',
+      'bookingConfirm',
+      'bookingComplete',
+      'prizeModal',
+      'myBookingsPage',
+    ] as ChainStep[],
     // Условия перехода от bookingForm к captcha
     transitions: {
       bookingForm: {
@@ -287,7 +295,7 @@ export const lastPeakData = {
         },
         alternative: {
           step: 'captcha',
-          reason: 'alien',  // Если условия не выполнены — капча для инопланетян
+          reason: 'alien', // Если условия не выполнены — капча для инопланетян
         },
       },
     },

@@ -83,6 +83,7 @@ export interface GalleryImageAction {
   artefact?: string; // id артефакта
   capcha?: Captcha; // Капча для capcha-get действия
   actionChain?: ActionChain;
+  resetOnReentry?: boolean; // Сбрасывать прогресс при повторном входе
 }
 
 export interface PassingConditions {

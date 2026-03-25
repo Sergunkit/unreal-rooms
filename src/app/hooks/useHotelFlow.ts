@@ -107,23 +107,44 @@ export function useHotelFlow(hotelId?: string) {
       const currentStep = flowState.currentStep;
       const currentIndex = flowState.currentChain.indexOf(currentStep);
 
-      if (currentIndex === -1 || currentIndex >= flowState.currentChain.length - 1) {
+      if (currentIndex === -1) {
         return;
       }
 
-      const nextStepName = flowState.currentChain[currentIndex + 1];
-      const updates: Partial<FlowState> = {
-        currentStep: nextStepName,
-        currentChainIndex: currentIndex + 1,
-        completedSteps: [...flowState.completedSteps, nextStepName],
-      };
-
-      const updateObj: Partial<FlowState> & { floor?: number } = { ...updates };
-      if (nextFloor !== undefined) {
-        updateObj.floor = nextFloor;
+      // Если достигли конца action-цепочки, сбрасываем состояние
+      if (
+        currentIndex >= flowState.currentChain.length - 1 &&
+        flowState.activeChainType === 'action'
+      ) {
+        // Завершаем action-цепочку и возвращаемся к нормальному состоянию
+        updateFlowState({
+          activeChainType: 'standard',
+          currentStep: 'hotelPage',
+          currentChain: [], // Очищаем цепочку
+          currentChainIndex: 0,
+          completedSteps: [],
+          captchaCompleted: false,
+          floorSelected: false,
+        });
+        return;
       }
 
-      updateFlowState(updateObj);
+      // Если не достигли конца цепочки, переходим к следующему шагу
+      if (currentIndex < flowState.currentChain.length - 1) {
+        const nextStepName = flowState.currentChain[currentIndex + 1];
+        const updates: Partial<FlowState> = {
+          currentStep: nextStepName,
+          currentChainIndex: currentIndex + 1,
+          completedSteps: [...flowState.completedSteps, nextStepName],
+        };
+
+        const updateObj: Partial<FlowState> & { floor?: number } = { ...updates };
+        if (nextFloor !== undefined) {
+          updateObj.floor = nextFloor;
+        }
+
+        updateFlowState(updateObj);
+      }
     },
     [flowState, updateFlowState]
   );
@@ -228,6 +249,13 @@ export function useHotelFlow(hotelId?: string) {
           ...flowState.galleryActionsTriggered,
           [imageIndex]: true,
         };
+      } else if (action.type === 'capcha-get' && isTriggered) {
+        // Если действие уже было выполнено, но пользователь снова нажимает,
+        // разрешаем повторное выполнение, сбрасывая триггер
+        updates.galleryActionsTriggered = {
+          ...flowState.galleryActionsTriggered,
+          [imageIndex]: false,
+        };
       }
 
       if (action.actionChain && shouldTriggerAction) {
@@ -235,6 +263,16 @@ export function useHotelFlow(hotelId?: string) {
         updates.currentChainIndex = 0;
         updates.currentStep = action.actionChain.steps[0];
         updates.activeChainType = 'action';
+        // Если установлен флаг resetOnReentry, сбрасываем прогресс капчи и этажа
+        if (action.resetOnReentry) {
+          updates.captchaCompleted = false;
+          updates.floorSelected = false;
+        } else {
+          // Если флага нет, то сбрасываем только если мы начинаем цепочку заново
+          // Это позволяет повторно запускать цепочку с начального состояния
+          updates.captchaCompleted = false;
+          updates.floorSelected = false;
+        }
       }
 
       if (Object.keys(updates).length > 0) {
