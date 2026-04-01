@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
+import type { Chain } from './hotelTypes';
+import headImage7 from '../images/Soldier/head-image.jpg';
 import headImage2_7 from '../images/Soldier/head-image2.jpg';
-import galleryImageSoldier2_7 from '../images/Soldier/gallery-image-soldier2.jpg';
 import galleryImageSoldier_7 from '../images/Soldier/gallery-image-soldier.jpg';
 import galleryImage1_7 from '../images/Soldier/gallery-image1.jpeg';
 import galleryImage2_7 from '../images/Soldier/gallery-image2.jpg';
@@ -15,7 +16,6 @@ import firstAidSuite7 from '../images/Soldier/First-Aid-Suite.jpg';
 import highTideAttic7 from '../images/Soldier/High-Tide-Attic.jpeg';
 import nightcapDeluxe7 from '../images/Soldier/Nightcap-Deluxe.jpg';
 import verdictGrandSuite7 from '../images/Soldier/Verdict-Grand-Suite.jpg';
-import headImage7 from '../images/Soldier/head-image.jpg';
 
 export const soldierData = {
   id: 7,
@@ -35,7 +35,7 @@ export const soldierData = {
   location: 'Небольшой (полу)отсров в Девоне, Англия',
   locationEn: 'Small (semi)island in Devon, England',
   image: headImage7,
-  images: [headImage7, galleryImageSoldier2_7, galleryImage1_7, galleryImage2_7],
+  images: [headImage7, galleryImageSoldier_7, galleryImage1_7, galleryImage2_7],
   galleryActions: [
     {
       imageIndex: 0,
@@ -462,11 +462,92 @@ export const soldierData = {
     additionalServices: ['sauna', 'excursion', 'diving', 'fishing', 'breakfast-in-room'],
     mealTypes: [],
   },
+};
 
-  // Поток квеста
-  initialFlow: {
-    steps: ['booking'], // Прямое бронирование с проверкой условий
-    transitions: {},
-  },
-  // Soldier Island — стандартная цепочка без капчи, с проверкой passingConditions
+// ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
+export const soldierChain: Chain = {
+  hotelId: 7,
+  type: 'custom',
+  steps: {
+    hotelPage: {
+      id: 'hotelPage',
+      step: 1,
+      actions: [
+        {
+          id: 'book-now-btn',
+          type: 'buttonClick',
+          trigger: { elementId: 'book-now-button' },
+          nextStep: 'bookingForm'
+        },
+        {
+          id: 'room-card-book',
+          type: 'roomSelect',
+          trigger: { source: 'roomDetailModal' },
+          nextStep: 'bookingForm'
+        }
+      ]
+    },
+    
+    bookingForm: {
+      id: 'bookingForm',
+      step: 2,
+      actions: [
+        {
+          id: 'submit-form',
+          type: 'formSubmit',
+          nextStep: 'bookingConfirm'
+        },
+        {
+          id: 'cancel-booking',
+          type: 'buttonClick',
+          trigger: { elementId: 'cancel-btn' },
+          nextStep: 'hotelPage'
+        }
+      ],
+      transitions: {
+        submit: {
+          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+          nextStep: 'bookingConfirm'
+        },
+        submitUnsafe: {
+          nextStep: 'bookingConfirm'
+        }
+      }
+    },
+    
+    bookingConfirm: {
+      id: 'bookingConfirm',
+      step: 3,
+      transitions: {
+        confirm: { nextStep: 'bookingComplete' },
+        cancel: { nextStep: 'bookingForm' }
+      }
+    },
+    
+    bookingComplete: {
+      id: 'bookingComplete',
+      step: 4,
+      transitions: {
+        default: { nextStep: 'prizeModal', delay: 2000 }
+      }
+    },
+    
+    prizeModal: {
+      id: 'prizeModal',
+      step: 5,
+      conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+      transitions: {
+        continue: { nextStep: 'myBookingsPage' }
+      },
+      fallback: { nextStep: 'myBookingsPage' }
+    },
+    
+    myBookingsPage: {
+      id: 'myBookingsPage',
+      step: 6,
+      transitions: {
+        default: { nextStep: 'hotelPage' }
+      }
+    }
+  }
 };

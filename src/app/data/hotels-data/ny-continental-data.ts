@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Hotel } from './hotelTypes';
+import type { Chain, Hotel } from './hotelTypes';
 import headImage from '../images/NYContinental/head-image.png';
 import galleryCont1 from '../images/NYContinental/gallery-nyc1.png';
 import galleryCont2 from '../images/NYContinental/gallery-nyc2.jpg';
@@ -38,7 +38,7 @@ export const continentalData: Hotel = {
 
   galleryActions: [
     {
-      imageIndex: 1, // Фото с Хароном
+      imageIndex: 3, // Фото с Хароном
       type: 'hint' as const,
       coords: { x1: 45, y1: 20, x2: 55, y2: 60 },
       message: 'Харон: "Приятно снова видеть вас. Номер готов, если у вас есть монета."',
@@ -96,17 +96,23 @@ export const continentalData: Hotel = {
         price: 15,
       },
       {
-        id: 'masquerade',
+        id: 'sommelier',
         name: 'Cомелье',
         nameEn: 'Sommelier',
         price: 20,
       },
       { id: 'safe-box', name: 'Аренда сейфа', nameEn: 'Safe box rental', price: 5 },
       {
-        id: 'fitness',
+        id: 'tailor',
         name: 'Индивидуальный портной',
         nameEn: 'Custom tailor',
         price: 30,
+      },
+      {
+        id: 'elimination',
+        name: 'Элиминация по договоренности',
+        nameEn: 'Elimination by agreement',
+        price: 100000,
       },
     ],
   },
@@ -120,7 +126,7 @@ export const continentalData: Hotel = {
   // Механика прохождения
   passingConditions: {
     inventory: ['gold-coin'], // Нужно иметь монету в инвентаре
-    paymentType: 'Gold Coin', // Нужно переключить способ оплаты в форме
+    paymentType: 'cash', // Нужно выбрать наличные (оплата монетой)
   },
 
   wrongOptions: {
@@ -244,4 +250,94 @@ export const continentalData: Hotel = {
     steps: ['booking'], // Прямое бронирование с проверкой условий
     transitions: {},
   },
+};
+
+// ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
+export const continentalChain: Chain = {
+  hotelId: 1,
+  type: 'custom',
+  steps: {
+    hotelPage: {
+      id: 'hotelPage',
+      step: 1,
+      actions: [
+        {
+          id: 'book-now-btn',
+          type: 'buttonClick',
+          trigger: { elementId: 'book-now-button' },
+          nextStep: 'bookingForm'
+        },
+        {
+          id: 'room-card-book',
+          type: 'roomSelect',
+          trigger: { source: 'roomDetailModal' },
+          nextStep: 'bookingForm'
+        }
+      ]
+    },
+    
+    bookingForm: {
+      id: 'bookingForm',
+      step: 2,
+      actions: [
+        {
+          id: 'submit-form',
+          type: 'formSubmit',
+          nextStep: 'bookingConfirm'
+        },
+        {
+          id: 'cancel-booking',
+          type: 'buttonClick',
+          trigger: { elementId: 'cancel-btn' },
+          nextStep: 'hotelPage'
+        }
+      ],
+      transitions: {
+        submit: {
+          conditions: [
+            { field: 'isSafeToBook', operator: 'eq', value: true }
+          ],
+          nextStep: 'bookingConfirm'
+        },
+        submitUnsafe: {
+          nextStep: 'bookingConfirm'
+        }
+      }
+    },
+    
+    bookingConfirm: {
+      id: 'bookingConfirm',
+      step: 3,
+      transitions: {
+        confirm: { nextStep: 'bookingComplete' },
+        cancel: { nextStep: 'bookingForm' }
+      }
+    },
+    
+    bookingComplete: {
+      id: 'bookingComplete',
+      step: 4,
+      transitions: {
+        default: { nextStep: 'prizeModal', delay: 2000 }
+      }
+    },
+    
+    prizeModal: {
+      id: 'prizeModal',
+      step: 5,
+      conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+      transitions: {
+        continue: { nextStep: 'myBookingsPage' }
+      },
+      fallback: { nextStep: 'myBookingsPage' }
+    },
+    
+    myBookingsPage: {
+      id: 'myBookingsPage',
+      step: 6,
+      transitions: {
+        default: { nextStep: 'hotelPage' }
+      }
+    }
+  }
 };

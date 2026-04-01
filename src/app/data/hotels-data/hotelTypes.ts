@@ -16,6 +16,112 @@ export interface Amenities {
   additionalServices?: { id: string; name: string; nameEn: string; price: number }[];
 }
 
+// ==================== НОВЫЕ ТИПЫ ДЛЯ ЦЕПОЧЕК ====================
+
+/**
+ * Операторы для условий
+ */
+export type ConditionOperator = 'eq' | 'ne' | 'gt' | 'lt' | 'includes' | 'notIncludes';
+
+/**
+ * Условие для проверки
+ */
+export interface Condition {
+  field: string; // 'isSafeToBook', 'inventory', 'paymentMethod', etc.
+  operator: ConditionOperator;
+  value: any;
+  or?: Condition[]; // ← Для сложных условий (A или B)
+}
+
+/**
+ * Типы действий (триггеров)
+ */
+export type ActionType =
+  | 'galleryClick'
+  | 'buttonClick'
+  | 'formSubmit'
+  | 'formFieldChange'
+  | 'roomSelect'
+  | 'inventoryUse'
+  | 'paymentSelect'
+  | 'timer'
+  | 'chatMessage'
+  | 'achievement'
+  | 'externalLink';
+
+/**
+ * Триггер действия
+ */
+export interface ActionTrigger {
+  imageIndex?: number;
+  coords?: { x1: number; y1: number; x2: number; y2: number };
+  elementId?: string;
+  roomId?: string;
+  field?: string;
+  formId?: string;
+  source?: string;
+}
+
+/**
+ * Действие в шаге цепочки
+ */
+export interface Action {
+  id: string;
+  type: ActionType;
+  trigger?: ActionTrigger; // ← Опционально (например для formSubmit)
+  nextStep: string;
+  params?: Record<string, any>; // ← Параметры для передачи в контекст
+}
+
+/**
+ * Переходы из шага
+ */
+export interface Transitions {
+  [key: string]: {
+    // 'submit', 'cancel', 'success', 'fail', 'confirm', 'default'
+    conditions?: Condition[];
+    nextStep: string;
+    params?: Record<string, any>;
+    delay?: number; // ← Задержка перед переходом (в мс)
+  };
+}
+
+/**
+ * Входные данные для шага (для UI)
+ */
+export interface StepInput {
+  [key: string]: any;
+}
+
+/**
+ * Шаг цепочки
+ */
+export interface ChainStep {
+  id: string;
+  step: number;
+  conditions?: Condition[]; // ← Условия для входа на шаг
+  input?: StepInput; // ← Данные для UI (показать/скрыть элементы)
+  actions?: Action[]; // ← Триггеры (клики, выборы, отправки)
+  transitions?: Transitions; // ← Куда идём после действия
+  fallback?: { nextStep: string }; // ← Если условия не выполнены
+}
+
+/**
+ * Тип цепочки
+ */
+export type ChainType = 'standard' | 'custom';
+
+/**
+ * Цепочка шагов отеля
+ */
+export interface Chain {
+  hotelId: number;
+  type: ChainType;
+  steps: Record<string, ChainStep>; // { hotelPage: {...}, bookingForm: {...} }
+}
+
+// ==================== СТАРЫЕ ТИПЫ (для обратной совместимости) ====================
+
 export interface PromoCode {
   code: string;
   discount: number; // percentage
@@ -82,7 +188,7 @@ export interface GalleryImageAction {
   messageEn?: string;
   artefact?: string; // id артефакта
   capcha?: Captcha; // Капча для capcha-get действия
-  actionChain?: ActionChain;
+  actionChain?: LegacyActionChain;
   resetOnReentry?: boolean; // Сбрасывать прогресс при повторном входе
 }
 
@@ -99,7 +205,7 @@ export interface WrongOptions {
   mealTypes?: string[];
   additionalServices?: string[];
   inventory?: string[];
-  roomId?: string;
+  roomId?: string[];
   checkInTime?: string;
   paymentMethod?: string;
   date?: string;
@@ -114,7 +220,10 @@ export interface InitialFlow {
   transitions: Record<string, string>;
 }
 
-export type ChainStep =
+// ==================== УСТАРЕВШИЕ ТИПЫ (для обратной совместимости) ====================
+// Эти типы используются только в старых данных отелей и будут удалены после полной миграции
+
+export type LegacyChainStep =
   | 'hotelPage'
   | 'bookingForm'
   | 'captcha'
@@ -125,12 +234,10 @@ export type ChainStep =
   | 'myBookingsPage'
   | 'gallery';
 
-// Условия для перехода между шагами
-export interface TransitionCondition {
-  // Требуемые параметры для перехода
+export interface LegacyTransitionCondition {
   requires?: {
     roomType?: string;
-    roomTypes?: string[]; // несколько вариантов
+    roomTypes?: string[];
     mealType?: string;
     mealTypes?: string[];
     services?: string[];
@@ -138,24 +245,21 @@ export interface TransitionCondition {
     floor?: number;
     promoCode?: string;
   };
-  // Альтернативный путь если основные условия не выполнены
   alternative?: {
-    step: ChainStep;
+    step: LegacyChainStep;
     reason?: 'alien' | 'wrong' | 'blocked';
   };
 }
 
-// Конфигурация цепочки бронирования
-export interface ChainConfig {
-  steps: ChainStep[];
-  // Условия переходов между шагами
+export interface LegacyChainConfig {
+  steps: LegacyChainStep[];
   transitions?: {
-    [from: string]: TransitionCondition;
+    [from: string]: LegacyTransitionCondition;
   };
 }
 
-export interface ActionChain {
-  steps: ChainStep[];
+export interface LegacyActionChain {
+  steps: LegacyChainStep[];
 }
 
 export interface BookingFormDataConditions {
@@ -163,7 +267,7 @@ export interface BookingFormDataConditions {
   conditionsIsDone: string;
   afterReset: string;
   afterComeback: string;
-  conditionType?: string; // Тип условия для проверки (например, 'floorSelected')
+  conditionType?: string;
 }
 
 export interface CaptchaItem {
@@ -221,6 +325,7 @@ export interface TempBookingFormData {
   checkInTime: string;
   selectedServices: string[];
   promoCode?: string;
+  paymentMethod?: 'cash' | 'card';
 }
 
 export interface Hotel {
@@ -264,8 +369,9 @@ export interface Hotel {
   captcha?: Captcha;
   promoCodes?: PromoCode[];
   initialBookingState?: InitialBookingState;
+  // Устаревшие поля (для обратной совместимости)
   initialFlow?: InitialFlow;
-  customBookingChain?: ChainConfig;
+  customBookingChain?: LegacyChainConfig;
   bookingFormDataConditions?: BookingFormDataConditions;
   anotherBookingState?: Partial<InitialBookingState>;
 }

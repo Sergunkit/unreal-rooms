@@ -56,7 +56,15 @@ export function useHotelProgress(hotelId?: string) {
         floor,
         roomNumber,
         startedAt: currentProgress?.startedAt ?? new Date().toISOString(),
-        flowState: currentProgress?.flowState, // Сохраняем flowState!
+        currentChain: currentProgress?.currentChain ?? [],
+        activeStep: currentProgress?.activeStep ?? 'hotelPage',
+        currentChainIndex: currentProgress?.currentChainIndex ?? 0,
+        chainType: currentProgress?.chainType ?? 'standard',
+        galleryStates: currentProgress?.galleryStates ?? {},
+        galleryActionsTriggered: currentProgress?.galleryActionsTriggered ?? {},
+        captchaCompleted: currentProgress?.captchaCompleted ?? false,
+        floorSelected: currentProgress?.floorSelected ?? false,
+        completedSteps: currentProgress?.completedSteps ?? [],
       });
     },
     [hotelId, currentProgress, roomType, computeRoomNumber, setCurrentHotelProgress]
@@ -80,7 +88,15 @@ export function useHotelProgress(hotelId?: string) {
         floor: currentProgress.floor,
         roomNumber,
         startedAt: currentProgress.startedAt,
-        flowState: currentProgress.flowState, // Сохраняем flowState!
+        currentChain: currentProgress.currentChain,
+        activeStep: currentProgress.activeStep,
+        currentChainIndex: currentProgress.currentChainIndex,
+        chainType: currentProgress.chainType,
+        galleryStates: currentProgress.galleryStates,
+        galleryActionsTriggered: currentProgress.galleryActionsTriggered,
+        captchaCompleted: currentProgress.captchaCompleted,
+        floorSelected: currentProgress.floorSelected,
+        completedSteps: currentProgress.completedSteps,
       });
     },
     [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress, defaultBookingState]
@@ -101,7 +117,15 @@ export function useHotelProgress(hotelId?: string) {
         floor: currentProgress.floor,
         roomNumber,
         startedAt: currentProgress.startedAt,
-        flowState: currentProgress.flowState, // Сохраняем flowState!
+        currentChain: currentProgress.currentChain,
+        activeStep: currentProgress.activeStep,
+        currentChainIndex: currentProgress.currentChainIndex,
+        chainType: currentProgress.chainType,
+        galleryStates: currentProgress.galleryStates,
+        galleryActionsTriggered: currentProgress.galleryActionsTriggered,
+        captchaCompleted: currentProgress.captchaCompleted,
+        floorSelected: currentProgress.floorSelected,
+        completedSteps: currentProgress.completedSteps,
       });
     },
     [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress, defaultBookingState]

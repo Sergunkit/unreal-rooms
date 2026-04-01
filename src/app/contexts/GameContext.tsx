@@ -26,6 +26,11 @@ export interface CaptchaProgress {
 }
 
 /**
+ * Тип цепочки бронирования
+ */
+export type ChainType = 'standard' | 'custom' | 'action';
+
+/**
  * Прогресс прохождения текущего отеля
  */
 export interface CurrentHotelProgress {
@@ -35,7 +40,21 @@ export interface CurrentHotelProgress {
   roomNumber?: string;
   captchaProgress?: CaptchaProgress;
   startedAt: string;
-  flowState?: import('../hooks/useHotelFlow').FlowState;
+
+  // Цепочка шагов и текущий шаг
+  currentChain: string[];
+  activeStep: string;
+  currentChainIndex: number;
+  chainType: ChainType;
+
+  // Состояния для галереи, капчи, этажей
+  galleryStates: Record<number, boolean>;
+  galleryActionsTriggered: Record<number, boolean>;
+  captchaCompleted: boolean;
+  floorSelected: boolean;
+  completedSteps: string[];
+  captchaReason?: 'alien' | 'human';
+  bookingMessage?: 'human' | 'alien'; // ← Тип сообщения о бронировании
 }
 
 /**
@@ -144,6 +163,17 @@ interface GameContextType {
   updateCaptchaProgress: (sequence: string[], completedAt?: string) => void;
   getCaptchaProgress: () => CaptchaProgress | undefined;
   clearCaptchaProgress: () => void;
+  // Методы для управления цепочкой шагов
+  setCurrentChain: (chain: string[], type: ChainType) => void;
+  setActiveStep: (step: string) => void;
+  nextChainStep: () => void;
+  resetChainProgress: () => void;
+  // Методы для состояний галереи, капчи, этажей
+  setGalleryState: (imageIndex: number, toggled: boolean) => void;
+  markGalleryActionTriggered: (imageIndex: number) => void;
+  setCaptchaCompleted: (completed: boolean) => void;
+  setFloorSelected: (selected: boolean) => void;
+  setCompletedSteps: (steps: string[]) => void;
   // Методы для посещённых отелей
   addVisitedHotel: (hotel: VisitedHotel) => void;
   completeHotelVisit: (hotelId: string) => void;
@@ -294,13 +324,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
    */
   const saveTempBookingForm = (data: TempBookingFormData) => {
     setPlayerStatus((prev) => {
-      const currentProgress = prev.currentHotelProgress || {
-        tempBookingForm: null,
-        startedAt: new Date().toISOString(),
-      };
+      if (!prev.currentHotelProgress) {
+        return prev;
+      }
 
       // Only update if data has actually changed to avoid unnecessary re-renders
-      const hasChanged = JSON.stringify(currentProgress.tempBookingForm) !== JSON.stringify(data);
+      const hasChanged =
+        JSON.stringify(prev.currentHotelProgress.tempBookingForm) !== JSON.stringify(data);
       if (!hasChanged) {
         return prev;
       }
@@ -308,7 +338,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       return {
         ...prev,
         currentHotelProgress: {
-          ...currentProgress,
+          ...prev.currentHotelProgress,
           tempBookingForm: data,
         },
         updatedAt: new Date().toISOString(),
@@ -347,15 +377,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
    */
   const updateCaptchaProgress = (sequence: string[], completedAt?: string) => {
     setPlayerStatus((prev) => {
-      const currentProgress = prev.currentHotelProgress || {
-        tempBookingForm: null,
-        startedAt: new Date().toISOString(),
-      };
+      if (!prev.currentHotelProgress) {
+        return prev;
+      }
 
       return {
         ...prev,
         currentHotelProgress: {
-          ...currentProgress,
+          ...prev.currentHotelProgress,
           captchaProgress: {
             selectedSequence: sequence,
             completedAt,
@@ -523,6 +552,208 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setPlayerStatus({ ...initialPlayerStatus, id: newId });
   };
 
+  // ==================== Методы управления цепочкой ====================
+
+  /**
+   * Установить текущую цепочку шагов
+   */
+  const setCurrentChain = (chain: string[], type: ChainType) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+
+      const hasChanged =
+        JSON.stringify(prev.currentHotelProgress.currentChain) !== JSON.stringify(chain) ||
+        prev.currentHotelProgress.chainType !== type;
+
+      if (!hasChanged) return prev;
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          currentChain: chain,
+          chainType: type,
+          currentChainIndex: 0,
+          activeStep: chain[0] || 'hotelPage',
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Установить активный шаг
+   */
+  const setActiveStep = (step: string) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+      if (prev.currentHotelProgress.activeStep === step) return prev;
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          activeStep: step,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Перейти к следующему шагу цепочки
+   */
+  const nextChainStep = () => {
+    setPlayerStatus((prev) => {
+      const progress = prev.currentHotelProgress;
+      if (!progress) return prev;
+
+      const currentIndex = progress.currentChain.indexOf(progress.activeStep);
+      if (currentIndex === -1 || currentIndex >= progress.currentChain.length - 1) {
+        return prev;
+      }
+
+      const nextStep = progress.currentChain[currentIndex + 1];
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...progress,
+          activeStep: nextStep,
+          currentChainIndex: currentIndex + 1,
+          completedSteps: [...progress.completedSteps, nextStep],
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Сбросить прогресс цепочки
+   */
+  const resetChainProgress = () => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          currentChain: [],
+          activeStep: 'hotelPage',
+          currentChainIndex: 0,
+          chainType: 'standard',
+          completedSteps: [],
+          captchaCompleted: false,
+          floorSelected: false,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  // ==================== Методы управления состояниями ====================
+
+  /**
+   * Установить состояние галереи
+   */
+  const setGalleryState = (imageIndex: number, toggled: boolean) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          galleryStates: {
+            ...prev.currentHotelProgress.galleryStates,
+            [imageIndex]: toggled,
+          },
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Отметить действие галереи как выполненное
+   */
+  const markGalleryActionTriggered = (imageIndex: number) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+
+      const newTriggered = { ...prev.currentHotelProgress.galleryActionsTriggered };
+      delete newTriggered[imageIndex];
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          galleryActionsTriggered: newTriggered,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Установить статус завершения капчи
+   */
+  const setCaptchaCompleted = (completed: boolean) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+      if (prev.currentHotelProgress.captchaCompleted === completed) return prev;
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          captchaCompleted: completed,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Установить статус выбора этажа
+   */
+  const setFloorSelected = (selected: boolean) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+      if (prev.currentHotelProgress.floorSelected === selected) return prev;
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          floorSelected: selected,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Установить завершённые шаги
+   */
+  const setCompletedSteps = (steps: string[]) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+      if (JSON.stringify(prev.currentHotelProgress.completedSteps) === JSON.stringify(steps)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          completedSteps: steps,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -539,6 +770,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
         updateCaptchaProgress,
         getCaptchaProgress,
         clearCaptchaProgress,
+        setCurrentChain,
+        setActiveStep,
+        nextChainStep,
+        resetChainProgress,
+        setGalleryState,
+        markGalleryActionTriggered,
+        setCaptchaCompleted,
+        setFloorSelected,
+        setCompletedSteps,
         addVisitedHotel,
         completeHotelVisit,
         addArtefact,

@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import type { Chain, Hotel } from './hotelTypes';
 import headImage9 from '../images/Usher/head-image.png';
 import headImageAlt9 from '../images/Usher/head-image-alt.png'; // Альтернативное изображение для отеля Usher, на случай проблем с загрузкой основного изображения
 import galleryUsher1_9 from '../images/Usher/gallery-usher1.jpg'; // Сад
@@ -11,7 +12,7 @@ import roomMorgue9 from '../images/Usher/Room1.jpg'; // С пером
 import roomTellTale9 from '../images/Usher/Room2.jpg'; // С котом
 import roomBlackCat9 from '../images/Usher/Room3.jpg'; // С кочергой и зеркалом
 
-export const usherData = {
+export const usherData: Hotel = {
   id: 9,
   name: 'Usher Guest House',
   nameEn: 'Usher Guest House',
@@ -148,6 +149,7 @@ export const usherData = {
   rooms: [
     {
       id: 1,
+      roomNumber: null,
       value: 'carl',
       name: 'Гостевая "Карл III"',
       nameEn: '"Charles III" Guest Room',
@@ -162,6 +164,7 @@ export const usherData = {
     },
     {
       id: 2,
+      roomNumber: null,
       value: 'napoleon',
       name: 'Комната "Наполеон"',
       nameEn: '"Napoleon" Room',
@@ -176,6 +179,7 @@ export const usherData = {
     },
     {
       id: 3,
+      roomNumber: null,
       value: 'tamerlan',
       name: 'Уютная студия "Тамерлан"',
       nameEn: '"Tamerlan" Studio',
@@ -247,4 +251,92 @@ export const usherData = {
     steps: ['booking'], // Прямое бронирование с проверкой условий
     transitions: {},
   },
+};
+
+// ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
+export const usherChain: Chain = {
+  hotelId: 9,
+  type: 'custom',
+  steps: {
+    hotelPage: {
+      id: 'hotelPage',
+      step: 1,
+      actions: [
+        {
+          id: 'book-now-btn',
+          type: 'buttonClick',
+          trigger: { elementId: 'book-now-button' },
+          nextStep: 'bookingForm'
+        },
+        {
+          id: 'room-card-book',
+          type: 'roomSelect',
+          trigger: { source: 'roomDetailModal' },
+          nextStep: 'bookingForm'
+        }
+      ]
+    },
+    
+    bookingForm: {
+      id: 'bookingForm',
+      step: 2,
+      actions: [
+        {
+          id: 'submit-form',
+          type: 'formSubmit',
+          nextStep: 'bookingConfirm'
+        },
+        {
+          id: 'cancel-booking',
+          type: 'buttonClick',
+          trigger: { elementId: 'cancel-btn' },
+          nextStep: 'hotelPage'
+        }
+      ],
+      transitions: {
+        submit: {
+          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+          nextStep: 'bookingConfirm'
+        },
+        submitUnsafe: {
+          nextStep: 'bookingConfirm'
+        }
+      }
+    },
+    
+    bookingConfirm: {
+      id: 'bookingConfirm',
+      step: 3,
+      transitions: {
+        confirm: { nextStep: 'bookingComplete' },
+        cancel: { nextStep: 'bookingForm' }
+      }
+    },
+    
+    bookingComplete: {
+      id: 'bookingComplete',
+      step: 4,
+      transitions: {
+        default: { nextStep: 'prizeModal', delay: 2000 }
+      }
+    },
+    
+    prizeModal: {
+      id: 'prizeModal',
+      step: 5,
+      conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+      transitions: {
+        continue: { nextStep: 'myBookingsPage' }
+      },
+      fallback: { nextStep: 'myBookingsPage' }
+    },
+    
+    myBookingsPage: {
+      id: 'myBookingsPage',
+      step: 6,
+      transitions: {
+        default: { nextStep: 'hotelPage' }
+      }
+    }
+  }
 };

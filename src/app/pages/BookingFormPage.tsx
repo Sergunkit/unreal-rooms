@@ -132,7 +132,12 @@ export function BookingFormPage({
   const [selectedServices, setSelectedServices] = useState<string[]>(
     tempForm?.selectedServices || savedBooking?.additionalServices || []
   );
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
+  
+  // Проверка: есть ли монета в инвентаре (для NY-Continental)
+  const hasCoin = playerStatus.inventory.includes('gold-coin');
+  
+  // По умолчанию карта
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('card');
   const [cardType, setCardType] = useState<'visa' | 'mastercard'>('visa');
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState('');
@@ -253,6 +258,7 @@ export function BookingFormPage({
       checkInTime,
       selectedServices,
       promoCode: appliedPromo || undefined,
+      paymentMethod,
     });
   }, [
     guests,
@@ -265,6 +271,7 @@ export function BookingFormPage({
     checkInTime,
     selectedServices,
     appliedPromo,
+    paymentMethod,
     setTempBookingForm,
   ]);
 
@@ -519,13 +526,6 @@ export function BookingFormPage({
                     value={paymentMethod}
                     onValueChange={(value: 'cash' | 'card') => setPaymentMethod(value)}
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="cash" id="cash" />
-                      <Label htmlFor="cash" className="flex items-center gap-2 cursor-pointer">
-                        <Wallet className="h-4 w-4 text-primary" />
-                        {t.cash}
-                      </Label>
-                    </div>
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="card" id="card" />
@@ -556,6 +556,25 @@ export function BookingFormPage({
                           </RadioGroup>
                         </div>
                       )}
+                    </div>
+                    
+                    {/* Наличные - только если есть монета (для NY-Continental) */}
+                    <div className="flex items-center space-x-2 mt-4">
+                      <RadioGroupItem 
+                        value="cash" 
+                        id="cash"
+                        disabled={!hasCoin}  // ← Наличные только если есть монета
+                      />
+                      <Label 
+                        htmlFor="cash" 
+                        className={`flex items-center gap-2 ${!hasCoin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <Wallet className="h-4 w-4 text-primary" />
+                        {t.cash}
+                        {!hasCoin && (
+                          <span className="text-xs text-muted-foreground">(нужна монета)</span>
+                        )}
+                      </Label>
                     </div>
                   </RadioGroup>
                 </div>

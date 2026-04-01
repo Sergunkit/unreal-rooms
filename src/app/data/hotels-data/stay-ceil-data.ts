@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { ChainStep } from './hotelTypes';
+import type { Chain, Hotel } from './hotelTypes';
 import headImage10 from '../images/StayCeil/head-image2.jpg'; // Главная фотография отеля Stay-Ceil
 import galleryCeil1 from '../images/StayCeil/lobby-security.jpeg'; // Лобби с рамкой
 import galleryCeil2 from '../images/StayCeil/cafeteria.jpeg'; // Столовая
@@ -21,10 +21,7 @@ import roomStandard from '../images/StayCeil/Room-Standard.jpeg'; // Аскет�
 import roomSuperior from '../images/StayCeil/Room-Superior.jpeg'; // С ТВ и кондеем
 import roomRehub from '../images/StayCeil/Room-Rehub.jpeg'; // Тот самый номер
 
-// import syringeArtefact from '../images/artefacts/syringe.jpg';
-// import paperCodeArtefact from '../images/artefacts/paper-code.jpg';
-
-export const stayCeilData = {
+export const stayCeilData: Hotel = {
   id: 10,
   name: 'The Stay-Ceil Inn',
   nameEn: 'The Stay-Ceil Inn',
@@ -60,16 +57,6 @@ export const stayCeilData = {
       coords: { x1: 65, y1: 10, x2: 80, y2: 20 }, // Клик на табличку EXIT
       message: 'Для экстренного выхода введите код авторизации в капче.',
       messageEn: 'For emergency exit, enter authorization code in captcha.',
-      actionChain: {
-        steps: [
-          'captcha',
-          'floorSelect',
-          'bookingForm',
-          'bookingConfirm',
-          'bookingComplete',
-          'myBookingsPage',
-        ] as ChainStep[],
-      },
       resetOnReentry: true, // При повторном входе сбрасываем прогресс капчи и этажа
     },
   ],
@@ -197,7 +184,6 @@ export const stayCeilData = {
       nameEn: 'Standard "Bright Path"',
       value: 'standard',
       price: 45,
-      basePrice: 45,
       size: 12,
       capacity: 2,
       beds: '1 двуспальная кровать',
@@ -218,7 +204,6 @@ export const stayCeilData = {
       nameEn: 'Superior "Horizon"',
       value: 'superior',
       price: 75,
-      basePrice: 75,
       size: 18,
       capacity: 2,
       beds: '1 двуспальная кровать',
@@ -234,7 +219,6 @@ export const stayCeilData = {
       nameEn: 'Rehab "Isolation"',
       value: 'rehab',
       price: 110,
-      basePrice: 110,
       size: 10,
       capacity: 1,
       beds: '1 двуспальная кровать',
@@ -285,6 +269,7 @@ export const stayCeilData = {
 
   noise: 'Низкочастотный гул труб и лязг лифта',
   endBookingMassege: 'Ваша бронь принята. Теперь вы под нашей защитой.',
+  endBookingMassegeEn: 'Your reservation has been accepted. You are now under our protection.',
   endWrongBookingMassege:
     'Номер на четырнадцатом этаже забронирован успешно. Вам доступна скидка в бюро ритуальных услуг по промокоду funeral1911',
   endWrongBookingMassegeEn:
@@ -316,4 +301,120 @@ export const stayCeilData = {
     successResponseEn: 'Code accepted. You can book a room on another floor.',
     correctSequence: [1, 9, 1, 1],
   },
+};
+
+// ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
+export const stayCeilChain: Chain = {
+  hotelId: 10,
+  type: 'custom',
+  steps: {
+    hotelPage: {
+      id: 'hotelPage',
+      step: 1,
+      actions: [
+        {
+          // Путь 1: Клик на лифт → капча → выбор этажа → форма
+          id: 'elevator-click',
+          type: 'galleryClick',
+          trigger: { imageIndex: 3, coords: { x1: 65, y1: 10, x2: 80, y2: 20 } },
+          nextStep: 'captcha'
+        },
+        {
+          // Путь 2: Кнопка "Забронировать" → сразу форма
+          id: 'book-now-btn',
+          type: 'buttonClick',
+          trigger: { elementId: 'book-now-button' },
+          nextStep: 'bookingForm'
+        },
+        {
+          // Путь 3: Карточка номера → Book Now → форма
+          id: 'room-card-book',
+          type: 'roomSelect',
+          trigger: { source: 'roomDetailModal' },
+          nextStep: 'bookingForm'
+        }
+      ]
+    },
+    
+    captcha: {
+      id: 'captcha',
+      step: 2,
+      transitions: {
+        success: { nextStep: 'floorSelect' },
+        fail: { nextStep: 'captcha' },
+        close: { nextStep: 'hotelPage' }
+      }
+    },
+    
+    floorSelect: {
+      id: 'floorSelect',
+      step: 3,
+      transitions: {
+        confirm: { nextStep: 'bookingForm' },
+        cancel: { nextStep: 'captcha' }
+      }
+    },
+    
+    bookingForm: {
+      id: 'bookingForm',
+      step: 4,
+      actions: [
+        {
+          id: 'submit-form',
+          type: 'formSubmit',
+          nextStep: 'bookingConfirm'
+        },
+        {
+          id: 'cancel-booking',
+          type: 'buttonClick',
+          trigger: { elementId: 'cancel-btn' },
+          nextStep: 'hotelPage'
+        }
+      ],
+      transitions: {
+        submit: {
+          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+          nextStep: 'bookingConfirm'
+        },
+        submitUnsafe: {
+          nextStep: 'bookingConfirm'
+        }
+      }
+    },
+    
+    bookingConfirm: {
+      id: 'bookingConfirm',
+      step: 5,
+      transitions: {
+        confirm: { nextStep: 'bookingComplete' },
+        cancel: { nextStep: 'bookingForm' }
+      }
+    },
+    
+    bookingComplete: {
+      id: 'bookingComplete',
+      step: 6,
+      transitions: {
+        default: { nextStep: 'prizeModal', delay: 2000 }
+      }
+    },
+    
+    prizeModal: {
+      id: 'prizeModal',
+      step: 7,
+      conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+      transitions: {
+        continue: { nextStep: 'myBookingsPage' }
+      },
+      fallback: { nextStep: 'myBookingsPage' }
+    },
+    
+    myBookingsPage: {
+      id: 'myBookingsPage',
+      step: 8,
+      transitions: {
+        default: { nextStep: 'hotelPage' }
+      }
+    }
+  }
 };

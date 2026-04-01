@@ -1,5 +1,5 @@
 import { Hotel } from './hotels-data/hotelTypes';
-import { continentalData } from './hotels-data/ny-continental';
+import { continentalData } from './hotels-data/ny-continental-data';
 import { soldierData } from './hotels-data/soldier-data';
 import { lastPeakData } from './hotels-data/last-peak-data';
 import { usherData } from './hotels-data/raven-usher-data';

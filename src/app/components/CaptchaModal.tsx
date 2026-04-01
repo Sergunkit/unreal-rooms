@@ -17,6 +17,7 @@ export interface CaptchaModalProps {
   mode?: CaptchaMode;
   showSelection?: boolean;
   confirmLabel?: string;
+  captchaReason?: 'alien' | 'human';  // ← Новый проп
 }
 
 export function CaptchaModal({
@@ -31,8 +32,18 @@ export function CaptchaModal({
   mode = 'sequence',
   showSelection = true,
   confirmLabel,
+  captchaReason = 'human',  // ← По умолчанию human
 }: CaptchaModalProps) {
   if (!open) return null;
+
+  // Выбираем items и вопрос в зависимости от типа капчи
+  const items = captchaReason === 'alien' 
+    ? (captcha.alienItems || captcha.items)
+    : captcha.items;
+  
+  const question = captchaReason === 'alien'
+    ? (captcha.alienQuestion || captcha.question)
+    : captcha.question;
 
   const handleItemClick = (itemId: string) => {
     setSelection((prev) => {
@@ -63,7 +74,7 @@ export function CaptchaModal({
           </button>
         </div>
         <div className="overflow-y-auto p-6">
-          <p className="text-sm text-foreground mb-4">{captcha.question}</p>
+          <p className="text-sm text-foreground mb-4">{question}</p>
 
           {errorMessage && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
@@ -100,10 +111,8 @@ export function CaptchaModal({
           )}
 
           <div className="grid grid-cols-3 gap-3 mb-6">
-            {captcha.items.map((item) => {
+            {items.map((item) => {
               const isSelected = selection.includes(item.id);
-              // В sequence mode показываем все элементы, в toggle mode скрываем выбранные
-              if (mode === 'toggle' && isSelected) return null;
 
               return (
                 <div
@@ -111,7 +120,7 @@ export function CaptchaModal({
                   onClick={() => handleItemClick(item.id)}
                   className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
                     isSelected
-                      ? 'border-primary bg-primary/10'
+                      ? 'border-primary bg-primary/20'
                       : 'border-secondary hover:border-primary/50'
                   }`}
                 >
@@ -125,6 +134,13 @@ export function CaptchaModal({
                   {item.label && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center">
                       {item.label}
+                    </div>
+                  )}
+                  {isSelected && mode === 'toggle' && (
+                    <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
                     </div>
                   )}
                 </div>

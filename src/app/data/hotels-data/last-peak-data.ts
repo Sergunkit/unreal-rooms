@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { ChainStep } from './hotelTypes';
+import type { Chain, LegacyChainStep, Hotel } from './hotelTypes';
 import headImage8 from '../images/LastPeak/head-Image.jpg';
 import headImageAlt8 from '../images/LastPeak/head-Image-alt.jpg';
 import galleryImage1_8 from '../images/LastPeak/gallery-1.jpg';
@@ -34,7 +34,7 @@ import alienCaptcha5 from '../images/LastPeak/alien-capcha4.jpg';
 import alienCaptcha6 from '../images/LastPeak/alien-capcha5.jpg';
 import alienCaptcha7 from '../images/LastPeak/alien-capcha6.jpg';
 
-export const lastPeakData = {
+export const lastPeakData: Hotel = {
   id: 8,
   name: 'The Last Peak Lodge',
   nameEn: 'The Last Peak Lodge',
@@ -184,6 +184,7 @@ export const lastPeakData = {
   rooms: [
     {
       id: 1,
+      roomNumber: null,
       value: 'classic-comfort',
       name: 'Классический комфорт',
       nameEn: 'Classic Comfort',
@@ -198,6 +199,7 @@ export const lastPeakData = {
     },
     {
       id: 2,
+      roomNumber: null,
       value: 'infinity-view',
       name: 'Вид на вечность',
       nameEn: 'Infinity View',
@@ -212,6 +214,7 @@ export const lastPeakData = {
     },
     {
       id: 3,
+      roomNumber: null,
       value: 'specialist-suite',
       name: 'Люкс "Специалист"',
       nameEn: 'Specialist Suite',
@@ -283,7 +286,7 @@ export const lastPeakData = {
       'bookingComplete',
       'prizeModal',
       'myBookingsPage',
-    ] as ChainStep[],
+    ] as LegacyChainStep[],
     // Условия перехода от bookingForm к captcha
     transitions: {
       bookingForm: {
@@ -340,4 +343,98 @@ export const lastPeakData = {
     alienCorrectAnswers: ['cat', 'clock'], // cat and clock from human captcha
     humanCorrectAnswers: ['apple', 'bread'], // correct spoiled food items
   },
+};
+
+// ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
+export const lastPeakChain: Chain = {
+  hotelId: 8,
+  type: 'custom',
+  steps: {
+    hotelPage: {
+      id: 'hotelPage',
+      step: 1,
+      actions: [
+        {
+          id: 'book-now-btn',
+          type: 'buttonClick',
+          trigger: { elementId: 'book-now-button' },
+          nextStep: 'bookingForm'
+        },
+        {
+          id: 'room-card-book',
+          type: 'roomSelect',
+          trigger: { source: 'roomDetailModal' },
+          nextStep: 'bookingForm'
+        }
+      ]
+    },
+    
+    bookingForm: {
+      id: 'bookingForm',
+      step: 2,
+      actions: [
+        {
+          id: 'submit-form',
+          type: 'formSubmit',
+          nextStep: 'captcha'  // ← Всегда идем на капчу
+        },
+        {
+          id: 'cancel-booking',
+          type: 'buttonClick',
+          trigger: { elementId: 'cancel-btn' },
+          nextStep: 'hotelPage'
+        }
+      ],
+      transitions: {
+        submit: {
+          nextStep: 'captcha'  // ← Капча определит тип (alien/human)
+        }
+      }
+    },
+    
+    captcha: {
+      id: 'captcha',
+      step: 3,
+      transitions: {
+        success: { nextStep: 'bookingConfirm' },
+        fail: { nextStep: 'bookingForm' },
+        close: { nextStep: 'hotelPage' }
+      }
+    },
+    
+    bookingConfirm: {
+      id: 'bookingConfirm',
+      step: 4,
+      transitions: {
+        confirm: { nextStep: 'bookingComplete' },
+        cancel: { nextStep: 'bookingForm' }
+      }
+    },
+    
+    bookingComplete: {
+      id: 'bookingComplete',
+      step: 5,
+      transitions: {
+        default: { nextStep: 'prizeModal', delay: 2000 }
+      }
+    },
+    
+    prizeModal: {
+      id: 'prizeModal',
+      step: 6,
+      conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+      transitions: {
+        continue: { nextStep: 'myBookingsPage' }
+      },
+      fallback: { nextStep: 'myBookingsPage' }
+    },
+    
+    myBookingsPage: {
+      id: 'myBookingsPage',
+      step: 7,
+      transitions: {
+        default: { nextStep: 'hotelPage' }
+      }
+    }
+  }
 };

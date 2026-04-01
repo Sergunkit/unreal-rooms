@@ -59,7 +59,15 @@ export function HotelDetailPage() {
   const { playerStatus, addArtefact, hasArtefact, addToInventory, clearCurrentHotelProgress } =
     useGame();
   const {
-    flowState,
+    currentChain,
+    activeStep,
+    chainType,
+    currentChainIndex,
+    completedSteps,
+    galleryStates,
+    galleryActionsTriggered,
+    captchaCompleted,
+    floorSelected,
     handleGalleryClick,
     handleCaptchaSuccess,
     handleFloorSelect,
@@ -68,6 +76,36 @@ export function HotelDetailPage() {
     updateFlowState,
   } = useHotelFlow(id);
   const { hotel, floor, tempBookingForm, roomNumber } = useHotelProgress(id);
+
+  // Создаём flowState для обратной совместимости с существующим кодом
+  const flowState = useMemo(
+    () => ({
+      currentStep: activeStep,
+      completedSteps,
+      galleryStates,
+      galleryActionsTriggered,
+      captchaCompleted,
+      floorSelected,
+      currentChain,
+      currentChainIndex,
+      chainType,
+      captchaReason: playerStatus.currentHotelProgress?.captchaReason,
+      bookingMessage: playerStatus.currentHotelProgress?.bookingMessage,  // ← Добавляем
+    }),
+    [
+      activeStep,
+      completedSteps,
+      galleryStates,
+      galleryActionsTriggered,
+      captchaCompleted,
+      floorSelected,
+      currentChain,
+      currentChainIndex,
+      chainType,
+      playerStatus.currentHotelProgress?.captchaReason,
+      playerStatus.currentHotelProgress?.bookingMessage,  // ← Добавляем
+    ]
+  );
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
@@ -116,7 +154,8 @@ export function HotelDetailPage() {
 
   // Auto-open main booking flow modal when the current step implies it
   React.useEffect(() => {
-    // Открываем модалку бронирования только для шагов, которые требуют форму/подтверждение/результат
+    // Открываем модалку бронирования для шагов bookingForm, bookingConfirm, bookingComplete, prizeModal
+    // При bookingConfirm показываем Dialog подтверждения поверх модалки
     // captcha и floorSelect открываются в отдельных модалках на весь экран
     // hotelPage и gallery — это страница отеля, модалка не нужна
     if (
@@ -214,6 +253,7 @@ export function HotelDetailPage() {
   const openBookingForm = useCallback(() => {
     console.log('[openBookingForm] called');
     updateFlowState({
+      activeStep: 'bookingForm',
       currentStep: 'bookingForm',
       currentChainIndex: 1,
       completedSteps: ['hotelPage', 'bookingForm'],
@@ -224,41 +264,26 @@ export function HotelDetailPage() {
 
   const onFinalizeBooking = useCallback(
     (_isAlien: boolean = false) => {
-      if (!isSafeToBook) {
-        // If booking conditions are not met, don't proceed.
-        // Reset the flow to the booking form and maybe show an error message.
-        updateFlowState({
-          currentStep: 'bookingForm',
-          currentChainIndex: 1, // Index of 'bookingForm'
-          completedSteps: ['hotelPage', 'bookingForm'],
-        });
-        alert(
-          language === 'ru'
-            ? 'Невозможно забронировать: условия не выполнены.'
-            : 'Cannot book: conditions not met.'
-        );
-        return;
-      }
-
-      // Assume booking data is saved in useGame by BookingFormPage.
-      // Transition to bookingComplete
+      // Всегда позволяем бронирование, просто показываем разное сообщение
+      // Устанавливаем тип сообщения в зависимости от isSafeToBook
       updateFlowState({
         currentStep: 'bookingComplete',
         currentChainIndex: flowState.currentChain.indexOf('bookingComplete'),
         completedSteps: [...flowState.completedSteps, 'bookingComplete'],
+        bookingMessage: isSafeToBook ? 'human' : 'alien',  // ← Сохраняем тип сообщения
       });
 
       // Handle prize logic after a short delay (similar to original logic)
       const prizeTimer = setTimeout(() => {
-        if (hotel?.prize) {
-          // If there's a prize, go to prizeModal
+        if (hotel?.prize && isSafeToBook) {
+          // If there's a prize AND booking is safe, go to prizeModal
           updateFlowState({
             currentStep: 'prizeModal',
             currentChainIndex: flowState.currentChain.indexOf('prizeModal'),
             completedSteps: [...flowState.completedSteps, 'prizeModal'],
           });
         } else {
-          // No prize, skip prizeModal and go to myBookingsPage or close the modal
+          // No prize or unsafe booking, skip prizeModal and go to myBookingsPage
           updateFlowState({
             currentStep: 'myBookingsPage',
             currentChainIndex: flowState.currentChain.indexOf('myBookingsPage'),
@@ -275,7 +300,6 @@ export function HotelDetailPage() {
       flowState.currentChain,
       flowState.completedSteps,
       updateFlowState,
-      language,
     ]
   );
 
@@ -1153,9 +1177,14 @@ export function HotelDetailPage() {
           <CaptchaModal
             open={flowState.currentStep === 'captcha'}
             onClose={() => {
-              // При закрытии капчи просто возвращаемся к предыдущему шагу или остаемся на текущем
-              // Не продвигаемся дальше, если пользователь закрыл модальное окно
+              // При закрытии капчи крестиком сбрасываем выбор и возвращаемся на bookingForm
               setCaptchaSelected([]);
+              setCaptchaError(false);
+              updateFlowState({
+                activeStep: 'bookingForm',
+                currentStep: 'bookingForm',
+                captchaReason: undefined,
+              });
             }}
             captcha={hotel.captcha}
             selection={captchaSelected}
@@ -1171,6 +1200,7 @@ export function HotelDetailPage() {
             confirmLabel={language === 'ru' ? 'Подтвердить' : 'Confirm'}
             mode={hotel.captcha?.correctSequence ? 'sequence' : 'toggle'}
             showSelection={true}
+            captchaReason={flowState.captchaReason || 'human'}  // ← Передаём captchaReason
             onConfirm={() => {
               // Если есть correctSequence — проверяем последовательность
               if (hotel.captcha?.correctSequence) {
@@ -1230,7 +1260,7 @@ export function HotelDetailPage() {
                       setShowFloorSelectModal(false);
                       setSelectedFloor(null);
                       // Возвращаемся к шагу капчи, чтобы пользователь мог снова пройти процесс
-                      if (flowState.activeChainType === 'action' && flowState.currentChain) {
+                      if (flowState.chainType === 'action' && flowState.currentChain) {
                         const captchaIndex = flowState.currentChain.indexOf('captcha');
                         if (captchaIndex !== -1) {
                           updateFlowState({
@@ -1294,249 +1324,290 @@ export function HotelDetailPage() {
         {/* Concierge Chat */}
         {id && <ConciergeChat hotelId={id} />}
 
-        {/* Main Booking Flow Modal */}
-        {showBookingFlowModal &&
-          (flowState.currentStep === 'bookingForm' ||
-            flowState.currentStep === 'bookingConfirm' ||
-            flowState.currentStep === 'bookingComplete' ||
-            flowState.currentStep === 'prizeModal') && (
-            <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-              <div className="bg-card border border-border rounded-lg max-w-6xl w-full max-h-[85vh] overflow-hidden flex flex-col">
-                <div className="p-6 border-b border-border flex items-center justify-between flex-shrink-0">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl text-foreground font-medium">
-                      {language === 'ru' ? 'Бронирование номера' : 'Room Booking'}
-                    </h2>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedRoomTypeForBooking(null);
-                      setShowBookingFlowModal(false);
-                      updateFlowState({
-                        currentStep: 'hotelPage',
-                        completedSteps: [],
-                        currentChainIndex: 0,
-                        activeChainType: 'standard',
-                      });
-                    }}
-                    className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-foreground" />
-                  </button>
+        {/* Main Booking Flow Modal - только для bookingForm */}
+        {showBookingFlowModal && flowState.currentStep === 'bookingForm' && (
+          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-lg max-w-6xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+              <div className="p-6 border-b border-border flex items-center justify-between flex-shrink-0">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-6 h-6 text-primary" />
+                  <h2 className="text-2xl text-foreground font-medium">
+                    {language === 'ru' ? 'Бронирование номера' : 'Room Booking'}
+                  </h2>
                 </div>
-                <div className="overflow-y-auto flex-1 p-6">
-                  {flowState.currentStep === 'bookingForm' && (
-                    <BookingFormPage
-                      onNextStep={onNextStep}
-                      onFinalizeBooking={onFinalizeBooking}
-                      flowState={flowState}
-                      selectedRoomType={selectedRoomTypeForBooking}
-                    />
-                  )}
-                  {/* Confirmation Dialog (moved from BookingFormPage) */}
-                  {flowState.currentStep === 'bookingConfirm' && tempBookingForm && (
-                    <Dialog
-                      open={true}
-                      onOpenChange={(open) => {
-                        if (!open) {
-                          // User closed the confirmation dialog. Go back to the booking form.
-                          updateFlowState({
-                            currentStep: 'bookingForm',
-                            currentChainIndex: 1, // Index of 'bookingForm'
-                            completedSteps: ['hotelPage', 'bookingForm'],
-                          });
-                        }
-                      }}
-                    >
-                      {/* Dialog content is directly rendered here */}
-                      <DialogContent className="bg-card border-border max-w-md">
-                        <DialogHeader>
-                          <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                            {t.confirmTitle}
-                          </DialogTitle>
-                          <DialogDescription className="text-muted-foreground">
-                            {t.confirmDesc}
-                          </DialogDescription>
-                        </DialogHeader>
-
-                        <div className="space-y-4 py-4">
-                          <div className="bg-secondary/50 rounded-lg p-4 space-y-3 border border-border">
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t.room}:</span>
-                              <span>
-                                {language === 'ru'
-                                  ? selectedBookingRoomType?.label
-                                  : selectedBookingRoomType?.labelEn}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t.roomNumberLabel}:</span>
-                              <span>#{roomNumber}</span>
-                            </div>
-                            {hotel?.initialBookingState?.floorOptions && (
-                              <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">{t.floorLabel}:</span>
-                                <span>{floor}</span>
-                              </div>
-                            )}
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t.checkIn}:</span>
-                              <span>
-                                {tempBookingForm.checkInDate &&
-                                  format(new Date(tempBookingForm.checkInDate), 'PP', {
-                                    locale: language === 'ru' ? ru : enUS,
-                                  })}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t.checkOut}:</span>
-                              <span>
-                                {tempBookingForm.checkOutDate &&
-                                  format(new Date(tempBookingForm.checkOutDate), 'PP', {
-                                    locale: language === 'ru' ? ru : enUS,
-                                  })}
-                              </span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t.mealType}:</span>
-                              <span>
-                                {language === 'ru'
-                                  ? selectedBookingMealType?.label
-                                  : selectedBookingMealType?.labelEn}
-                              </span>
-                            </div>
-                            {additionalBookingServices && additionalBookingServices.length > 0 && (
-                              <div className="text-sm">
-                                <span className="text-muted-foreground">
-                                  {t.additionalServices}:
-                                </span>
-                                <ul className="list-disc list-inside mt-1 space-y-1">
-                                  {additionalBookingServices.map(
-                                    (service: (typeof additionalBookingServices)[number]) => (
-                                      <li key={service.id}>
-                                        {language === 'ru' ? service.name : service.nameEn}
-                                      </li>
-                                    )
-                                  )}
-                                </ul>
-                              </div>
-                            )}
-                            <div className="flex justify-between pt-3 border-t border-border">
-                              <span>{t.totalCost}:</span>
-                              <span className="text-primary">
-                                ₽{calculateTotalDisplay.toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                            <p className="text-destructive text-sm flex items-start gap-2">
-                              <span className="text-lg">⚠️</span>
-                              <span>{t.warning}</span>
-                            </p>
-                          </div>
-                        </div>
-
-                        <DialogFooter className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            onClick={() => {
-                              // Возвращаемся к предыдущему шагу (форме бронирования)
-                              updateFlowState({
-                                currentStep: 'bookingForm',
-                                currentChainIndex: 1, // Index of 'bookingForm'
-                                completedSteps: ['hotelPage', 'bookingForm'],
-                              });
-                            }}
-                            className="flex-1 border-border"
-                          >
-                            {t.cancel}
-                          </Button>{' '}
-                          <Button
-                            onClick={() => onFinalizeBooking(false)} // Assume not alien for now
-                            className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
-                          >
-                            {t.confirm}
-                          </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                  )}
-
-                  {/* Success Modal */}
-                  {flowState.currentStep === 'bookingComplete' && (
-                    <div className="bg-card border border-border rounded-lg max-w-md w-full p-6 mx-auto">
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <svg
-                            className="w-8 h-8 text-green-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                        </div>
-                        <h3 className="text-xl text-foreground font-medium mb-2">
-                          {t.bookingConfirmed}
-                        </h3>
-                        <p className="text-muted-foreground">{t.bookingConfirmedHuman}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Prize Modal */}
-                  {flowState.currentStep === 'prizeModal' && (
-                    <div className="bg-card border border-border rounded-lg max-w-md w-full p-6 mx-auto">
-                      <div className="text-center">
-                        <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <svg
-                            className="w-8 h-8 text-primary"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M3 12v6.5a2.5 2.5 0 005 0V12m10 0v6.5a2.5 2.5 0 005 0V12"
-                            />
-                          </svg>
-                        </div>
-                        <h3 className="text-xl text-foreground font-medium mb-2">
-                          {language === 'ru'
-                            ? 'Вы нашли секретный предмет!'
-                            : 'You found a secret item!'}
-                        </h3>
-                        <p className="text-muted-foreground mb-4">
-                          {hotel?.prize
-                            ? language === 'ru'
-                              ? 'Предмет добавлен в ваш инвентарь'
-                              : 'Item added to your inventory'
-                            : language === 'ru'
-                              ? 'Бронирование завершено'
-                              : 'Booking completed'}
-                        </p>
-                        <button
-                          onClick={() => nextChainStep()}
-                          className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-                        >
-                          {language === 'ru' ? 'Продолжить' : 'Continue'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={() => {
+                    setSelectedRoomTypeForBooking(null);
+                    setShowBookingFlowModal(false);
+                    updateFlowState({
+                      currentStep: 'hotelPage',
+                      completedSteps: [],
+                      currentChainIndex: 0,
+                      chainType: 'standard',
+                    });
+                  }}
+                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-foreground" />
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 p-6">
+                <BookingFormPage
+                  onNextStep={onNextStep}
+                  onFinalizeBooking={onFinalizeBooking}
+                  flowState={flowState}
+                  selectedRoomType={selectedRoomTypeForBooking}
+                />
               </div>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Booking Complete Modal - rendered separately */}
+        {flowState.currentStep === 'bookingComplete' && (
+          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-lg max-w-md w-full p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl text-foreground font-medium mb-2">
+                  {t.bookingConfirmed}
+                </h3>
+                {/* Используем bookingMessage из flowState */}
+                <p className="text-muted-foreground">
+                  {flowState.bookingMessage === 'alien'
+                    ? t.bookingConfirmedAlien
+                    : t.bookingConfirmedHuman}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Prize Modal - rendered separately */}
+        {flowState.currentStep === 'prizeModal' && (
+          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-card border border-border rounded-lg max-w-md w-full p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg
+                    className="w-8 h-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M3 12v6.5a2.5 2.5 0 005 0V12m10 0v6.5a2.5 2.5 0 005 0V12"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl text-foreground font-medium mb-2">
+                  {language === 'ru'
+                    ? 'Вы нашли секретный предмет!'
+                    : 'You found a secret item!'}
+                </h3>
+                
+                {/* Отображение артефакта */}
+                {hotel?.prize && (
+                  <div className="mb-4">
+                    <div className="w-24 h-24 mx-auto bg-secondary rounded-lg flex items-center justify-center overflow-hidden">
+                      <img
+                        src={artefacts[hotel.prize]?.image || '/placeholder.png'}
+                        alt={artefacts[hotel.prize]?.name || 'Prize'}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <p className="text-sm font-medium text-foreground mt-2">
+                      {language === 'ru'
+                        ? artefacts[hotel.prize]?.name || 'Секретный предмет'
+                        : artefacts[hotel.prize]?.nameEn || 'Secret Item'}
+                    </p>
+                  </div>
+                )}
+                
+                <p className="text-muted-foreground mb-4">
+                  {hotel?.prize
+                    ? language === 'ru'
+                      ? 'Предмет добавлен в ваш инвентарь'
+                      : 'Item added to your inventory'
+                    : language === 'ru'
+                      ? 'Бронирование завершено'
+                      : 'Booking completed'}
+                </p>
+                <button
+                  onClick={() => {
+                    // Добавляем артефакт в инвентарь
+                    if (hotel?.prize && artefacts[hotel.prize]) {
+                      addArtefact({
+                        artefactId: hotel.prize,
+                        name: artefacts[hotel.prize].name,
+                        nameEn: artefacts[hotel.prize].nameEn,
+                        image: artefacts[hotel.prize].image,
+                        collectedAt: new Date().toISOString(),
+                      });
+                      addToInventory(hotel.prize);
+                      window.dispatchEvent(new Event('prizeCollected'));
+                    }
+                    // Переходим к следующему шагу
+                    updateFlowState({
+                      currentStep: 'myBookingsPage',
+                      currentChainIndex: flowState.currentChain.indexOf('myBookingsPage'),
+                      completedSteps: [...flowState.completedSteps, 'myBookingsPage'],
+                    });
+                  }}
+                  className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  {language === 'ru' ? 'Продолжить' : 'Continue'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation Dialog - rendered separately, not inside the main modal */}
+        {flowState.currentStep === 'bookingConfirm' && tempBookingForm && (
+          <Dialog
+            open={true}
+            onOpenChange={(open) => {
+              if (!open) {
+                // User closed the confirmation dialog. Go back to the booking form.
+                updateFlowState({
+                  currentStep: 'bookingForm',
+                  currentChainIndex: 1, // Index of 'bookingForm'
+                  completedSteps: ['hotelPage', 'bookingForm'],
+                });
+              }
+            }}
+          >
+            <DialogContent className="bg-card border-border max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {t.confirmTitle}
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground">
+                  {t.confirmDesc}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 py-4">
+                <div className="bg-secondary/50 rounded-lg p-4 space-y-3 border border-border">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t.room}:</span>
+                    <span>
+                      {language === 'ru'
+                        ? selectedBookingRoomType?.label
+                        : selectedBookingRoomType?.labelEn}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t.roomNumberLabel}:</span>
+                    <span>#{roomNumber}</span>
+                  </div>
+                  {hotel?.initialBookingState?.floorOptions && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{t.floorLabel}:</span>
+                      <span>{floor}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t.checkIn}:</span>
+                    <span>
+                      {tempBookingForm.checkInDate &&
+                        format(new Date(tempBookingForm.checkInDate), 'PP', {
+                          locale: language === 'ru' ? ru : enUS,
+                        })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t.checkOut}:</span>
+                    <span>
+                      {tempBookingForm.checkOutDate &&
+                        format(new Date(tempBookingForm.checkOutDate), 'PP', {
+                          locale: language === 'ru' ? ru : enUS,
+                        })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t.mealType}:</span>
+                    <span>
+                      {language === 'ru'
+                        ? selectedBookingMealType?.label
+                        : selectedBookingMealType?.labelEn}
+                    </span>
+                  </div>
+                  {additionalBookingServices && additionalBookingServices.length > 0 && (
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">
+                        {t.additionalServices}:
+                      </span>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        {additionalBookingServices.map(
+                          (service: (typeof additionalBookingServices)[number]) => (
+                            <li key={service.id}>
+                              {language === 'ru' ? service.name : service.nameEn}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  <div className="flex justify-between pt-3 border-t border-border">
+                    <span>{t.totalCost}:</span>
+                    <span className="text-primary">
+                      ₽{calculateTotalDisplay.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                  <p className="text-destructive text-sm flex items-start gap-2">
+                    <span className="text-lg">⚠️</span>
+                    <span>{t.warning}</span>
+                  </p>
+                </div>
+              </div>
+
+              <DialogFooter className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // Возвращаемся к предыдущему шагу (форме бронирования)
+                    updateFlowState({
+                      currentStep: 'bookingForm',
+                      currentChainIndex: 1, // Index of 'bookingForm'
+                      completedSteps: ['hotelPage', 'bookingForm'],
+                    });
+                  }}
+                  className="flex-1 border-border"
+                >
+                  {t.cancel}
+                </Button>
+                <Button
+                  onClick={() => onFinalizeBooking(false)}
+                  className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
+                >
+                  {t.confirm}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </main>
     </TooltipProvider>
   );
