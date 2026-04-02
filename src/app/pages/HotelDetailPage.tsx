@@ -56,7 +56,7 @@ export function HotelDetailPage() {
   const navigate = useNavigate();
   const { language } = useLanguage();
 
-  const { playerStatus, addArtefact, hasArtefact, addToInventory, clearCurrentHotelProgress } =
+  const { playerStatus, addArtefact, hasArtefact, addToInventory, removeFromInventory, clearCurrentHotelProgress } =
     useGame();
   const {
     currentChain,
@@ -273,14 +273,42 @@ export function HotelDetailPage() {
         bookingMessage: isSafeToBook ? 'human' : 'alien',  // ← Сохраняем тип сообщения
       });
 
+      // Consume artifacts if booking is safe (inventoryPayment items are consumed)
+      if (isSafeToBook && hotel?.passingConditions?.inventoryPayment) {
+        hotel.passingConditions.inventoryPayment.forEach((artifactId) => {
+          removeFromInventory(artifactId);
+        });
+      }
+
       // Handle prize logic after a short delay (similar to original logic)
       const prizeTimer = setTimeout(() => {
         if (hotel?.prize && isSafeToBook) {
-          // If there's a prize AND booking is safe, go to prizeModal
+          // If there's a prize AND booking is safe, add it to inventory and show artifact modal
+          const prizeArtefact = artefacts[hotel.prize];
+          if (prizeArtefact) {
+            addArtefact({
+              artefactId: prizeArtefact.id,
+              name: prizeArtefact.name,
+              nameEn: prizeArtefact.nameEn,
+              image: prizeArtefact.image,
+              collectedAt: new Date().toISOString(),
+            });
+            addToInventory(hotel.prize);
+            window.dispatchEvent(new Event('prizeCollected'));
+            setFoundArtifact({
+              id: prizeArtefact.id,
+              name: prizeArtefact.name,
+              nameEn: prizeArtefact.nameEn,
+              image: prizeArtefact.image,
+              alreadyCollected: false,
+            });
+            setShowArtifactModal(true);
+          }
+          // Go to myBookingsPage after showing prize
           updateFlowState({
-            currentStep: 'prizeModal',
-            currentChainIndex: flowState.currentChain.indexOf('prizeModal'),
-            completedSteps: [...flowState.completedSteps, 'prizeModal'],
+            currentStep: 'myBookingsPage',
+            currentChainIndex: flowState.currentChain.indexOf('myBookingsPage'),
+            completedSteps: [...flowState.completedSteps, 'myBookingsPage'],
           });
         } else {
           // No prize or unsafe booking, skip prizeModal and go to myBookingsPage
@@ -297,9 +325,13 @@ export function HotelDetailPage() {
     [
       isSafeToBook,
       hotel?.prize,
+      hotel?.passingConditions?.inventoryPayment,
       flowState.currentChain,
       flowState.completedSteps,
       updateFlowState,
+      addArtefact,
+      addToInventory,
+      removeFromInventory,
     ]
   );
 
@@ -978,7 +1010,7 @@ export function HotelDetailPage() {
             <Search className="w-6 h-6 text-primary flex-shrink-0" />
             <div className="flex-1">
               <h3 className="text-xl text-foreground font-medium">
-                {language === 'ru' ? 'Потеряшки' : 'Lost & Found'}
+                {language === 'ru' ? 'Lost & Found' : 'Lost & Found'}
               </h3>
               <p className="text-sm text-muted-foreground">
                 {language === 'ru' ? 'Поиск предметов' : 'Find items'}
@@ -1392,89 +1424,6 @@ export function HotelDetailPage() {
                     ? t.bookingConfirmedAlien
                     : t.bookingConfirmedHuman}
                 </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Prize Modal - rendered separately */}
-        {flowState.currentStep === 'prizeModal' && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-md w-full p-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-primary"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M3 12v6.5a2.5 2.5 0 005 0V12m10 0v6.5a2.5 2.5 0 005 0V12"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl text-foreground font-medium mb-2">
-                  {language === 'ru'
-                    ? 'Вы нашли секретный предмет!'
-                    : 'You found a secret item!'}
-                </h3>
-                
-                {/* Отображение артефакта */}
-                {hotel?.prize && (
-                  <div className="mb-4">
-                    <div className="w-24 h-24 mx-auto bg-secondary rounded-lg flex items-center justify-center overflow-hidden">
-                      <img
-                        src={artefacts[hotel.prize]?.image || '/placeholder.png'}
-                        alt={artefacts[hotel.prize]?.name || 'Prize'}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <p className="text-sm font-medium text-foreground mt-2">
-                      {language === 'ru'
-                        ? artefacts[hotel.prize]?.name || 'Секретный предмет'
-                        : artefacts[hotel.prize]?.nameEn || 'Secret Item'}
-                    </p>
-                  </div>
-                )}
-                
-                <p className="text-muted-foreground mb-4">
-                  {hotel?.prize
-                    ? language === 'ru'
-                      ? 'Предмет добавлен в ваш инвентарь'
-                      : 'Item added to your inventory'
-                    : language === 'ru'
-                      ? 'Бронирование завершено'
-                      : 'Booking completed'}
-                </p>
-                <button
-                  onClick={() => {
-                    // Добавляем артефакт в инвентарь
-                    if (hotel?.prize && artefacts[hotel.prize]) {
-                      addArtefact({
-                        artefactId: hotel.prize,
-                        name: artefacts[hotel.prize].name,
-                        nameEn: artefacts[hotel.prize].nameEn,
-                        image: artefacts[hotel.prize].image,
-                        collectedAt: new Date().toISOString(),
-                      });
-                      addToInventory(hotel.prize);
-                      window.dispatchEvent(new Event('prizeCollected'));
-                    }
-                    // Переходим к следующему шагу
-                    updateFlowState({
-                      currentStep: 'myBookingsPage',
-                      currentChainIndex: flowState.currentChain.indexOf('myBookingsPage'),
-                      completedSteps: [...flowState.completedSteps, 'myBookingsPage'],
-                    });
-                  }}
-                  className="px-6 py-2 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity"
-                >
-                  {language === 'ru' ? 'Продолжить' : 'Continue'}
-                </button>
               </div>
             </div>
           </div>

@@ -58,20 +58,20 @@ export const continentalData: Hotel = {
     ],
     pools: ['Крытый бассейн с подогревом', 'SPA-центр с массажем'],
     poolsEn: ['Heated indoor pool', 'SPA center with massage'],
-    transport: ['Лимузин-сервис', 'Вертолетная площадка'],
-    transportEn: ['Limousine service', 'Helipad'],
+    transport: ['Лимузин-сервис', 'Подземный паркинг'],
+    transportEn: ['Limousine service', 'Underground parking'],
     sports: ['Подземный тир', 'Фитнес-центр'],
     sportsEn: ['Underground shooting range', 'Fitness center'],
     additional: [
-      'Многоуровневый подземный тир и арсенал.',
-      'Линии связи с квантовым шифрованием.',
+      'Подземный тир и арсенал.',
+      'Конференц-зал',
       'Химчистка (удаление любых пятен за 1 час).',
       'Экстренная медицинская помощь (хирургия без лишних вопросов).',
       'Элиминация по договоренности ($100,000) — ТОЛЬКО ВНЕ ТЕРРИТОРИИ.',
     ],
     additionalEn: [
-      'Multi-level underground shooting range and arsenal.',
-      'Quantum encrypted communication lines.',
+      'Underground shooting range and arsenal.',
+      'Conference room.',
       'Dry cleaning (removal of any stains in 1 hour).',
       'Emergency medical assistance (surgery without unnecessary questions).',
       'Elimination by agreement ($100,000) — ONLY OUTSIDE THE TERRITORY.',
@@ -125,7 +125,7 @@ export const continentalData: Hotel = {
 
   // Механика прохождения
   passingConditions: {
-    inventory: ['gold-coin'], // Нужно иметь монету в инвентаре
+    inventoryPayment: ['gold-coin'], // Золотая монета забирается как оплата
     paymentType: 'cash', // Нужно выбрать наличные (оплата монетой)
   },
 
@@ -182,7 +182,7 @@ export const continentalData: Hotel = {
         'Бронированные панорамные окна',
       ],
       amenitiesEn: ['Direct High Table link', 'Encrypted terminal', 'Reinforced panoramic windows'],
-      image: roomSanctum, // Нужно будет сгенерить
+      image: roomSanctum,
     },
   ],
 
@@ -192,34 +192,22 @@ export const continentalData: Hotel = {
       label: 'Tasting Menu (Классическая кухня)',
       labelEn: 'Tasting Menu (Classic Cuisine)',
       price: 0,
-      description:
-        'Безупречный сервис, высокая кухня и полная тишина. Идеально для восстановления сил после выполнения контракта.',
-      descriptionEn:
-        'Impeccable service, haute cuisine, and absolute silence. Ideal for recovering after a completed contract.',
     },
     {
       value: 'sommelier-selection',
       label: "The Sommelier's Recommendation (Особое меню)",
       labelEn: "The Sommelier's Recommendation (Special Menu)",
       price: 1,
-      description:
-        "Дегустация, переходящая в подбор 'инструментария'. Включает доступ к закрытому каталогу десертных вин и калибров.",
-      descriptionEn:
-        "A tasting that transitions into 'tool' selection. Includes access to a private catalog of dessert wines and calibers.",
     },
     {
       value: 'manager-dinner',
       label: 'Dinner with the Manager (Эксклюзив)',
       labelEn: 'Dinner with the Manager (Exclusive)',
       price: 3,
-      description:
-        'Ужин в закрытой ложе. Требует особого статуса. Возможность обсудить дела напрямую с руководством отеля.',
-      descriptionEn:
-        'Dinner in a private box. Requires special status. An opportunity to discuss business directly with the hotel management.',
     },
   ],
   lostandfaund: ['gold-coin'],
-
+  prize: 'mechanical-heart',
   chatMassages: [
     'Рад вас видеть. Напоминаю, наш отель — зона мира.',
     'Ваш заказ у Сомелье будет готов через 10 минут.',

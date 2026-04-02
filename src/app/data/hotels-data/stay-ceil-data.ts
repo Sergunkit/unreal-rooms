@@ -108,8 +108,8 @@ export const stayCeilData: Hotel = {
       'No TVs in Standard and Rehab rooms to protect your peace of mind.',
       'Caution is advised when entering and exiting the hotel due to proximity to Skid Row.',
     ],
-    heart_tool_tip: 'Здесь все под контролем. Почти все.',
-    heart_tool_tipEn: 'Everything is under control here. Almost everything.',
+    heart_tool_tip: 'Здесь вы никогда не будете одиноки. Даже если захотите',
+    heart_tool_tipEn: 'Нever alone here. Even if you want to be.',
   },
 
   // Поля формы по умолчанию

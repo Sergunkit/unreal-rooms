@@ -196,7 +196,8 @@ export interface PassingConditions {
   roomId?: string;
   mealTypes?: string[];
   additionalServices?: string[];
-  inventory?: string[];
+  inventory?: string[]; // Артефакты, которые нужно иметь (возвращаются после бронирования)
+  inventoryPayment?: string[]; // Артефакты, которые забираются как оплата (не возвращаются)
   promoCode?: string;
   paymentType?: string;
 }

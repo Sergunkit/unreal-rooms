@@ -2,6 +2,11 @@ import { createContext, useContext, useState, ReactNode, useEffect } from 'react
 import type { TempBookingFormData } from '../data/hotels-data/hotelTypes';
 
 /**
+ * Максимальное количество слотов в чемодане
+ */
+export const MAX_INVENTORY_SLOTS = 9;
+
+/**
  * Тип питания
  */
 export type MealType = 'no-meal' | 'diet-menu' | 'half-board' | 'all-inclusive';

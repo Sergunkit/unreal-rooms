@@ -1,27 +1,94 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { X } from 'lucide-react';
+import { useState, useRef, useCallback } from 'react';
+import { motion } from 'motion/react';
 import { useGame } from '../contexts/GameContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { SuitcaseModal } from './inventory/SuitcaseModal';
+import {
+  ArtifactTransferAnimation,
+  useArtifactAnimation,
+  type Position,
+} from './artifacts/ArtifactTransferAnimation';
+import { getArtefactById } from '../data/artefacts';
 
 interface FloatingWidgetProps {
   isGlowing?: boolean;
+  onArtefactClick?: (artefact: { id: string; name: string; nameEn: string; image: string }) => void;
 }
 
-export function FloatingWidget({ isGlowing = false }: FloatingWidgetProps) {
+export function FloatingWidget({ isGlowing = false, onArtefactClick }: FloatingWidgetProps) {
   const { language } = useLanguage();
   const { playerStatus } = useGame();
   const [isHovered, setIsHovered] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [showSuitcaseModal, setShowSuitcaseModal] = useState(false);
+  const widgetRef = useRef<HTMLDivElement>(null);
+  const { animation, triggerAnimation } = useArtifactAnimation();
 
   const collectedArtefacts = playerStatus.collectedArtefacts;
 
+  /**
+   * Обработать клик по чемодану
+   */
+  const handleSuitcaseClick = () => {
+    setShowSuitcaseModal(true);
+  };
+
+  /**
+   * Обработать клик по артефакту из модалки
+   */
+  const handleArtifactClick = useCallback(
+    async (artifactId: string) => {
+      const artifact = getArtefactById(artifactId);
+      if (!artifact) return;
+
+      // Закрыть модалку чемодана
+      setShowSuitcaseModal(false);
+
+      // Получить позицию чемодана для анимации
+      const suitcaseRect = widgetRef.current?.getBoundingClientRect();
+      if (!suitcaseRect) return;
+
+      const fromPosition: Position = {
+        x: suitcaseRect.left + suitcaseRect.width / 2 - 40,
+        y: suitcaseRect.top + suitcaseRect.height / 2 - 40,
+      };
+
+      // Для примера - просто показываем артефакт
+      // В реальности здесь будет логика использования артефакта
+      if (onArtefactClick) {
+        onArtefactClick({
+          id: artifact.id,
+          name: artifact.name,
+          nameEn: artifact.nameEn,
+          image: artifact.image,
+        });
+      }
+
+      // Анимация возврата артефакта в чемодан (опционально)
+      // await triggerAnimation({
+      //   from: fromPosition,
+      //   to: { x: fromPosition.x, y: fromPosition.y },
+      //   artifactImage: artifact.image,
+      //   artifactName: language === 'ru' ? artifact.name : artifact.nameEn,
+      // });
+    },
+    [onArtefactClick, language]
+  );
+
+  /**
+   * Обработать оставление артефакта в потеряшках
+   */
+  const handlePlaceInLostAndFound = useCallback((artifactId: string) => {
+    console.log('Artifact placed in Lost & Found:', artifactId);
+    // Здесь можно добавить дополнительную логику
+  }, []);
+
   return (
     <>
-      <div
-        className="fixed bottom-8 right-8 z-[100] cursor-pointer"
-        onClick={() => setShowModal(true)}
-      >
+      {/* Анимация перемещения артефакта */}
+      {animation && <ArtifactTransferAnimation {...animation} />}
+
+      {/* Виджет чемодана */}
+      <div ref={widgetRef} className="fixed bottom-8 right-8 z-[100] cursor-pointer" onClick={handleSuitcaseClick}>
         <motion.div
           className="relative"
           onMouseEnter={() => setIsHovered(true)}
@@ -123,6 +190,8 @@ export function FloatingWidget({ isGlowing = false }: FloatingWidgetProps) {
               style={{ mixBlendMode: 'overlay', pointerEvents: 'none' }}
             />
           </motion.div>
+
+          {/* Тултип */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
@@ -130,79 +199,45 @@ export function FloatingWidget({ isGlowing = false }: FloatingWidgetProps) {
             className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 whitespace-nowrap"
           >
             <div className="bg-card border border-border px-3 py-1.5 rounded-lg shadow-lg">
-              <p className="text-xs text-foreground font-medium">Начните путешествие</p>
+              <p className="text-xs text-foreground font-medium">
+                {language === 'ru' ? 'Ваш чемодан' : 'Your Suitcase'}
+              </p>
+              {playerStatus.inventory.length > 0 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {playerStatus.inventory.length} / 9
+                </p>
+              )}
             </div>
           </motion.div>
+
+          {/* Индикатор заполненности */}
+          {playerStatus.inventory.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-primary-foreground border-2 border-background"
+            >
+              {playerStatus.inventory.length}
+            </motion.div>
+          )}
         </motion.div>
       </div>
 
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
-            onClick={() => setShowModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card border border-border rounded-lg max-w-md w-full max-h-[80vh] overflow-hidden flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6 border-b border-border flex items-center justify-between">
-                <h2 className="text-2xl text-foreground font-medium">
-                  {language === 'ru' ? 'Ваш чемодан' : 'Your Suitcase'}
-                </h2>
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-6">
-                {collectedArtefacts.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">
-                      {language === 'ru' ? 'Ваш чемодан пока пуст' : 'Your suitcase is still empty'}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {language === 'ru'
-                        ? 'Находите артефакты в отелях!'
-                        : 'Find artefacts in hotels!'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-4">
-                    {collectedArtefacts.map((artefact) => (
-                      <div
-                        key={artefact.artefactId}
-                        className="bg-secondary/50 rounded-lg p-3 text-center"
-                      >
-                        {artefact.image && (
-                          <div className="w-full aspect-[2/3] bg-secondary rounded-md mb-2 flex items-center justify-center overflow-hidden">
-                            <img
-                              src={artefact.image}
-                              alt={language === 'ru' ? artefact.name : artefact.nameEn}
-                              className="w-full h-full object-contain"
-                            />
-                          </div>
-                        )}
-                        <p className="text-sm font-medium text-foreground">
-                          {language === 'ru' ? artefact.name : artefact.nameEn}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Модалка чемодана */}
+      <SuitcaseModal
+        isOpen={showSuitcaseModal}
+        onClose={() => setShowSuitcaseModal(false)}
+        suitcasePosition={
+          widgetRef.current?.getBoundingClientRect()
+            ? {
+                x: widgetRef.current.getBoundingClientRect().left,
+                y: widgetRef.current.getBoundingClientRect().top,
+              }
+            : undefined
+        }
+        onArtifactClick={handleArtifactClick}
+        onPlaceInLostAndFound={handlePlaceInLostAndFound}
+      />
     </>
   );
 }
