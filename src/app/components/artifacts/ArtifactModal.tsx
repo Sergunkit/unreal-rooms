@@ -35,13 +35,15 @@ export function ArtifactModal({
   onAction,
 }: ArtifactModalProps) {
   const { language } = useLanguage();
-  const { hasArtefact } = useGame();
+  const { hasArtefact, hasInInventory } = useGame();
 
   const artifact = getArtefactById(artifactId);
 
   if (!artifact) return null;
 
-  const isAlreadyCollected = hasArtefact(artifactId);
+  // Для режима 'collect' проверяем наличие в инвентаре (для потеряшек)
+  // Для режима 'place' проверяем, был ли артефакт собран (собран ли вообще)
+  const isAlreadyCollected = mode === 'collect' ? hasInInventory(artifactId) : hasArtefact(artifactId);
 
   /**
    * Обработать действие (в зависимости от режима)

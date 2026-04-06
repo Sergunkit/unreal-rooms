@@ -62,6 +62,7 @@ export function HotelDetailPage() {
     playerStatus,
     addArtefact,
     hasArtefact,
+    hasInInventory,
     addToInventory,
     removeFromInventory,
     clearCurrentHotelProgress,
@@ -455,14 +456,19 @@ export function HotelDetailPage() {
     nameEn: string;
     image: string;
   }) => {
-    if (!hasArtefact(String(item.id))) {
-      addArtefact({
-        artefactId: String(item.id),
-        name: item.name,
-        nameEn: item.nameEn,
-        image: item.image,
-        collectedAt: new Date().toISOString(),
-      });
+    // For artifacts from lost & found, we should check inventory, not collectedArtefacts
+    // because they might have been collected before but placed in lost & found
+    if (!hasInInventory(String(item.id))) {
+      // Add to collectedArtefacts if not already there
+      if (!hasArtefact(String(item.id))) {
+        addArtefact({
+          artefactId: String(item.id),
+          name: item.name,
+          nameEn: item.nameEn,
+          image: item.image,
+          collectedAt: new Date().toISOString(),
+        });
+      }
       // Add to inventory
       addToInventory(String(item.id)); // Dispatch event for suitcase animation
       window.dispatchEvent(new Event('artefactCollected'));
@@ -1137,7 +1143,7 @@ export function HotelDetailPage() {
             mode="collect"
             onAction={() => {
               const artefact = getArtefactById(lostFoundArtifactId);
-              if (artefact && !hasArtefact(lostFoundArtifactId)) {
+              if (artefact && !hasInInventory(lostFoundArtifactId)) {
                 handleCollectArtefact({
                   id: artefact.id,
                   name: artefact.name,
