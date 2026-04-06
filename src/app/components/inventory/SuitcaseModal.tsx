@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Package, Info } from 'lucide-react';
+import { X, Package } from 'lucide-react';
 import { useGame, MAX_INVENTORY_SLOTS } from '../../contexts/GameContext';
 import { useLanguage } from '../../contexts/LanguageContext';
+import { useInventory } from '../../hooks/useInventory';
 import { getArtefactById } from '../../data/artefacts';
-import { LostAndFoundModal } from '../artifacts/LostAndFoundModal';
+import { ArtifactModal } from '../artifacts/ArtifactModal';
 import type { Position } from '../artifacts/ArtifactTransferAnimation';
 
 interface SuitcaseModalProps {
@@ -14,10 +15,10 @@ interface SuitcaseModalProps {
   onClose: () => void;
   /** Позиция чемодана для анимации */
   suitcasePosition?: Position;
-  /** Вызывается при клике на артефакт */
-  onArtifactClick?: (artifactId: string) => void;
   /** Вызывается при желании оставить артефакт в потеряшках */
   onPlaceInLostAndFound?: (artifactId: string) => void;
+  /** ID текущего отеля */
+  hotelId?: string;
 }
 
 /**
@@ -27,14 +28,15 @@ export function SuitcaseModal({
   isOpen,
   onClose,
   suitcasePosition,
-  onArtifactClick,
   onPlaceInLostAndFound,
+  hotelId,
 }: SuitcaseModalProps) {
   const { language } = useLanguage();
-  const { playerStatus, removeFromInventory } = useGame();
-  const [selectedArtifactId, setSelectedArtifactId] = useState<string | undefined>();
-  const [showLostAndFound, setShowLostAndFound] = useState(false);
+  const { playerStatus } = useGame();
+  const { placeInLostAndFound } = useInventory();
   const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
+  const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
+  const [showArtifactModal, setShowArtifactModal] = useState(false);
 
   const inventory = playerStatus.inventory;
 
@@ -50,56 +52,33 @@ export function SuitcaseModal({
   const translations = {
     title: language === 'ru' ? 'Ваш чемодан' : 'Your Suitcase',
     empty: language === 'ru' ? 'Ваш чемодан пока пуст' : 'Your suitcase is still empty',
-    emptyHint:
-      language === 'ru'
-        ? 'Находите артефакты в отелях!'
-        : 'Find artefacts in hotels!',
+    emptyHint: language === 'ru' ? 'Находите артефакты в отелях!' : 'Find artefacts in hotels!',
     slot: language === 'ru' ? 'Слот' : 'Slot',
-    leaveInLostAndFound:
-      language === 'ru' ? 'Оставить в потеряшках' : 'Leave in Lost & Found',
-    useArtifact: language === 'ru' ? 'Использовать' : 'Use Artifact',
     slotsCount: language === 'ru' ? 'слотов' : 'slots',
   };
 
   /**
-   * Обработать клик на артефакте
+   * Обработать клик на артефакте - открываем ArtifactModal
    */
   const handleArtifactClick = (artifactId: string) => {
-    if (onArtifactClick) {
-      onArtifactClick(artifactId);
-    }
-  };
-
-  /**
-   * Обработать клик правой кнопкой (контекстное меню)
-   */
-  const handleArtifactContextMenu = (e: React.MouseEvent, artifactId: string) => {
-    e.preventDefault();
     setSelectedArtifactId(artifactId);
+    setShowArtifactModal(true);
   };
 
   /**
-   * Открыть модалку потеряшек
+   * Закрыть модалку артефакта
    */
-  const handleOpenLostAndFound = () => {
-    setShowLostAndFound(true);
+  const handleCloseArtifactModal = () => {
+    setShowArtifactModal(false);
+    setSelectedArtifactId(null);
   };
 
   /**
-   * Закрыть модалку потеряшек
-   */
-  const handleCloseLostAndFound = () => {
-    setShowLostAndFound(false);
-    setSelectedArtifactId(undefined);
-  };
-
-  /**
-   * Оставить артефакт в потеряшках
+   * Обработчик после оставления артефакта в потеряшках
    */
   const handlePlaceInLostAndFound = (artifactId: string) => {
-    removeFromInventory(artifactId);
+    placeInLostAndFound(artifactId, hotelId);
     onPlaceInLostAndFound?.(artifactId);
-    handleCloseLostAndFound();
   };
 
   return (
@@ -130,7 +109,13 @@ export function SuitcaseModal({
                       xmlns="http://www.w3.org/2000/svg"
                     >
                       <defs>
-                        <linearGradient id="leatherGradientModal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient
+                          id="leatherGradientModal"
+                          x1="0%"
+                          y1="0%"
+                          x2="100%"
+                          y2="100%"
+                        >
                           <stop offset="0%" style={{ stopColor: '#8B4513', stopOpacity: 1 }} />
                           <stop offset="50%" style={{ stopColor: '#A0522D', stopOpacity: 1 }} />
                           <stop offset="100%" style={{ stopColor: '#6B3410', stopOpacity: 1 }} />
@@ -184,7 +169,7 @@ export function SuitcaseModal({
                 ) : (
                   <>
                     {/* Сетка 3x3 */}
-                    <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="grid grid-cols-3 gap-4">
                       {slots.map((slot, index) => (
                         <motion.div
                           key={index}
@@ -194,26 +179,43 @@ export function SuitcaseModal({
                             scale: 1,
                           }}
                           transition={{ delay: index * 0.05 }}
-                          className={`relative aspect-square rounded-lg border-2 transition-all cursor-pointer ${
+                          className={`relative aspect-square rounded-lg border-2 transition-all ${
                             slot.artifact
                               ? 'border-primary/30 bg-secondary/50 hover:border-primary hover:bg-secondary'
                               : 'border-border bg-secondary/20 border-dashed'
                           }`}
                           onMouseEnter={() => setHoveredSlot(index)}
                           onMouseLeave={() => setHoveredSlot(null)}
-                          onClick={() => slot.artifactId && handleArtifactClick(slot.artifactId)}
-                          onContextMenu={(e) =>
-                            slot.artifactId && handleArtifactContextMenu(e, slot.artifactId)
-                          }
                         >
                           {slot.artifact ? (
-                            <div className="absolute inset-0 p-2 flex items-center justify-center">
-                              <img
-                                src={slot.artifact.image}
-                                alt={language === 'ru' ? slot.artifact.name : slot.artifact.nameEn}
-                                className="w-full h-full object-contain drop-shadow-md"
-                              />
-                            </div>
+                            <>
+                              <div
+                                className="absolute inset-0 p-2 flex items-center justify-center cursor-pointer"
+                                onClick={() => handleArtifactClick(slot.artifactId!)}
+                              >
+                                <img
+                                  src={slot.artifact.image}
+                                  alt={
+                                    language === 'ru' ? slot.artifact.name : slot.artifact.nameEn
+                                  }
+                                  className="w-full h-full object-contain drop-shadow-md"
+                                />
+                              </div>
+
+                              {/* Индикатор номера слота */}
+                              <div className="absolute top-1 left-1 w-5 h-5 bg-primary/80 rounded-full flex items-center justify-center text-xs text-primary-foreground font-bold">
+                                {index + 1}
+                              </div>
+
+                              {/* Hover эффект - затемнение */}
+                              {hoveredSlot === index && (
+                                <motion.div
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  className="absolute inset-0 bg-primary/10 rounded-lg pointer-events-none"
+                                />
+                              )}
+                            </>
                           ) : (
                             <div className="absolute inset-0 flex items-center justify-center">
                               <span className="text-2xl text-muted-foreground opacity-30">
@@ -221,41 +223,8 @@ export function SuitcaseModal({
                               </span>
                             </div>
                           )}
-
-                          {/* Индикатор номера слота */}
-                          {slot.artifact && (
-                            <div className="absolute top-1 left-1 w-5 h-5 bg-primary/80 rounded-full flex items-center justify-center text-xs text-primary-foreground font-bold">
-                              {index + 1}
-                            </div>
-                          )}
-
-                          {/* Hover эффект */}
-                          {slot.artifact && hoveredSlot === index && (
-                            <motion.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              className="absolute inset-0 bg-primary/10 rounded-lg"
-                            />
-                          )}
                         </motion.div>
                       ))}
-                    </div>
-
-                    {/* Подсказка */}
-                    <div className="flex items-start gap-2 p-3 bg-info/10 border border-info/20 rounded-md">
-                      <Info className="w-4 h-4 text-info mt-0.5 flex-shrink-0" />
-                      <div className="text-xs text-muted-foreground">
-                        <p>
-                          {language === 'ru'
-                            ? '• Левый клик: использовать артефакт'
-                            : '• Left click: use artifact'}
-                        </p>
-                        <p>
-                          {language === 'ru'
-                            ? '• Правый клик: оставить в потеряшках'
-                            : '• Right click: leave in Lost & Found'}
-                        </p>
-                      </div>
                     </div>
                   </>
                 )}
@@ -265,13 +234,14 @@ export function SuitcaseModal({
         )}
       </AnimatePresence>
 
-      {/* Модалка потеряшек */}
-      <LostAndFoundModal
-        isOpen={showLostAndFound}
-        onClose={handleCloseLostAndFound}
-        hotelId="current" // Будет заменено на актуальный ID отеля
-        artifactId={selectedArtifactId}
-        onPlaceArtifact={handlePlaceInLostAndFound}
+      {/* Artifact Modal - открывается при клике на артефакт */}
+      <ArtifactModal
+        isOpen={showArtifactModal && selectedArtifactId !== null}
+        onClose={handleCloseArtifactModal}
+        artifactId={selectedArtifactId || ''}
+        mode="place"
+        hotelId={hotelId}
+        onAction={selectedArtifactId ? () => handlePlaceInLostAndFound(selectedArtifactId) : () => {}}
       />
     </>
   );

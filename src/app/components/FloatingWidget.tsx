@@ -3,11 +3,6 @@ import { motion } from 'motion/react';
 import { useGame } from '../contexts/GameContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { SuitcaseModal } from './inventory/SuitcaseModal';
-import {
-  ArtifactTransferAnimation,
-  useArtifactAnimation,
-  type Position,
-} from './artifacts/ArtifactTransferAnimation';
 import { getArtefactById } from '../data/artefacts';
 
 interface FloatingWidgetProps {
@@ -17,13 +12,13 @@ interface FloatingWidgetProps {
 
 export function FloatingWidget({ isGlowing = false, onArtefactClick }: FloatingWidgetProps) {
   const { language } = useLanguage();
-  const { playerStatus } = useGame();
+  const { playerStatus, getCurrentHotelId } = useGame();
   const [isHovered, setIsHovered] = useState(false);
   const [showSuitcaseModal, setShowSuitcaseModal] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);
-  const { animation, triggerAnimation } = useArtifactAnimation();
 
   const collectedArtefacts = playerStatus.collectedArtefacts;
+  const currentHotelId = getCurrentHotelId();
 
   /**
    * Обработать клик по чемодану
@@ -35,60 +30,21 @@ export function FloatingWidget({ isGlowing = false, onArtefactClick }: FloatingW
   /**
    * Обработать клик по артефакту из модалки
    */
-  const handleArtifactClick = useCallback(
-    async (artifactId: string) => {
-      const artifact = getArtefactById(artifactId);
-      if (!artifact) return;
-
-      // Закрыть модалку чемодана
-      setShowSuitcaseModal(false);
-
-      // Получить позицию чемодана для анимации
-      const suitcaseRect = widgetRef.current?.getBoundingClientRect();
-      if (!suitcaseRect) return;
-
-      const fromPosition: Position = {
-        x: suitcaseRect.left + suitcaseRect.width / 2 - 40,
-        y: suitcaseRect.top + suitcaseRect.height / 2 - 40,
-      };
-
-      // Для примера - просто показываем артефакт
-      // В реальности здесь будет логика использования артефакта
-      if (onArtefactClick) {
-        onArtefactClick({
-          id: artifact.id,
-          name: artifact.name,
-          nameEn: artifact.nameEn,
-          image: artifact.image,
-        });
-      }
-
-      // Анимация возврата артефакта в чемодан (опционально)
-      // await triggerAnimation({
-      //   from: fromPosition,
-      //   to: { x: fromPosition.x, y: fromPosition.y },
-      //   artifactImage: artifact.image,
-      //   artifactName: language === 'ru' ? artifact.name : artifact.nameEn,
-      // });
-    },
-    [onArtefactClick, language]
-  );
-
   /**
    * Обработать оставление артефакта в потеряшках
    */
   const handlePlaceInLostAndFound = useCallback((artifactId: string) => {
-    console.log('Artifact placed in Lost & Found:', artifactId);
     // Здесь можно добавить дополнительную логику
   }, []);
 
   return (
     <>
-      {/* Анимация перемещения артефакта */}
-      {animation && <ArtifactTransferAnimation {...animation} />}
-
       {/* Виджет чемодана */}
-      <div ref={widgetRef} className="fixed bottom-8 right-8 z-[100] cursor-pointer" onClick={handleSuitcaseClick}>
+      <div
+        ref={widgetRef}
+        className="fixed bottom-8 right-8 z-[100] cursor-pointer"
+        onClick={handleSuitcaseClick}
+      >
         <motion.div
           className="relative"
           onMouseEnter={() => setIsHovered(true)}
@@ -228,15 +184,15 @@ export function FloatingWidget({ isGlowing = false, onArtefactClick }: FloatingW
         isOpen={showSuitcaseModal}
         onClose={() => setShowSuitcaseModal(false)}
         suitcasePosition={
-          widgetRef.current?.getBoundingClientRect()
+          widgetRef.current
             ? {
                 x: widgetRef.current.getBoundingClientRect().left,
                 y: widgetRef.current.getBoundingClientRect().top,
               }
             : undefined
         }
-        onArtifactClick={handleArtifactClick}
         onPlaceInLostAndFound={handlePlaceInLostAndFound}
+        hotelId={currentHotelId}
       />
     </>
   );

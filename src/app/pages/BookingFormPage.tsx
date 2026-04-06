@@ -132,10 +132,10 @@ export function BookingFormPage({
   const [selectedServices, setSelectedServices] = useState<string[]>(
     tempForm?.selectedServices || savedBooking?.additionalServices || []
   );
-  
+
   // Проверка: есть ли монета в инвентаре (для NY-Continental)
   const hasCoin = playerStatus.inventory.includes('gold-coin');
-  
+
   // По умолчанию карта
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('card');
   const [cardType, setCardType] = useState<'visa' | 'mastercard'>('visa');
@@ -557,16 +557,16 @@ export function BookingFormPage({
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Наличные - только если есть монета (для NY-Continental) */}
                     <div className="flex items-center space-x-2 mt-4">
-                      <RadioGroupItem 
-                        value="cash" 
+                      <RadioGroupItem
+                        value="cash"
                         id="cash"
-                        disabled={!hasCoin}  // ← Наличные только если есть монета
+                        disabled={!hasCoin} // ← Наличные только если есть монета
                       />
-                      <Label 
-                        htmlFor="cash" 
+                      <Label
+                        htmlFor="cash"
                         className={`flex items-center gap-2 ${!hasCoin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         <Wallet className="h-4 w-4 text-primary" />

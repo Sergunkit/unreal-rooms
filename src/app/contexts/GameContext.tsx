@@ -160,6 +160,7 @@ interface GameContextType {
   setCurrentHotelProgress: (progress: CurrentHotelProgress | null) => void;
   clearCurrentHotelProgress: () => void;
   getCurrentHotelProgress: () => CurrentHotelProgress | null;
+  getCurrentHotelId: () => string | undefined;
   // Методы для временных данных формы бронирования
   saveTempBookingForm: (data: TempBookingFormData) => void;
   clearTempBookingForm: () => void;
@@ -322,6 +323,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
    */
   const getCurrentHotelProgress = () => {
     return playerStatus.currentHotelProgress;
+  };
+
+  /**
+   * Получить ID текущего отеля
+   */
+  const getCurrentHotelId = () => {
+    return playerStatus.currentHotelProgress?.hotelId;
   };
 
   /**
@@ -769,6 +777,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setCurrentHotelProgress,
         clearCurrentHotelProgress,
         getCurrentHotelProgress,
+        getCurrentHotelId,
         saveTempBookingForm,
         clearTempBookingForm,
         getTempBookingForm,

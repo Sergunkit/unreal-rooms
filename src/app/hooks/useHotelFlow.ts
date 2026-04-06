@@ -419,17 +419,17 @@ export function useHotelFlow(hotelId?: string) {
     const hasService =
       !conditions.additionalServices ||
       conditions.additionalServices.every((s) => tempForm.selectedServices?.includes(s));
-    
+
     // Проверка inventory (артефакты для possession - возвращаются после бронирования)
     const hasInventory =
       !conditions.inventory ||
       conditions.inventory.every((i) => playerStatus.inventory.includes(i));
-    
+
     // Проверка inventoryPayment (артефакты для оплаты - забираются навсегда)
     const hasInventoryPayment =
       !conditions.inventoryPayment ||
       conditions.inventoryPayment.every((i) => playerStatus.inventory.includes(i));
-    
+
     const hasPromoCode =
       !conditions.promoCode ||
       tempForm.promoCode?.toUpperCase() === conditions.promoCode.toUpperCase();

@@ -253,17 +253,17 @@ export const continentalChain: Chain = {
           id: 'book-now-btn',
           type: 'buttonClick',
           trigger: { elementId: 'book-now-button' },
-          nextStep: 'bookingForm'
+          nextStep: 'bookingForm',
         },
         {
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
-          nextStep: 'bookingForm'
-        }
-      ]
+          nextStep: 'bookingForm',
+        },
+      ],
     },
-    
+
     bookingForm: {
       id: 'bookingForm',
       step: 2,
@@ -271,61 +271,59 @@ export const continentalChain: Chain = {
         {
           id: 'submit-form',
           type: 'formSubmit',
-          nextStep: 'bookingConfirm'
+          nextStep: 'bookingConfirm',
         },
         {
           id: 'cancel-booking',
           type: 'buttonClick',
           trigger: { elementId: 'cancel-btn' },
-          nextStep: 'hotelPage'
-        }
+          nextStep: 'hotelPage',
+        },
       ],
       transitions: {
         submit: {
-          conditions: [
-            { field: 'isSafeToBook', operator: 'eq', value: true }
-          ],
-          nextStep: 'bookingConfirm'
+          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+          nextStep: 'bookingConfirm',
         },
         submitUnsafe: {
-          nextStep: 'bookingConfirm'
-        }
-      }
+          nextStep: 'bookingConfirm',
+        },
+      },
     },
-    
+
     bookingConfirm: {
       id: 'bookingConfirm',
       step: 3,
       transitions: {
         confirm: { nextStep: 'bookingComplete' },
-        cancel: { nextStep: 'bookingForm' }
-      }
+        cancel: { nextStep: 'bookingForm' },
+      },
     },
-    
+
     bookingComplete: {
       id: 'bookingComplete',
       step: 4,
       transitions: {
-        default: { nextStep: 'prizeModal', delay: 2000 }
-      }
+        default: { nextStep: 'prizeModal', delay: 2000 },
+      },
     },
-    
+
     prizeModal: {
       id: 'prizeModal',
       step: 5,
       conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
       transitions: {
-        continue: { nextStep: 'myBookingsPage' }
+        continue: { nextStep: 'myBookingsPage' },
       },
-      fallback: { nextStep: 'myBookingsPage' }
+      fallback: { nextStep: 'myBookingsPage' },
     },
-    
+
     myBookingsPage: {
       id: 'myBookingsPage',
       step: 6,
       transitions: {
-        default: { nextStep: 'hotelPage' }
-      }
-    }
-  }
+        default: { nextStep: 'hotelPage' },
+      },
+    },
+  },
 };

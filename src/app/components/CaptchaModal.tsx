@@ -17,7 +17,7 @@ export interface CaptchaModalProps {
   mode?: CaptchaMode;
   showSelection?: boolean;
   confirmLabel?: string;
-  captchaReason?: 'alien' | 'human';  // ← Новый проп
+  captchaReason?: 'alien' | 'human'; // ← Новый проп
 }
 
 export function CaptchaModal({
@@ -32,18 +32,15 @@ export function CaptchaModal({
   mode = 'sequence',
   showSelection = true,
   confirmLabel,
-  captchaReason = 'human',  // ← По умолчанию human
+  captchaReason = 'human', // ← По умолчанию human
 }: CaptchaModalProps) {
   if (!open) return null;
 
   // Выбираем items и вопрос в зависимости от типа капчи
-  const items = captchaReason === 'alien' 
-    ? (captcha.alienItems || captcha.items)
-    : captcha.items;
-  
-  const question = captchaReason === 'alien'
-    ? (captcha.alienQuestion || captcha.question)
-    : captcha.question;
+  const items = captchaReason === 'alien' ? captcha.alienItems || captcha.items : captcha.items;
+
+  const question =
+    captchaReason === 'alien' ? captcha.alienQuestion || captcha.question : captcha.question;
 
   const handleItemClick = (itemId: string) => {
     setSelection((prev) => {
@@ -138,8 +135,18 @@ export function CaptchaModal({
                   )}
                   {isSelected && mode === 'toggle' && (
                     <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                     </div>
                   )}

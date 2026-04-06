@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useGame } from '../contexts/GameContext';
 import { getArtefactById, type Artefact } from '../data/artefacts';
+import { saveLostAndFoundItem } from '../components/artifacts/LostAndFoundModal';
 
 /**
  * Результат добавления артефакта в инвентарь
@@ -16,7 +17,8 @@ export interface AddToInventoryResult {
  * Предоставляет методы для управления артефактами с ограничением в 9 слотов
  */
 export function useInventory() {
-  const { playerStatus, addToInventory, removeFromInventory, hasInInventory } = useGame();
+  const { playerStatus, addToInventory, removeFromInventory, hasInInventory, getCurrentHotelId } =
+    useGame();
 
   const inventory = playerStatus.inventory;
 
@@ -96,6 +98,32 @@ export function useInventory() {
     return [...inventory];
   }, [inventory]);
 
+  /**
+   * Оставить артефакт в потеряшках отеля
+   * @param artifactId ID артефакта
+   * @param hotelId ID отеля (опционально, если не передан - берется из контекста)
+   */
+  const placeInLostAndFound = useCallback(
+    (artifactId: string, hotelId?: string) => {
+      const currentHotelId = hotelId || getCurrentHotelId();
+      if (!currentHotelId) {
+        console.warn('Cannot place artifact in Lost & Found: no current hotel');
+        return;
+      }
+
+      // Удаляем из инвентаря
+      removeFromInventory(artifactId);
+
+      // Добавляем в потеряшки
+      saveLostAndFoundItem({
+        artifactId,
+        hotelId: currentHotelId,
+        placedAt: new Date().toISOString(),
+      });
+    },
+    [getCurrentHotelId, removeFromInventory]
+  );
+
   return {
     // Данные
     inventory,
@@ -108,5 +136,6 @@ export function useInventory() {
     hasArtifact,
     getInventoryArtifacts,
     getInventoryIds,
+    placeInLostAndFound,
   };
 }

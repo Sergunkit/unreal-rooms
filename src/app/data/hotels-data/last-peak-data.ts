@@ -358,17 +358,17 @@ export const lastPeakChain: Chain = {
           id: 'book-now-btn',
           type: 'buttonClick',
           trigger: { elementId: 'book-now-button' },
-          nextStep: 'bookingForm'
+          nextStep: 'bookingForm',
         },
         {
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
-          nextStep: 'bookingForm'
-        }
-      ]
+          nextStep: 'bookingForm',
+        },
+      ],
     },
-    
+
     bookingForm: {
       id: 'bookingForm',
       step: 2,
@@ -376,65 +376,65 @@ export const lastPeakChain: Chain = {
         {
           id: 'submit-form',
           type: 'formSubmit',
-          nextStep: 'captcha'  // ← Всегда идем на капчу
+          nextStep: 'captcha', // ← Всегда идем на капчу
         },
         {
           id: 'cancel-booking',
           type: 'buttonClick',
           trigger: { elementId: 'cancel-btn' },
-          nextStep: 'hotelPage'
-        }
+          nextStep: 'hotelPage',
+        },
       ],
       transitions: {
         submit: {
-          nextStep: 'captcha'  // ← Капча определит тип (alien/human)
-        }
-      }
+          nextStep: 'captcha', // ← Капча определит тип (alien/human)
+        },
+      },
     },
-    
+
     captcha: {
       id: 'captcha',
       step: 3,
       transitions: {
         success: { nextStep: 'bookingConfirm' },
         fail: { nextStep: 'bookingForm' },
-        close: { nextStep: 'hotelPage' }
-      }
+        close: { nextStep: 'hotelPage' },
+      },
     },
-    
+
     bookingConfirm: {
       id: 'bookingConfirm',
       step: 4,
       transitions: {
         confirm: { nextStep: 'bookingComplete' },
-        cancel: { nextStep: 'bookingForm' }
-      }
+        cancel: { nextStep: 'bookingForm' },
+      },
     },
-    
+
     bookingComplete: {
       id: 'bookingComplete',
       step: 5,
       transitions: {
-        default: { nextStep: 'prizeModal', delay: 2000 }
-      }
+        default: { nextStep: 'prizeModal', delay: 2000 },
+      },
     },
-    
+
     prizeModal: {
       id: 'prizeModal',
       step: 6,
       conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
       transitions: {
-        continue: { nextStep: 'myBookingsPage' }
+        continue: { nextStep: 'myBookingsPage' },
       },
-      fallback: { nextStep: 'myBookingsPage' }
+      fallback: { nextStep: 'myBookingsPage' },
     },
-    
+
     myBookingsPage: {
       id: 'myBookingsPage',
       step: 7,
       transitions: {
-        default: { nextStep: 'hotelPage' }
-      }
-    }
-  }
+        default: { nextStep: 'hotelPage' },
+      },
+    },
+  },
 };

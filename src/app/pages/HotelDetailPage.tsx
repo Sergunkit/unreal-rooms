@@ -37,7 +37,7 @@ import { CaptchaModal } from '../components/CaptchaModal';
 import { useHotelProgress } from '../hooks/useHotelProgress';
 import { useHotelFlow } from '../hooks/useHotelFlow';
 import { useGame } from '../contexts/GameContext';
-import { artefacts } from '../data/artefacts';
+import { artefacts, getArtefactById } from '../data/artefacts';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 import {
   Dialog,
@@ -50,14 +50,23 @@ import {
 import { Button } from '@/app/components/ui/button'; // Importing Button component
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
+import { ArtifactModal } from '../components/artifacts/ArtifactModal';
+import { LostAndFoundModal } from '../components/artifacts/LostAndFoundModal';
 
 export function HotelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
 
-  const { playerStatus, addArtefact, hasArtefact, addToInventory, removeFromInventory, clearCurrentHotelProgress } =
-    useGame();
+  const {
+    playerStatus,
+    addArtefact,
+    hasArtefact,
+    addToInventory,
+    removeFromInventory,
+    clearCurrentHotelProgress,
+    setCurrentHotelProgress,
+  } = useGame();
   const {
     currentChain,
     activeStep,
@@ -77,6 +86,29 @@ export function HotelDetailPage() {
   } = useHotelFlow(id);
   const { hotel, floor, tempBookingForm, roomNumber } = useHotelProgress(id);
 
+  // Устанавливаем hotelId при загрузке страницы отеля
+  React.useEffect(() => {
+    if (
+      id &&
+      (!playerStatus.currentHotelProgress || playerStatus.currentHotelProgress.hotelId !== id)
+    ) {
+      setCurrentHotelProgress({
+        hotelId: id,
+        tempBookingForm: null,
+        startedAt: new Date().toISOString(),
+        currentChain: [],
+        activeStep: 'hotelPage',
+        currentChainIndex: 0,
+        chainType: 'standard',
+        galleryStates: {},
+        galleryActionsTriggered: {},
+        captchaCompleted: false,
+        floorSelected: false,
+        completedSteps: [],
+      });
+    }
+  }, [id, playerStatus.currentHotelProgress, setCurrentHotelProgress]);
+
   // Создаём flowState для обратной совместимости с существующим кодом
   const flowState = useMemo(
     () => ({
@@ -90,7 +122,7 @@ export function HotelDetailPage() {
       currentChainIndex,
       chainType,
       captchaReason: playerStatus.currentHotelProgress?.captchaReason,
-      bookingMessage: playerStatus.currentHotelProgress?.bookingMessage,  // ← Добавляем
+      bookingMessage: playerStatus.currentHotelProgress?.bookingMessage, // ← Добавляем
     }),
     [
       activeStep,
@@ -103,7 +135,7 @@ export function HotelDetailPage() {
       currentChainIndex,
       chainType,
       playerStatus.currentHotelProgress?.captchaReason,
-      playerStatus.currentHotelProgress?.bookingMessage,  // ← Добавляем
+      playerStatus.currentHotelProgress?.bookingMessage, // ← Добавляем
     ]
   );
 
@@ -130,13 +162,8 @@ export function HotelDetailPage() {
   });
   const [showArtifactModal, setShowArtifactModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [foundArtifact, setFoundArtifact] = useState<{
-    id: string;
-    name: string;
-    nameEn: string;
-    image: string;
-    alreadyCollected?: boolean;
-  } | null>(null);
+  const [foundArtifactId, setFoundArtifactId] = useState<string | null>(null);
+  const [lostFoundArtifactId, setLostFoundArtifactId] = useState<string | null>(null);
 
   // States for CaptchaModal, moved from BookingFormPage
   const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
@@ -270,7 +297,7 @@ export function HotelDetailPage() {
         currentStep: 'bookingComplete',
         currentChainIndex: flowState.currentChain.indexOf('bookingComplete'),
         completedSteps: [...flowState.completedSteps, 'bookingComplete'],
-        bookingMessage: isSafeToBook ? 'human' : 'alien',  // ← Сохраняем тип сообщения
+        bookingMessage: isSafeToBook ? 'human' : 'alien', // ← Сохраняем тип сообщения
       });
 
       // Consume artifacts if booking is safe (inventoryPayment items are consumed)
@@ -295,13 +322,7 @@ export function HotelDetailPage() {
             });
             addToInventory(hotel.prize);
             window.dispatchEvent(new Event('prizeCollected'));
-            setFoundArtifact({
-              id: prizeArtefact.id,
-              name: prizeArtefact.name,
-              nameEn: prizeArtefact.nameEn,
-              image: prizeArtefact.image,
-              alreadyCollected: false,
-            });
+            setFoundArtifactId(prizeArtefact.id);
             setShowArtifactModal(true);
           }
           // Go to myBookingsPage after showing prize
@@ -428,8 +449,6 @@ export function HotelDetailPage() {
 
   const feedbacks = hotel.feedBacks;
 
-  const lostFoundItems = hotel.lostandfaund?.map((item) => artefacts[item]).filter(Boolean) || [];
-
   const handleCollectArtefact = (item: {
     id: number | string;
     name: string;
@@ -447,7 +466,6 @@ export function HotelDetailPage() {
       // Add to inventory
       addToInventory(String(item.id)); // Dispatch event for suitcase animation
       window.dispatchEvent(new Event('artefactCollected'));
-      alert(language === 'ru' ? 'Артефакт добавлен в чемодан!' : 'Artefact added to suitcase!');
     }
   };
 
@@ -555,14 +573,7 @@ export function HotelDetailPage() {
                                   if (galleryAction.artefact) {
                                     const artefactData = artefacts[galleryAction.artefact];
                                     if (artefactData) {
-                                      const alreadyHas = hasArtefact(artefactData.id);
-                                      setFoundArtifact({
-                                        id: artefactData.id,
-                                        name: artefactData.name,
-                                        nameEn: artefactData.nameEn,
-                                        image: artefactData.image,
-                                        alreadyCollected: alreadyHas,
-                                      });
+                                      setFoundArtifactId(artefactData.id);
                                       setShowArtifactModal(true);
                                     }
                                   }
@@ -1082,126 +1093,62 @@ export function HotelDetailPage() {
 
         {/* Lost & Found Modal */}
         {showLostFoundModal && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[95vh] overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Search className="w-6 h-6 text-primary" />
-                  <h2 className="text-2xl text-foreground font-medium">
-                    {language === 'ru' ? 'Потеряшки' : 'Lost & Found'}
-                  </h2>
-                </div>
-                <button
-                  onClick={() => setShowLostFoundModal(false)}
-                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-6">
-                <div className="grid grid-cols-2 gap-4">
-                  {lostFoundItems.map((item) => {
-                    const alreadyCollected = hasArtefact(String(item.id));
-                    return (
-                      <div
-                        key={item.id}
-                        className={`rounded-lg p-4 transition-colors cursor-pointer ${
-                          alreadyCollected
-                            ? 'opacity-50 cursor-not-allowed bg-secondary/30'
-                            : 'bg-secondary/50 hover:bg-secondary'
-                        }`}
-                        onClick={() =>
-                          !alreadyCollected &&
-                          handleCollectArtefact({
-                            id: item.id,
-                            name: item.name,
-                            nameEn: item.nameEn,
-                            image: item.image,
-                          })
-                        }
-                      >
-                        <div className="w-full aspect-[2/3] bg-secondary rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                        <h4 className="text-sm font-medium text-foreground">
-                          {language === 'ru' ? item.name : item.nameEn}
-                        </h4>
-                        {alreadyCollected && (
-                          <p className="text-xs text-primary mt-1">
-                            {language === 'ru' ? 'Уже в чемодане' : 'Already in suitcase'}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+          <LostAndFoundModal
+            isOpen={showLostFoundModal}
+            onClose={() => setShowLostFoundModal(false)}
+            hotelId={id!}
+            staticLostAndFound={hotel.lostandfaund || []}
+          />
         )}
 
         {/* Artifact Found Modal */}
-        {showArtifactModal && foundArtifact && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-md w-full max-h-[95vh] overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Sparkle className="w-6 h-6 text-primary" />
-                  <h2 className="text-2xl text-foreground font-medium">
-                    {foundArtifact.alreadyCollected
-                      ? language === 'ru'
-                        ? 'Артефакт уже получен'
-                        : 'Artifact Already Collected'
-                      : language === 'ru'
-                        ? 'Артефакт найден!'
-                        : 'Artifact Found!'}
-                  </h2>
-                </div>
-                <button
-                  onClick={() => setShowArtifactModal(false)}
-                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-6 flex flex-col items-center">
-                <div className="w-full max-w-xs aspect-[2/3] bg-secondary rounded-lg mb-4 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={foundArtifact.image}
-                    alt={foundArtifact.name}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {language === 'ru' ? foundArtifact.name : foundArtifact.nameEn}
-                </h3>
-                <p className="text-sm text-muted-foreground text-center mb-6">
-                  {foundArtifact.alreadyCollected
-                    ? language === 'ru'
-                      ? 'Этот артефакт уже есть в вашем чемодане.'
-                      : 'This artifact is already in your suitcase.'
-                    : language === 'ru'
-                      ? 'Вы нашли артефакт! Нажмите кнопку ниже, чтобы добавить его в чемодан.'
-                      : 'You found an artifact! Click the button below to add it to your suitcase.'}
-                </p>
-                {!foundArtifact.alreadyCollected && (
-                  <button
-                    onClick={() => {
-                      handleCollectArtefact(foundArtifact);
-                      setShowArtifactModal(false);
-                    }}
-                    className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-                  >
-                    {language === 'ru' ? 'Забрать в чемодан' : 'Add to Suitcase'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+        {showArtifactModal && foundArtifactId && (
+          <ArtifactModal
+            isOpen={showArtifactModal}
+            onClose={() => setShowArtifactModal(false)}
+            artifactId={foundArtifactId}
+            hotelId={id}
+            mode="collect"
+            onAction={() => {
+              const artefact = getArtefactById(foundArtifactId);
+              if (artefact && !hasArtefact(foundArtifactId)) {
+                handleCollectArtefact({
+                  id: artefact.id,
+                  name: artefact.name,
+                  nameEn: artefact.nameEn,
+                  image: artefact.image,
+                });
+              }
+              setShowArtifactModal(false);
+            }}
+          />
+        )}
+
+        {/* Artifact Modal for Lost & Found items */}
+        {showArtifactModal && lostFoundArtifactId && (
+          <ArtifactModal
+            isOpen={showArtifactModal}
+            onClose={() => {
+              setShowArtifactModal(false);
+              setLostFoundArtifactId(null);
+            }}
+            artifactId={lostFoundArtifactId}
+            hotelId={id}
+            mode="collect"
+            onAction={() => {
+              const artefact = getArtefactById(lostFoundArtifactId);
+              if (artefact && !hasArtefact(lostFoundArtifactId)) {
+                handleCollectArtefact({
+                  id: artefact.id,
+                  name: artefact.name,
+                  nameEn: artefact.nameEn,
+                  image: artefact.image,
+                });
+              }
+              setShowArtifactModal(false);
+              setLostFoundArtifactId(null);
+            }}
+          />
         )}
 
         {/* Captcha Modal (controlled by flowState) */}
@@ -1232,7 +1179,7 @@ export function HotelDetailPage() {
             confirmLabel={language === 'ru' ? 'Подтвердить' : 'Confirm'}
             mode={hotel.captcha?.correctSequence ? 'sequence' : 'toggle'}
             showSelection={true}
-            captchaReason={flowState.captchaReason || 'human'}  // ← Передаём captchaReason
+            captchaReason={flowState.captchaReason || 'human'} // ← Передаём captchaReason
             onConfirm={() => {
               // Если есть correctSequence — проверяем последовательность
               if (hotel.captcha?.correctSequence) {
@@ -1415,9 +1362,7 @@ export function HotelDetailPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl text-foreground font-medium mb-2">
-                  {t.bookingConfirmed}
-                </h3>
+                <h3 className="text-xl text-foreground font-medium mb-2">{t.bookingConfirmed}</h3>
                 {/* Используем bookingMessage из flowState */}
                 <p className="text-muted-foreground">
                   {flowState.bookingMessage === 'alien'
@@ -1502,9 +1447,7 @@ export function HotelDetailPage() {
                   </div>
                   {additionalBookingServices && additionalBookingServices.length > 0 && (
                     <div className="text-sm">
-                      <span className="text-muted-foreground">
-                        {t.additionalServices}:
-                      </span>
+                      <span className="text-muted-foreground">{t.additionalServices}:</span>
                       <ul className="list-disc list-inside mt-1 space-y-1">
                         {additionalBookingServices.map(
                           (service: (typeof additionalBookingServices)[number]) => (
@@ -1518,9 +1461,7 @@ export function HotelDetailPage() {
                   )}
                   <div className="flex justify-between pt-3 border-t border-border">
                     <span>{t.totalCost}:</span>
-                    <span className="text-primary">
-                      ₽{calculateTotalDisplay.toLocaleString()}
-                    </span>
+                    <span className="text-primary">₽{calculateTotalDisplay.toLocaleString()}</span>
                   </div>
                 </div>
 

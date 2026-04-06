@@ -317,44 +317,44 @@ export const stayCeilChain: Chain = {
           id: 'elevator-click',
           type: 'galleryClick',
           trigger: { imageIndex: 3, coords: { x1: 65, y1: 10, x2: 80, y2: 20 } },
-          nextStep: 'captcha'
+          nextStep: 'captcha',
         },
         {
           // Путь 2: Кнопка "Забронировать" → сразу форма
           id: 'book-now-btn',
           type: 'buttonClick',
           trigger: { elementId: 'book-now-button' },
-          nextStep: 'bookingForm'
+          nextStep: 'bookingForm',
         },
         {
           // Путь 3: Карточка номера → Book Now → форма
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
-          nextStep: 'bookingForm'
-        }
-      ]
+          nextStep: 'bookingForm',
+        },
+      ],
     },
-    
+
     captcha: {
       id: 'captcha',
       step: 2,
       transitions: {
         success: { nextStep: 'floorSelect' },
         fail: { nextStep: 'captcha' },
-        close: { nextStep: 'hotelPage' }
-      }
+        close: { nextStep: 'hotelPage' },
+      },
     },
-    
+
     floorSelect: {
       id: 'floorSelect',
       step: 3,
       transitions: {
         confirm: { nextStep: 'bookingForm' },
-        cancel: { nextStep: 'captcha' }
-      }
+        cancel: { nextStep: 'captcha' },
+      },
     },
-    
+
     bookingForm: {
       id: 'bookingForm',
       step: 4,
@@ -362,59 +362,59 @@ export const stayCeilChain: Chain = {
         {
           id: 'submit-form',
           type: 'formSubmit',
-          nextStep: 'bookingConfirm'
+          nextStep: 'bookingConfirm',
         },
         {
           id: 'cancel-booking',
           type: 'buttonClick',
           trigger: { elementId: 'cancel-btn' },
-          nextStep: 'hotelPage'
-        }
+          nextStep: 'hotelPage',
+        },
       ],
       transitions: {
         submit: {
           conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
-          nextStep: 'bookingConfirm'
+          nextStep: 'bookingConfirm',
         },
         submitUnsafe: {
-          nextStep: 'bookingConfirm'
-        }
-      }
+          nextStep: 'bookingConfirm',
+        },
+      },
     },
-    
+
     bookingConfirm: {
       id: 'bookingConfirm',
       step: 5,
       transitions: {
         confirm: { nextStep: 'bookingComplete' },
-        cancel: { nextStep: 'bookingForm' }
-      }
+        cancel: { nextStep: 'bookingForm' },
+      },
     },
-    
+
     bookingComplete: {
       id: 'bookingComplete',
       step: 6,
       transitions: {
-        default: { nextStep: 'prizeModal', delay: 2000 }
-      }
+        default: { nextStep: 'prizeModal', delay: 2000 },
+      },
     },
-    
+
     prizeModal: {
       id: 'prizeModal',
       step: 7,
       conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
       transitions: {
-        continue: { nextStep: 'myBookingsPage' }
+        continue: { nextStep: 'myBookingsPage' },
       },
-      fallback: { nextStep: 'myBookingsPage' }
+      fallback: { nextStep: 'myBookingsPage' },
     },
-    
+
     myBookingsPage: {
       id: 'myBookingsPage',
       step: 8,
       transitions: {
-        default: { nextStep: 'hotelPage' }
-      }
-    }
-  }
+        default: { nextStep: 'hotelPage' },
+      },
+    },
+  },
 };
