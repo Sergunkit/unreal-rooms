@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Sparkle } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { useInventory } from '../../hooks/useInventory';
 import { getArtefactById } from '../../data/artefacts';
 
 type ArtifactModalMode = 'collect' | 'place';
@@ -32,7 +31,7 @@ export function ArtifactModal({
   onClose,
   artifactId,
   mode,
-  hotelId,
+  hotelId: _hotelId,
   onAction,
 }: ArtifactModalProps) {
   const { language } = useLanguage();
@@ -139,9 +138,7 @@ export function ArtifactModal({
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 {language === 'ru' ? artifact.name : artifact.nameEn}
               </h3>
-              <p className="text-sm text-muted-foreground text-center mb-6">
-                {getDescription()}
-              </p>
+              <p className="text-sm text-muted-foreground text-center mb-6">{getDescription()}</p>
 
               {/* Кнопка */}
               {shouldShowButton && (
@@ -154,9 +151,7 @@ export function ArtifactModal({
                         : 'bg-secondary text-foreground hover:bg-secondary/80 border border-border'
                     }`}
                   >
-                    {mode === 'collect'
-                      ? translations.collectButton
-                      : translations.placeButton}
+                    {mode === 'collect' ? translations.collectButton : translations.placeButton}
                   </button>
                 </div>
               )}

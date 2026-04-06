@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Package, Search } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
@@ -56,13 +56,13 @@ function getLostAndFoundItems(): LostAndFoundItem[] {
  */
 export function saveLostAndFoundItem(item: LostAndFoundItem) {
   const items = getLostAndFoundItems();
-  
+
   // Проверяем, нет ли уже такого артефакта в потеряшках этого отеля
   const exists = items.some(
     (existingItem) =>
       existingItem.artifactId === item.artifactId && existingItem.hotelId === item.hotelId
   );
-  
+
   if (!exists) {
     items.push(item);
     localStorage.setItem(LOST_AND_FOUND_STORAGE_KEY, JSON.stringify(items));
@@ -96,14 +96,16 @@ export function LostAndFoundModal({
   onClose,
   hotelId,
   staticLostAndFound = [],
-  artifactId,
-  onPlaceArtifact,
+  artifactId: _artifactId,
+  onPlaceArtifact: _onPlaceArtifact,
 }: LostAndFoundModalProps) {
   const { language } = useLanguage();
-  const { playerStatus, removeFromInventory, addToInventory } = useGame();
+  const { playerStatus, addToInventory } = useGame();
   const [showArtifactModal, setShowArtifactModal] = useState(false);
   const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<LostAndFoundItem & { isStatic?: boolean } | null>(null);
+  const [selectedItem, setSelectedItem] = useState<
+    (LostAndFoundItem & { isStatic?: boolean }) | null
+  >(null);
 
   // Объединяем статические предметы из конфига и предметы из localStorage
   const allItems = (() => {
@@ -131,8 +133,7 @@ export function LostAndFoundModal({
     noItems:
       language === 'ru' ? 'В этом отеле нет потерянных предметов' : 'No lost items in this hotel',
     takeButton: language === 'ru' ? 'Забрать' : 'Take',
-    alreadyInSuitcase:
-      language === 'ru' ? 'Уже в чемодане' : 'Already in suitcase',
+    alreadyInSuitcase: language === 'ru' ? 'Уже в чемодане' : 'Already in suitcase',
   };
 
   /**

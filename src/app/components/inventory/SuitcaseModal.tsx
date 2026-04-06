@@ -27,7 +27,7 @@ interface SuitcaseModalProps {
 export function SuitcaseModal({
   isOpen,
   onClose,
-  suitcasePosition,
+  suitcasePosition: _suitcasePosition,
   onPlaceInLostAndFound,
   hotelId,
 }: SuitcaseModalProps) {
@@ -241,7 +241,9 @@ export function SuitcaseModal({
         artifactId={selectedArtifactId || ''}
         mode="place"
         hotelId={hotelId}
-        onAction={selectedArtifactId ? () => handlePlaceInLostAndFound(selectedArtifactId) : () => {}}
+        onAction={
+          selectedArtifactId ? () => handlePlaceInLostAndFound(selectedArtifactId) : () => {}
+        }
       />
     </>
   );

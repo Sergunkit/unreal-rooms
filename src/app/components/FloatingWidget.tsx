@@ -1,24 +1,39 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useGame } from '../contexts/GameContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { SuitcaseModal } from './inventory/SuitcaseModal';
-import { getArtefactById } from '../data/artefacts';
 
 interface FloatingWidgetProps {
   isGlowing?: boolean;
-  onArtefactClick?: (artefact: { id: string; name: string; nameEn: string; image: string }) => void;
+  onArtefactClick?: (_artefact: {
+    id: string;
+    name: string;
+    nameEn: string;
+    image: string;
+  }) => void;
 }
 
-export function FloatingWidget({ isGlowing = false, onArtefactClick }: FloatingWidgetProps) {
+export function FloatingWidget({
+  isGlowing = false,
+  onArtefactClick: _onArtefactClick,
+}: FloatingWidgetProps) {
   const { language } = useLanguage();
   const { playerStatus, getCurrentHotelId } = useGame();
   const [isHovered, setIsHovered] = useState(false);
   const [showSuitcaseModal, setShowSuitcaseModal] = useState(false);
+  const [widgetPosition, setWidgetPosition] = useState<{ x: number; y: number } | undefined>();
   const widgetRef = useRef<HTMLDivElement>(null);
 
-  const collectedArtefacts = playerStatus.collectedArtefacts;
   const currentHotelId = getCurrentHotelId();
+
+  // Update widget position when modal is opened
+  useEffect(() => {
+    if (showSuitcaseModal && widgetRef.current) {
+      const rect = widgetRef.current.getBoundingClientRect();
+      setWidgetPosition({ x: rect.left, y: rect.top });
+    }
+  }, [showSuitcaseModal]);
 
   /**
    * Обработать клик по чемодану
@@ -33,7 +48,7 @@ export function FloatingWidget({ isGlowing = false, onArtefactClick }: FloatingW
   /**
    * Обработать оставление артефакта в потеряшках
    */
-  const handlePlaceInLostAndFound = useCallback((artifactId: string) => {
+  const handlePlaceInLostAndFound = useCallback((_artifactId: string) => {
     // Здесь можно добавить дополнительную логику
   }, []);
 
@@ -183,14 +198,7 @@ export function FloatingWidget({ isGlowing = false, onArtefactClick }: FloatingW
       <SuitcaseModal
         isOpen={showSuitcaseModal}
         onClose={() => setShowSuitcaseModal(false)}
-        suitcasePosition={
-          widgetRef.current
-            ? {
-                x: widgetRef.current.getBoundingClientRect().left,
-                y: widgetRef.current.getBoundingClientRect().top,
-              }
-            : undefined
-        }
+        suitcasePosition={widgetPosition}
         onPlaceInLostAndFound={handlePlaceInLostAndFound}
         hotelId={currentHotelId}
       />
