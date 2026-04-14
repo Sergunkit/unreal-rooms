@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import type { Chain, Hotel } from './hotelTypes';
-import headImage10 from '../images/StayCeil/head-image2.jpg'; // Главная фотография отеля Stay-Ceil
+import headImage10 from '../images/StayCeil/head-image.jpg'; // Главная фотография отеля Stay-Ceil
 import galleryCeil1 from '../images/StayCeil/lobby-security.jpeg'; // Лобби с рамкой
 import galleryCeil2 from '../images/StayCeil/cafeteria.jpeg'; // Столовая
-import galleryCeil3 from '../images/StayCeil/floor14.jpeg'; // Площадка 14-го этажа с выходом
+import galleryCeil3 from '../images/StayCeil/floor14.jpeg'; // Площадка 14-го этажа с *выходом*
 import galleryCeil4 from '../images/StayCeil/gallery-stay-ceil1.jpg'; //Вид с крыши на город
 import galleryCeil6 from '../images/StayCeil/gallery-stay-ceil3.png'; //Лифт
 import galleryCeil7 from '../images/StayCeil/gallery-stay-ceil4.jpeg'; //
@@ -52,11 +52,11 @@ export const stayCeilData: Hotel = {
 
   galleryActions: [
     {
-      imageIndex: 3, // Фото лифта с табличкой EXIT
+      imageIndex: 3, // Фото лифта с табличкой *EXIT*
       type: 'capcha-get' as const,
-      coords: { x1: 65, y1: 10, x2: 80, y2: 20 }, // Клик на табличку EXIT
-      message: 'Для экстренного выхода введите код авторизации в капче.',
-      messageEn: 'For emergency exit, enter authorization code in captcha.',
+      coords: { x1: 65, y1: 10, x2: 80, y2: 20 }, // Клик на табличку *EXIT*
+      message: 'Для доступа к управлению лифтом введите код.',
+      messageEn: 'To access the elevator controls, enter the code.',
       resetOnReentry: true, // При повторном входе сбрасываем прогресс капчи и этажа
     },
   ],
@@ -74,7 +74,7 @@ export const stayCeilData: Hotel = {
       'Lobby bar',
       'Room service (upon request)',
     ],
-    pools: ['Нет бассейнов, но есть душевые с антибактериальными фильтрами.'],
+    pools: ['Нет бассейнов, но есть душевые с антибактериальными фильтрами.'], //нет никаких резервуаров с водой в открытом доступе
     poolsEn: ['No pools, but there are showers with antibacterial filters.'],
     transport: [
       'Собственной парковки нет. Можно пользоваться платными общественными лотами неподалеку.',
@@ -96,69 +96,47 @@ export const stayCeilData: Hotel = {
       'Weekly blessing of all premises.',
       '24/7 staff psychological support.',
     ],
+    additionalServices: [
+      {
+        id: 'spa-access',
+        name: 'Абонемент в бассейн и SPA',
+        nameEn: 'Pool and SPA membership',
+        price: 15,
+      },
+      {
+        id: 'sommelier',
+        name: 'Cомелье',
+        nameEn: 'Sommelier',
+        price: 20,
+      },
+      { id: 'safe-box', name: 'Аренда сейфа', nameEn: 'Safe box rental', price: 5 },
+      {
+        id: 'tailor',
+        name: 'Индивидуальный портной',
+        nameEn: 'Custom tailor',
+        price: 30,
+      },
+      {
+        id: 'elimination',
+        name: 'Элиминация по договоренности',
+        nameEn: 'Elimination by agreement',
+        price: 100000,
+      },
+    ],
     restrictions: [
       'Окна заблокированы стальными рамами.',
       'Доступ на крышу категорически запрещен.',
       'Телевизоры отсутствуют в номерах категории Standard и Rehab для защиты вашего спокойствия.',
-      'Рекомендуется соблюдать осторожность при входе и выходе из отеля из-за близости к району Скид Роу.',
+      'Рекомендуется соблюдать осторожность при входе и *выходе* из отеля из-за близости к району Скид Роу.',
     ],
     restrictionsEn: [
       'Windows are blocked by steel frames.',
       'Access to the roof is strictly prohibited.',
       'No TVs in Standard and Rehab rooms to protect your peace of mind.',
-      'Caution is advised when entering and exiting the hotel due to proximity to Skid Row.',
+      'Caution is advised when entering and *exiting* the hotel due to proximity to Skid Row.',
     ],
-    heart_tool_tip: 'Здесь вы никогда не будете одиноки. Даже если захотите',
-    heart_tool_tipEn: 'Нever alone here. Even if you want to be.',
-  },
-
-  // Поля формы по умолчанию
-  initialBookingState: {
-    roomNumber: '1402',
-    roomNumberTemplate: '{floor}{suffix}',
-    defaultFloor: 14,
-    floorOptions: [14, 2, 7, 11, 3, 8, 1, 12, 10, 6, 9, 4, 5, 13],
-    suffixByRoomType: {
-      standard: '02',
-      superior: '15',
-      rehab: '24',
-    },
-    roomType: 'rehab',
-    guests: 1,
-    rooms: 1,
-    mealType: 'no-meal',
-    needTransfer: false,
-    checkInTime: '14:00',
-  },
-
-  // Поток квеста
-  // Начальный шаг — gallery, actionChain запускается при клике на лифт
-  initialFlow: {
-    steps: ['gallery'],
-    transitions: {},
-  },
-  // customBookingChain не нужен — actionChain в galleryActions определяет цепочку
-  bookingFormDataConditions: {
-    conditionsNotDone: 'initialBookingState',
-    conditionsIsDone: 'anotherBookingState',
-    afterReset: 'allEmpty',
-    afterComeback: 'tempBookingForm',
-    conditionType: 'floorSelected', // Если этаж выбран, используем anotherBookingState
-  },
-  anotherBookingState: {
-    roomNumberTemplate: '{floor}{suffix}',
-    floorOptions: [14, 2, 7, 11, 3, 8, 1, 12, 10, 6, 9, 4, 5, 13],
-    suffixByRoomType: {
-      standard: '02',
-      superior: '15',
-      rehab: '24',
-    },
-    roomType: 'rehab',
-    guests: 1,
-    rooms: 1,
-    mealType: 'no-meal',
-    needTransfer: false,
-    checkInTime: '14:00',
+    heart_tool_tip: '*Выход* с одной стороны это вход с другой.',
+    heart_tool_tipEn: 'The *exit* on one side is the entrance on the other.',
   },
 
   mealTypes: [
@@ -261,9 +239,9 @@ export const stayCeilData: Hotel = {
     {
       id: 2,
       author: 'Richard_R',
-      text: 'Отличное место, чтобы затеряться. Окна маленькие, никто не заглянет. Код 1911 на выходе — это чья-то злая шутка.',
+      text: 'Отличное место, чтобы затеряться. Окна маленькие, никто не заглянет. Код 1911 на *выходе* — это чья-то злая шутка.',
       textEn:
-        'Great place to disappear. Small windows, no one will look. Code 1911 at the exit is someones evil joke.',
+        'Great place to disappear. Small windows, no one will look. Code 1911 at the *exit* is someones evil joke.',
     },
   ],
 
@@ -274,6 +252,57 @@ export const stayCeilData: Hotel = {
     'Номер на четырнадцатом этаже забронирован успешно. Вам доступна скидка в бюро ритуальных услуг по промокоду funeral1911',
   endWrongBookingMassegeEn:
     'Room on the 14th floor successfully booked. You get a discount at the funeral services bureau with promo code funeral1911',
+
+  // Поток квеста
+  // Начальный шаг — gallery, actionChain запускается при клике на *exit*
+  initialFlow: {
+    steps: ['gallery'],
+    transitions: {},
+  },
+  // customBookingChain не нужен — actionChain в galleryActions определяет цепочку
+  bookingFormDataConditions: {
+    conditionsNotDone: 'initialBookingState',
+    conditionsIsDone: 'anotherBookingState',
+    afterReset: 'allEmpty',
+    afterComeback: 'tempBookingForm',
+    conditionType: 'floorSelected', // Если этаж выбран, используем anotherBookingState
+  },
+
+  // Поля формы по умолчанию
+  initialBookingState: {
+    roomNumber: '1402',
+    roomNumberTemplate: '{floor}{suffix}',
+    defaultFloor: 14,
+    floorOptions: [14, 2, 7, 11, 3, 8, 1, 12, 10, 6, 9, 4, 5, 13],
+    suffixByRoomType: {
+      standard: '02',
+      superior: '15',
+      rehab: '24',
+    },
+    roomType: 'rehab',
+    guests: 1,
+    rooms: 1,
+    mealType: 'no-meal',
+    needTransfer: false,
+    checkInTime: '14:00',
+  },
+
+  anotherBookingState: {
+    roomNumberTemplate: '{floor}{suffix}',
+    floorOptions: [14, 2, 7, 11, 3, 8, 1, 12, 10, 6, 9, 4, 5, 13],
+    suffixByRoomType: {
+      standard: '02',
+      superior: '15',
+      rehab: '24',
+    },
+    roomType: 'rehab',
+    guests: 1,
+    rooms: 1,
+    mealType: 'no-meal',
+    needTransfer: false,
+    checkInTime: '14:00',
+  },
+
 
   passingConditions: {
     roomId: 'rehab', // Комната "Изоляция" - специальный режим

@@ -209,7 +209,7 @@ export interface WrongOptions {
   roomId?: string[];
   checkInTime?: string;
   paymentMethod?: string;
-  date?: string;
+  date?: string | { from: string; to: string }; // string = exact match, object = date range (YYYY-MM-DD)
   floor?: string;
   exitCode?: string;
   avoidRoom?: string;
@@ -308,6 +308,7 @@ export interface InitialBookingState {
   checkInDate?: string;
   checkOutDate?: string;
   checkInTime?: string;
+  dateRange?: { from: string; to: string }; // Pre-set date range (YYYY-MM-DD)
   selectedServices?: string[];
   promoCode?: string;
   paymentMethod?: string;

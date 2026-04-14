@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router';
+import ReactMarkdown from 'react-markdown';
 import {
   Star,
   MapPin,
@@ -52,6 +53,24 @@ import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 import { ArtifactModal } from '../components/artifacts/ArtifactModal';
 import { LostAndFoundModal } from '../components/artifacts/LostAndFoundModal';
+
+/**
+ * Компонент для рендеринга inline markdown (*курсив*, **жирный** и т.д.)
+ * Без обёрток div/p, только inline-элементы.
+ */
+function MarkdownText({ text }: { text: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <span className="m-0 p-0">{children}</span>,
+        em: ({ children }) => <em className="italic">{children}</em>,
+        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+      }}
+    >
+      {text}
+    </ReactMarkdown>
+  );
+}
 
 export function HotelDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -692,9 +711,13 @@ export function HotelDetailPage() {
                       </TooltipTrigger>
                       <TooltipContent sideOffset={5}>
                         <p className="text-sm">
-                          {language === 'ru'
-                            ? hotel.amenities.heart_tool_tip
-                            : hotel.amenities.heart_tool_tipEn}
+                          <MarkdownText
+                            text={
+                              language === 'ru'
+                                ? (hotel.amenities.heart_tool_tip ?? '')
+                                : (hotel.amenities.heart_tool_tipEn ?? '')
+                            }
+                          />
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -783,7 +806,7 @@ export function HotelDetailPage() {
               {(language === 'ru' ? hotel.amenities.dining : hotel.amenities.diningEn).map(
                 (item, i) => (
                   <li key={i} className="text-muted-foreground flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
+                    <span className="text-primary">•</span>
                     <span>{item}</span>
                   </li>
                 )
@@ -802,7 +825,7 @@ export function HotelDetailPage() {
               {(language === 'ru' ? hotel.amenities.pools : hotel.amenities.poolsEn).map(
                 (item, i) => (
                   <li key={i} className="text-muted-foreground flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
+                    <span className="text-primary">•</span>
                     <span>{item}</span>
                   </li>
                 )
@@ -821,7 +844,7 @@ export function HotelDetailPage() {
               {(language === 'ru' ? hotel.amenities.transport : hotel.amenities.transportEn).map(
                 (item, i) => (
                   <li key={i} className="text-muted-foreground flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
+                    <span className="text-primary">•</span>
                     <span>{item}</span>
                   </li>
                 )
@@ -840,7 +863,7 @@ export function HotelDetailPage() {
               {(language === 'ru' ? hotel.amenities.sports : hotel.amenities.sportsEn).map(
                 (item, i) => (
                   <li key={i} className="text-muted-foreground flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
+                    <span className="text-primary">•</span>
                     <span>{item}</span>
                   </li>
                 )
@@ -1052,7 +1075,7 @@ export function HotelDetailPage() {
             ).map((item, i) => (
               <div key={i} className="text-muted-foreground flex items-center gap-2">
                 <span className="text-primary">•</span>
-                <span>{item}</span>
+                <MarkdownText text={item} />
               </div>
             ))}
           </div>
@@ -1082,7 +1105,7 @@ export function HotelDetailPage() {
                     <div key={feedback.id}>
                       <p className="text-sm font-medium text-foreground mb-2">{feedback.author}</p>
                       <p className="text-sm text-muted-foreground leading-relaxed">
-                        {language === 'ru' ? feedback.text : feedback.textEn}
+                        <MarkdownText text={language === 'ru' ? feedback.text : feedback.textEn} />
                       </p>
                       {index < feedbacks.length - 1 && (
                         <div className="flex items-center justify-center my-6">

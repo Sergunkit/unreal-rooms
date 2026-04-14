@@ -12,6 +12,15 @@ export function useHotelProgress(hotelId?: string) {
     if (!hotel?.initialBookingState) return null;
     const base = hotel.initialBookingState;
     const roomType = base.roomType ?? hotel.roomTypes?.[0]?.value ?? '';
+
+    // Поддержка dateRange: маппим на checkInDate/checkOutDate
+    let checkInDate = base.checkInDate ?? null;
+    let checkOutDate = base.checkOutDate ?? null;
+    if (base.dateRange && (!checkInDate || !checkOutDate)) {
+      checkInDate = checkInDate ?? base.dateRange.from;
+      checkOutDate = checkOutDate ?? base.dateRange.to;
+    }
+
     return {
       floor: base.defaultFloor ?? 14,
       roomType,
@@ -19,8 +28,8 @@ export function useHotelProgress(hotelId?: string) {
         guests: base.guests ?? 1,
         rooms: base.rooms ?? 1,
         roomType,
-        checkInDate: base.checkInDate ?? null,
-        checkOutDate: base.checkOutDate ?? null,
+        checkInDate,
+        checkOutDate,
         mealType: base.mealType ?? '',
         needTransfer: base.needTransfer ?? false,
         checkInTime: base.checkInTime ?? '14:00',

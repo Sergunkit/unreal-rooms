@@ -13,6 +13,7 @@ import goldBug9 from './images/artefacts/Gold-Bug.jpeg';
 import mechanicalHeart from './images/artefacts/Mechanical-Heart.jpg';
 import secureCode from './images/artefacts/Secure-Code.jpg';
 import goldCoin from './images/artefacts/Gold-coin.jpg';
+import dannysBall from './images/artefacts/Dannys-ball.jpg';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -132,6 +133,16 @@ export const artefacts: Record<string, Artefact> = {
     image: goldCoin,
     type: 'lost-and-found',
     hotelId: '1',
+  },
+  'dannys-ball': {
+    id: 'dannys-ball',
+    name: 'Теннисный мяч',
+    nameEn: 'Tennis ball',
+    description: 'Теннисный мяч из отеля Оверлук',
+    descriptionEn: 'Tennis ball from the Overlook Hotel',
+    image: dannysBall,
+    type: 'lost-and-found',
+    hotelId: '2',
   },
 };
 

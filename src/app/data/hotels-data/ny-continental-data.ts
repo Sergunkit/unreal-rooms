@@ -117,23 +117,6 @@ export const continentalData: Hotel = {
     ],
   },
 
-  initialBookingState: {
-    paymentMethod: 'Credit Card', // По умолчанию стоит карта, что приведет к ошибке
-    hasCoin: false,
-    roomType: 'concierge',
-  },
-
-  // Механика прохождения
-  passingConditions: {
-    inventoryPayment: ['gold-coin'], // Золотая монета забирается как оплата
-    paymentType: 'cash', // Нужно выбрать наличные (оплата монетой)
-  },
-
-  wrongOptions: {
-    additionalServices: ['elimination'], // Если выбрать "Элиминацию" — это нарушение правил отеля
-    paymentType: 'Visa/Mastercard', // Insufficient Status
-  },
-
   rooms: [
     {
       id: 1,
@@ -234,6 +217,24 @@ export const continentalData: Hotel = {
     'Бронирование подтверждено. Приятного отдыха, сэр. Мы позаботимся о ваших делах.',
   endWrongBookingMassege:
     'Нарушение правил Континенталя. Статус: EXCOMMUNICADO. У вас есть один час.',
+
+  initialBookingState: {
+    paymentMethod: 'Credit Card', // По умолчанию стоит карта, что приведет к ошибке
+    hasCoin: false,
+    roomType: 'concierge',
+  },
+
+  // Механика прохождения
+  passingConditions: {
+    inventoryPayment: ['gold-coin'], // Золотая монета забирается как оплата
+    paymentType: 'cash', // Нужно выбрать наличные (оплата монетой)
+  },
+
+  wrongOptions: {
+    additionalServices: ['elimination'], // Если выбрать "Элиминацию" — это нарушение правил отеля
+    paymentType: 'Visa/Mastercard', // Insufficient Status
+  },
+
   initialFlow: {
     steps: ['booking'], // Прямое бронирование с проверкой условий
     transitions: {},

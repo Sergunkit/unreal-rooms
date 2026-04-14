@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { supabase, serverUrl } from '../utils/supabase';
 import { publicAnonKey } from '../utils/supabase/info';
@@ -149,6 +150,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Периодический heartbeat к Supabase базе через прямой SQL запрос.
+   * Это создаёт активность в самом PostgreSQL, что важно для Supabase.
+   */
+  const supabaseHeartbeat = async () => {
+    try {
+      // Прямой запрос к PostgreSQL через Supabase клиент
+      const { data, error } = await supabase.rpc('heartbeat');
+      if (error) {
+        // Функция heartbeat может не существовать - это ок,
+        // сам факт обращения к базе уже создаёт активность
+        console.log('ℹ️ Heartbeat RPC not available (expected):', error.message);
+      } else {
+        console.log('✅ Supabase heartbeat OK:', data);
+      }
+    } catch (error) {
+      console.log('ℹ️ Supabase heartbeat check (expected during dev):', error);
+    }
+
+    // Дополнительный запрос к REST API для гарантии активности
+    try {
+      const { data, error } = await supabase
+        .from('_health_check')
+        .select('count')
+        .limit(1);
+      
+      // Эта таблица скорее всего не существует, но сам HTTP запрос
+      // к Supabase REST API создаёт активность
+      if (error?.code === 'PGRST116') {
+        // Table not found - это нормально
+        console.log('ℹ️ Health check table not found (expected)');
+      } else if (data) {
+        console.log('✅ Supabase REST API heartbeat OK');
+      }
+    } catch (error) {
+      console.log('ℹ️ Supabase REST check (expected during dev)');
+    }
+  };
+
   const checkSession = async () => {
     try {
       // Check for tokens in localStorage
@@ -185,7 +225,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     checkServerVersion();
     checkSession();
+    supabaseHeartbeat(); // Первый heartbeat при загрузке
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Periodic heartbeat to Supabase (every 5 minutes) to keep project active
+  useEffect(() => {
+    const heartbeatInterval = setInterval(() => {
+      checkServerVersion();
+      supabaseHeartbeat();
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(heartbeatInterval);
   }, []);
 
   // Setup auto-refresh when access token is set

@@ -452,6 +452,10 @@ export const soldierData = {
   noise: '',
   endBookingMassege: 'Приговор утвержден. Все комнаты заняты',
   endBookingMassegeEn: 'The verdict is in. All rooms are occupied',
+  endWrongBookingMassege:
+    'Все всборе, начинаем отсчет',
+  endWrongBookingMassegeEn:
+    'All together now, starting the count',
   passingConditions: {
     roomId: 'verdict',
     mealTypes: ['no-meal', 'half-board'],

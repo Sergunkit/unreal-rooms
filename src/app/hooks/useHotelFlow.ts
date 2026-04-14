@@ -447,6 +447,20 @@ export function useHotelFlow(hotelId?: string) {
       hasWrongOptions = true;
     if (wrongOptions?.mealTypes?.some((type) => type === tempForm.mealType)) hasWrongOptions = true;
 
+    // Проверка date range (для Overlux: ноябрь-март)
+    if (wrongOptions?.date && typeof wrongOptions.date === 'object' && tempForm.checkInDate) {
+      const checkIn = new Date(tempForm.checkInDate);
+      const from = new Date(wrongOptions.date.from);
+      const to = new Date(wrongOptions.date.to);
+      if (checkIn >= from && checkIn <= to) {
+        hasWrongOptions = true;
+      }
+    }
+    // Проверка exact date match (для других отелей)
+    if (wrongOptions?.date && typeof wrongOptions.date === 'string' && tempForm.checkInDate) {
+      if (tempForm.checkInDate === wrongOptions.date) hasWrongOptions = true;
+    }
+
     return (
       hasRoom &&
       hasMeal &&
