@@ -14,7 +14,7 @@ import { BookingsPage } from './pages/BookingsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ChatPage } from './pages/ChatPage';
 import { HotelDetailPage } from './pages/HotelDetailPage';
-import { useLanguage } from './contexts/LanguageContext';
+// import { useLanguage } from './contexts/LanguageContext';
 import { ArtifactModal } from './components/artifacts/ArtifactModal';
 import { getArtefactById } from './data/artefacts';
 

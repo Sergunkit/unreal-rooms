@@ -21,7 +21,7 @@ export interface Amenities {
 /**
  * Операторы для условий
  */
-export type ConditionOperator = 'eq' | 'ne' | 'gt' | 'lt' | 'includes' | 'notIncludes';
+export type ConditionOperator = 'eq' | 'ne' | 'gt' | 'lt' | 'includes' | 'notIncludes' | 'contains' | 'not-contains';
 
 /**
  * Условие для проверки
@@ -104,6 +104,13 @@ export interface ChainStep {
   actions?: Action[]; // ← Триггеры (клики, выборы, отправки)
   transitions?: Transitions; // ← Куда идём после действия
   fallback?: { nextStep: string }; // ← Если условия не выполнены
+  formConfig?: {
+    initialStateId: string;
+    conditionalStates?: Array<{
+      condition: Condition[];
+      stateId: string;
+    }>;
+  };
 }
 
 /**
@@ -313,6 +320,7 @@ export interface InitialBookingState {
   promoCode?: string;
   paymentMethod?: string;
   hasCoin?: boolean;
+  lockedFields?: LockedFormField[];
 }
 
 // Временные данные формы бронирования
@@ -370,10 +378,14 @@ export interface Hotel {
   wrongOptions?: WrongOptions;
   captcha?: Captcha;
   promoCodes?: PromoCode[];
+  bookingStates?: { [id: string]: InitialBookingState };
+  /** @deprecated */
   initialBookingState?: InitialBookingState;
   // Устаревшие поля (для обратной совместимости)
   initialFlow?: InitialFlow;
   customBookingChain?: LegacyChainConfig;
+  /** @deprecated */
   bookingFormDataConditions?: BookingFormDataConditions;
+  /** @deprecated */
   anotherBookingState?: Partial<InitialBookingState>;
 }

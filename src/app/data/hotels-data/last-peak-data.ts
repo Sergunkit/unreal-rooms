@@ -150,6 +150,26 @@ export const lastPeakData: Hotel = {
       },
     ],
   },
+  bookingStates: {
+    default: {
+      roomNumberTemplate: '{floor}{suffix}',
+      defaultFloor: 10,
+      floorOptions: [10, 13, 17, 21, 24, 27],
+      suffixByRoomType: {
+        'classic-comfort': '01',
+        'infinity-view': '02',
+        'specialist-suite': '03',
+      },
+      roomType: 'classic-comfort',
+      guests: 2,
+      rooms: 1,
+      mealType: 'standard',
+      needTransfer: false,
+      checkInTime: '15:00',
+      checkInDate: '2026-05-10',
+      checkOutDate: '2026-05-01',
+    },
+  },
   initialBookingState: {
     roomNumberTemplate: '{floor}{suffix}',
     defaultFloor: 10,
@@ -372,6 +392,9 @@ export const lastPeakChain: Chain = {
     bookingForm: {
       id: 'bookingForm',
       step: 2,
+      formConfig: {
+        initialStateId: 'default',
+      },
       actions: [
         {
           id: 'submit-form',

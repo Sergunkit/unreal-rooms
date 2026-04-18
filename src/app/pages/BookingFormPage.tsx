@@ -77,6 +77,7 @@ export function BookingFormPage({
   const {
     hotel,
     tempBookingForm,
+    lockedFields,
     setRoomType: setRoomTypeInProgress,
     setTempBookingForm,
   } = useHotelProgress(hotelId);
@@ -327,6 +328,7 @@ export function BookingFormPage({
                       value={guests}
                       onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
                       className="bg-input-background border-border h-9"
+                      disabled={lockedFields?.includes('guests')}
                     />
                   </div>
 
@@ -343,6 +345,7 @@ export function BookingFormPage({
                       value={rooms}
                       onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
                       className="bg-input-background border-border h-9"
+                      disabled={lockedFields?.includes('rooms')}
                     />
                   </div>
                 </div>
@@ -350,7 +353,7 @@ export function BookingFormPage({
                 {/* Room Type */}
                 <div className="space-y-2">
                   <Label>{t.roomType}</Label>
-                  <Select value={roomType} onValueChange={setRoomType}>
+                  <Select value={roomType} onValueChange={setRoomType} disabled={lockedFields?.includes('roomType')}>
                     <SelectTrigger className="bg-input-background border-border">
                       <SelectValue />
                     </SelectTrigger>
@@ -376,6 +379,7 @@ export function BookingFormPage({
                       <Button
                         variant="outline"
                         className="w-full justify-start text-left font-normal bg-input-background border-border"
+                        disabled={lockedFields?.includes('dateRange')}
                       >
                         {checkInDate ? (
                           format(checkInDate, 'PPP', { locale: language === 'ru' ? ru : enUS })
@@ -410,6 +414,7 @@ export function BookingFormPage({
                       <Button
                         variant="outline"
                         className="w-full justify-start text-left font-normal bg-input-background border-border"
+                        disabled={lockedFields?.includes('dateRange')}
                       >
                         {checkOutDate ? (
                           format(checkOutDate, 'PPP', { locale: language === 'ru' ? ru : enUS })
@@ -563,16 +568,19 @@ export function BookingFormPage({
                       <RadioGroupItem
                         value="cash"
                         id="cash"
-                        disabled={!hasCoin} // ← Наличные только если есть монета
+                        disabled={(hotelId === '1' && !hasCoin) || lockedFields?.includes('paymentMethod')}
                       />
                       <Label
                         htmlFor="cash"
-                        className={`flex items-center gap-2 ${!hasCoin ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={`flex items-center gap-2 ${((hotelId === '1' && !hasCoin) || lockedFields?.includes('paymentMethod')) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         <Wallet className="h-4 w-4 text-primary" />
                         {t.cash}
-                        {!hasCoin && (
+                        {(hotelId === '1' && !hasCoin) && (
                           <span className="text-xs text-muted-foreground">(нужна монета)</span>
+                        )}
+                        {lockedFields?.includes('paymentMethod') && !(hotelId === '1' && !hasCoin) && (
+                          <span className="text-xs text-muted-foreground">(недоступно)</span>
                         )}
                       </Label>
                     </div>

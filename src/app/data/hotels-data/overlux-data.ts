@@ -207,8 +207,8 @@ export const overluxData = {
     {
       id: 1,
       roomNumber: null,
-      name: 'Стандартный с видом на лабиринт',
-      nameEn: 'Standard with a view of the labyrinth',
+      name: 'Делюкс "Вдохновение"',
+      nameEn: 'Deluxe "Inspiration"',
       value: 'standard',
       price: 200,
       size: 25,
@@ -222,8 +222,8 @@ export const overluxData = {
     {
       id: 2,
       roomNumber: null,
-      name: 'Делюкс "Президентский"',
-      nameEn: 'Deluxe "Presidential"',
+      name: 'Стандартный с видом на лабиринт',
+      nameEn: 'Standard with a view of the labyrinth',
       value: 'deluxe',
       price: 250,
       size: 35,
@@ -302,6 +302,27 @@ export const overluxData = {
 
   endBookingMassegeWrong: 'Вы всегда были нашим гостем. Ваш любимый столик в золотом зале готов.',
   endBookingMassegeWrongEn: 'You have always been our guest. Your favorite table in the golden hall is ready.',
+  bookingStates: {
+    default: {
+      roomNumber: '237',
+      roomType: 'room237',
+      lockedFields: ['roomNumber', 'roomType', 'dateRange'],
+      guests: 2,
+      rooms: 1,
+      checkInTime: '15:00',
+      dateRange: { from: '2026-11-01', to: '2027-03-31' },
+      specialRequests: 'Люблю уединение и тишину.',
+    },
+    safe: {
+      roomNumber: '208',
+      roomType: 'deluxe',
+      lockedFields: [],
+      guests: 2,
+      rooms: 1,
+      needTransfer: false,
+      checkInTime: '15:00',
+    },
+  },
   initialBookingState: {
     roomNumber: '237',
     // roomNumberTemplate: '', // Номер жёстко задан
@@ -357,7 +378,7 @@ export const overluxData = {
 
 // ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
 export const overluxChain: Chain = {
-  hotelId: 11,
+  hotelId: 2,
   type: 'custom',
   steps: {
     hotelPage: {
@@ -399,6 +420,15 @@ export const overluxChain: Chain = {
     bookingForm: {
       id: 'bookingForm',
       step: 4,
+      formConfig: {
+        initialStateId: 'default',
+        conditionalStates: [
+          {
+            condition: [{ field: 'inventory', operator: 'contains', value: 'dannys-ball' }],
+            stateId: 'safe',
+          },
+        ],
+      },
       actions: [
         {
           id: 'submit-form',

@@ -88,6 +88,7 @@ export function HotelDetailPage() {
     setCurrentHotelProgress,
   } = useGame();
   const {
+    chain,
     currentChain,
     activeStep,
     chainType,
@@ -103,6 +104,7 @@ export function HotelDetailPage() {
     canBook,
     nextChainStep,
     updateFlowState,
+    handleChainAction,
   } = useHotelFlow(id);
   const { hotel, floor, tempBookingForm, roomNumber } = useHotelProgress(id);
 
@@ -773,8 +775,13 @@ export function HotelDetailPage() {
             {/* Book a room button - pushed to bottom with mt-auto */}
             <button
               onClick={() => {
-                console.log('[Book button] clicked!');
-                openBookingForm();
+                if (!chain) return;
+                const action = chain.steps.hotelPage?.actions?.find(
+                  (a) => a.id === 'book-now-btn'
+                );
+                if (action) {
+                  handleChainAction(action);
+                }
               }}
               className="px-8 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 mt-auto"
             >
@@ -1004,14 +1011,33 @@ export function HotelDetailPage() {
                   </div>
                   <button
                     onClick={() => {
-                      // Find matching roomType by name
-                      const matchingRoomType = hotel.roomTypes?.find(
-                        (rt) => rt.label === selectedRoom.name || rt.labelEn === selectedRoom.nameEn
+                      if (!chain) return;
+                      // Find the 'roomSelect' action in the chain for the current hotel page
+                      const action = chain.steps.hotelPage?.actions?.find(
+                        (a) => a.type === 'roomSelect'
                       );
-                      if (matchingRoomType) {
-                        setSelectedRoomTypeForBooking(matchingRoomType.value);
+
+                      if (action) {
+                        // Find matching roomType by name and update the form state
+                        const matchingRoomType = hotel.rooms?.find(
+                          (r) => r.name === selectedRoom.name || r.nameEn === selectedRoom.nameEn
+                        );
+                        if (matchingRoomType?.value) {
+                          // This will be replaced by a setter from a dedicated form hook later
+                          // For now, we update the progress directly.
+                          setCurrentHotelProgress({
+                            ...playerStatus.currentHotelProgress,
+                            tempBookingForm: {
+                              ...(playerStatus.currentHotelProgress?.tempBookingForm as any),
+                              roomType: matchingRoomType.value,
+                            },
+                          });
+                        }
+
+                        // Trigger the action to move to the next step
+                        handleChainAction(action);
                       }
-                      nextChainStep(); // Changed to advance flow
+                      setSelectedRoom(null); // Close the modal
                     }}
                     className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
                   >

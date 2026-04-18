@@ -10,6 +10,8 @@ import { lastPeakChain } from '../data/hotels-data/last-peak-data';
 import { usherChain } from '../data/hotels-data/raven-usher-data';
 import { soldierChain } from '../data/hotels-data/soldier-data';
 
+import { overluxChain } from '../data/hotels-data/overlux-data';
+
 const STANDARD_CHAIN: LegacyChainStep[] = [
   'hotelPage',
   'bookingForm',
@@ -28,6 +30,10 @@ function getChainForHotel(hotelId: string): Chain | null {
   // Для NY-Continental (id: 1)
   if (hotelId === '1') {
     return continentalChain;
+  }
+  // Для Overlux
+  if (hotelId === '2') {
+    return overluxChain;
   }
   // Для Last-Peak (id: 8)
   if (hotelId === '8') {
@@ -474,6 +480,7 @@ export function useHotelFlow(hotelId?: string) {
   }, [hotel, progress?.tempBookingForm, playerStatus.inventory]);
 
   return {
+    chain,
     currentChain: progress?.currentChain || STANDARD_CHAIN,
     activeStep: progress?.activeStep || 'hotelPage',
     chainType: progress?.chainType || 'standard',

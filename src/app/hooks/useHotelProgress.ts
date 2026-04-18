@@ -1,19 +1,142 @@
 import { useCallback, useMemo } from 'react';
 import { hotelData } from '../data/hotels';
 import { useGame } from '../contexts/GameContext';
-import type { TempBookingFormData } from '../data/hotels-data/hotelTypes';
+import type {
+  TempBookingFormData,
+  LockedFormField,
+  InitialBookingState,
+  Chain,
+} from '../data/hotels-data/hotelTypes';
+
+// Import chains to derive the current chain
+import { stayCeilChain } from '../data/hotels-data/stay-ceil-data';
+import { continentalChain } from '../data/hotels-data/ny-continental-data';
+import { lastPeakChain } from '../data/hotels-data/last-peak-data';
+import { usherChain } from '../data/hotels-data/raven-usher-data';
+import { soldierChain } from '../data/hotels-data/soldier-data';
+import { overluxChain } from '../data/hotels-data/overlux-data';
+
+// Function to get the chain from hotel data
+function getChainForHotel(hotelId: string): Chain | null {
+  if (hotelId === '10') return stayCeilChain;
+  if (hotelId === '1') return continentalChain;
+  if (hotelId === '2') return overluxChain;
+  if (hotelId === '8') return lastPeakChain;
+  if (hotelId === '9') return usherChain;
+  if (hotelId === '7') return soldierChain;
+  return null;
+}
+
+const evaluateConditions = (
+  conditions: any[],
+  inventory: string[],
+  tempBookingForm: TempBookingFormData | null | undefined
+): boolean => {
+  if (!conditions || conditions.length === 0) {
+    return true; // No conditions means they are met
+  }
+
+  return conditions.every((condition) => {
+    const { field, operator, value } = condition;
+
+    switch (field) {
+      case 'inventory':
+        if (operator === 'contains') return inventory.includes(value as string);
+        if (operator === 'not-contains') return !inventory.includes(value as string);
+        break;
+      case 'roomType':
+        if (tempBookingForm?.roomType) {
+          if (operator === 'eq') return tempBookingForm.roomType === value;
+          if (operator === 'ne') return tempBookingForm.roomType !== value;
+        }
+        return false; // Return false if roomType is not available on temp form
+      // TODO: Add cases for other fields like 'season' if needed
+      default:
+        return false; // Field not supported
+    }
+    return false; // Operator not supported for this field
+  });
+};
 
 export function useHotelProgress(hotelId?: string) {
   const hotel = hotelId ? hotelData[hotelId as keyof typeof hotelData] : null;
   const { playerStatus, setCurrentHotelProgress } = useGame();
   const currentProgress = playerStatus.currentHotelProgress;
+  const inventory = playerStatus.inventory;
+  const chain = hotelId ? getChainForHotel(hotelId) : null;
+
+  const activeBookingStateAndLocks = useMemo(() => {
+    if (!hotel || !currentProgress || currentProgress.hotelId !== hotel.id.toString()) {
+      return {
+        lockedFields: [] as LockedFormField[],
+        stateName: 'initialBookingState',
+        baseState: {},
+      };
+    }
+
+    const activeStepId = currentProgress?.activeStep;
+    const currentStep = activeStepId && chain ? chain.steps[activeStepId] : null;
+    const formConfig = currentStep?.formConfig;
+
+    let baseState: Partial<InitialBookingState> = {};
+    let stateName = 'initialBookingState';
+
+    // New logic: Use formConfig if it exists
+    if (formConfig && hotel.bookingStates) {
+      baseState = hotel.bookingStates[formConfig.initialStateId] ?? {};
+      stateName = formConfig.initialStateId;
+
+      if (formConfig.conditionalStates) {
+        for (const condState of formConfig.conditionalStates) {
+          const conditionMet = evaluateConditions(
+            condState.condition,
+            inventory,
+            currentProgress?.tempBookingForm
+          );
+
+          if (conditionMet) {
+            baseState = { ...baseState, ...hotel.bookingStates[condState.stateId] };
+            stateName = condState.stateId;
+            break;
+          }
+        }
+      }
+    } else {
+      // Fallback to old logic
+      const formDataCond = hotel.bookingFormDataConditions;
+      baseState = hotel.initialBookingState ?? {};
+      if (formDataCond) {
+        let conditionMet = false;
+        if (formDataCond.conditionType === 'floorSelected') {
+          conditionMet = currentProgress?.floorSelected ?? false;
+        }
+        if (conditionMet && hotel.anotherBookingState) {
+          stateName = 'anotherBookingState';
+          baseState = { ...hotel.initialBookingState, ...hotel.anotherBookingState };
+        }
+      }
+    }
+
+    // @ts-ignore
+    let lockedFields = baseState.lockedFields ?? [];
+
+    // Coin-based unlock for NY-Continental
+    const hasCoin = inventory?.includes('gold-coin') ?? false;
+    if (hasCoin) {
+      lockedFields = lockedFields.filter((f: LockedFormField) => f !== 'paymentMethod');
+    }
+
+    console.log('[useHotelProgress] Step:', activeStepId, 'State Name:', stateName, 'Base State:', baseState, 'Locked Fields:', lockedFields);
+
+    return { lockedFields, stateName, baseState };
+  }, [hotel, chain, currentProgress, inventory]);
 
   const defaultBookingState = useMemo(() => {
-    if (!hotel?.initialBookingState) return null;
-    const base = hotel.initialBookingState;
-    const roomType = base.roomType ?? hotel.roomTypes?.[0]?.value ?? '';
+    const base = activeBookingStateAndLocks.baseState;
+    if (!base) return null;
 
-    // Поддержка dateRange: маппим на checkInDate/checkOutDate
+    const roomType = base.roomType ?? hotel?.roomTypes?.[0]?.value ?? '';
+
     let checkInDate = base.checkInDate ?? null;
     let checkOutDate = base.checkOutDate ?? null;
     if (base.dateRange && (!checkInDate || !checkOutDate)) {
@@ -35,17 +158,19 @@ export function useHotelProgress(hotelId?: string) {
         checkInTime: base.checkInTime ?? '14:00',
         selectedServices: base.selectedServices ?? [],
         promoCode: base.promoCode,
+        paymentMethod: base.paymentMethod as 'cash' | 'card' | undefined,
       },
     };
-  }, [hotel]);
+  }, [hotel, activeBookingStateAndLocks]);
 
   const computeRoomNumber = useCallback(
     (floor: number, roomType: string) => {
-      const template = hotel?.initialBookingState?.roomNumberTemplate ?? '{floor}{suffix}';
-      const suffix = hotel?.initialBookingState?.suffixByRoomType?.[roomType] ?? '';
+      const { baseState } = activeBookingStateAndLocks;
+      const template = baseState?.roomNumberTemplate ?? '{floor}{suffix}';
+      const suffix = baseState?.suffixByRoomType?.[roomType] ?? '';
       return template.replace('{floor}', String(floor)).replace('{suffix}', suffix);
     },
-    [hotel]
+    [activeBookingStateAndLocks]
   );
 
   const floor = currentProgress?.floor ?? defaultBookingState?.floor ?? 14;
@@ -53,27 +178,18 @@ export function useHotelProgress(hotelId?: string) {
     currentProgress?.tempBookingForm?.roomType ?? defaultBookingState?.roomType ?? '';
   const roomNumber = currentProgress?.roomNumber ?? computeRoomNumber(floor, roomType);
   const tempBookingForm = currentProgress?.tempBookingForm ?? defaultBookingState?.tempBookingForm;
+  const lockedFields = activeBookingStateAndLocks.lockedFields;
 
   // Обновление этажа
   const setFloor = useCallback(
     (floor: number) => {
-      if (!hotelId) return;
+      if (!hotelId || !currentProgress) return;
       const roomNumber = computeRoomNumber(floor, roomType);
       setCurrentHotelProgress({
+        ...currentProgress,
         hotelId,
-        tempBookingForm: currentProgress?.tempBookingForm ?? null,
         floor,
         roomNumber,
-        startedAt: currentProgress?.startedAt ?? new Date().toISOString(),
-        currentChain: currentProgress?.currentChain ?? [],
-        activeStep: currentProgress?.activeStep ?? 'hotelPage',
-        currentChainIndex: currentProgress?.currentChainIndex ?? 0,
-        chainType: currentProgress?.chainType ?? 'standard',
-        galleryStates: currentProgress?.galleryStates ?? {},
-        galleryActionsTriggered: currentProgress?.galleryActionsTriggered ?? {},
-        captchaCompleted: currentProgress?.captchaCompleted ?? false,
-        floorSelected: currentProgress?.floorSelected ?? false,
-        completedSteps: currentProgress?.completedSteps ?? [],
       });
     },
     [hotelId, currentProgress, roomType, computeRoomNumber, setCurrentHotelProgress]
@@ -88,24 +204,14 @@ export function useHotelProgress(hotelId?: string) {
         roomType
       );
       const newTempForm: TempBookingFormData = {
-        ...currentProgress.tempBookingForm,
+        ...(currentProgress.tempBookingForm as TempBookingFormData),
         roomType,
-      } as TempBookingFormData;
+      };
       setCurrentHotelProgress({
+        ...currentProgress,
         hotelId,
         tempBookingForm: newTempForm,
-        floor: currentProgress.floor,
         roomNumber,
-        startedAt: currentProgress.startedAt,
-        currentChain: currentProgress.currentChain,
-        activeStep: currentProgress.activeStep,
-        currentChainIndex: currentProgress.currentChainIndex,
-        chainType: currentProgress.chainType,
-        galleryStates: currentProgress.galleryStates,
-        galleryActionsTriggered: currentProgress.galleryActionsTriggered,
-        captchaCompleted: currentProgress.captchaCompleted,
-        floorSelected: currentProgress.floorSelected,
-        completedSteps: currentProgress.completedSteps,
       });
     },
     [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress, defaultBookingState]
@@ -121,20 +227,10 @@ export function useHotelProgress(hotelId?: string) {
         roomType
       );
       setCurrentHotelProgress({
+        ...currentProgress,
         hotelId,
         tempBookingForm,
-        floor: currentProgress.floor,
         roomNumber,
-        startedAt: currentProgress.startedAt,
-        currentChain: currentProgress.currentChain,
-        activeStep: currentProgress.activeStep,
-        currentChainIndex: currentProgress.currentChainIndex,
-        chainType: currentProgress.chainType,
-        galleryStates: currentProgress.galleryStates,
-        galleryActionsTriggered: currentProgress.galleryActionsTriggered,
-        captchaCompleted: currentProgress.captchaCompleted,
-        floorSelected: currentProgress.floorSelected,
-        completedSteps: currentProgress.completedSteps,
       });
     },
     [hotelId, currentProgress, computeRoomNumber, setCurrentHotelProgress, defaultBookingState]
@@ -146,6 +242,7 @@ export function useHotelProgress(hotelId?: string) {
     roomNumber,
     roomType,
     tempBookingForm,
+    lockedFields,
     setFloor,
     setRoomType,
     setTempBookingForm,
