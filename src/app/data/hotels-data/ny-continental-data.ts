@@ -213,32 +213,34 @@ export const continentalData: Hotel = {
   ],
 
   noise: 'Звук чистки оружия и далекий звон золотых монет.',
+  
   endBookingMassege:
     'Бронирование подтверждено. Приятного отдыха, сэр. Мы позаботимся о ваших делах.',
+  endBookingMassegeEn:
+    'The reservation is confirmed. Enjoy your stay, sir. We will take care of your affairs.',
+  
   endWrongBookingMassege:
     'Нарушение правил Континенталя. Статус: EXCOMMUNICADO. У вас есть один час.',
+  endWrongBookingMassegeEn:
+    'Violation of Continental rules. Status: EXCOMMUNICADO. You have one hour.',
 
-  initialBookingState: {
-    paymentMethod: 'Credit Card', // По умолчанию стоит карта, что приведет к ошибке
-    hasCoin: false,
-    roomType: 'concierge',
+  bookingStates: {
+    default: { // Before having the coin
+      paymentMethod: 'card', // Default to card, which is wrong
+      roomType: 'concierge',
+      lockedFields: ['paymentMethod'],
+    },
+    safe: { // After having the coin
+      paymentMethod: 'cash',
+      roomType: 'concierge',
+      lockedFields: [], // Unlocked
+    }
   },
 
-  // Механика прохождения
-  passingConditions: {
-    inventoryPayment: ['gold-coin'], // Золотая монета забирается как оплата
-    paymentType: 'cash', // Нужно выбрать наличные (оплата монетой)
-  },
-
-  wrongOptions: {
-    additionalServices: ['elimination'], // Если выбрать "Элиминацию" — это нарушение правил отеля
-    paymentType: 'Visa/Mastercard', // Insufficient Status
-  },
-
-  initialFlow: {
-    steps: ['booking'], // Прямое бронирование с проверкой условий
-    transitions: {},
-  },
+  // initialFlow: {
+  //   steps: ['booking'], // Прямое бронирование с проверкой условий
+  //   transitions: {},
+  // },
 };
 
 // ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
@@ -268,6 +270,15 @@ export const continentalChain: Chain = {
     bookingForm: {
       id: 'bookingForm',
       step: 2,
+      formConfig: {
+        initialStateId: 'default',
+        conditionalStates: [
+          {
+            condition: [{ field: 'inventory', operator: 'contains', value: 'gold-coin' }],
+            stateId: 'safe'
+          }
+        ]
+      },
       actions: [
         {
           id: 'submit-form',
@@ -282,13 +293,18 @@ export const continentalChain: Chain = {
         },
       ],
       transitions: {
-        submit: {
-          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+        submitSafe: {
+          conditions: [
+            { field: 'paymentMethod', operator: 'eq', value: 'cash' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'elimination' }
+          ],
           nextStep: 'bookingConfirm',
+          params: { bookingResult: 'safe' }
         },
         submitUnsafe: {
           nextStep: 'bookingConfirm',
-        },
+          params: { bookingResult: 'unsafe' }
+        }
       },
     },
 
@@ -296,7 +312,12 @@ export const continentalChain: Chain = {
       id: 'bookingConfirm',
       step: 3,
       transitions: {
-        confirm: { nextStep: 'bookingComplete' },
+        confirm: { 
+          nextStep: 'bookingComplete',
+          effects: [
+            { type: 'consumeInventory', item: 'gold-coin' }
+          ]
+        },
         cancel: { nextStep: 'bookingForm' },
       },
     },

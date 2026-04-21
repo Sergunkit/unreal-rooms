@@ -253,63 +253,28 @@ export const stayCeilData: Hotel = {
   endWrongBookingMassegeEn:
     'Room on the 14th floor successfully booked. You get a discount at the funeral services bureau with promo code funeral1911',
 
-  // Поток квеста
-  // Начальный шаг — gallery, actionChain запускается при клике на *exit*
-  initialFlow: {
-    steps: ['gallery'],
-    transitions: {},
-  },
-  // customBookingChain не нужен — actionChain в galleryActions определяет цепочку
-  bookingFormDataConditions: {
-    conditionsNotDone: 'initialBookingState',
-    conditionsIsDone: 'anotherBookingState',
-    afterReset: 'allEmpty',
-    afterComeback: 'tempBookingForm',
-    conditionType: 'floorSelected', // Если этаж выбран, используем anotherBookingState
-  },
-
-  // Поля формы по умолчанию
-  initialBookingState: {
-    roomNumber: '1402',
-    roomNumberTemplate: '{floor}{suffix}',
-    defaultFloor: 14,
-    floorOptions: [14, 2, 7, 11, 3, 8, 1, 12, 10, 6, 9, 4, 5, 13],
-    suffixByRoomType: {
-      standard: '02',
-      superior: '15',
-      rehab: '24',
+  bookingStates: {
+    default: { // Before floor select
+      roomNumber: '1402',
+      roomType: 'rehab',
+      lockedFields: ['roomNumber', 'roomType'],
+      guests: 1,
+      rooms: 1,
+      mealType: 'no-meal',
+      needTransfer: false,
+      checkInTime: '14:00',
     },
-    roomType: 'rehab',
-    guests: 1,
-    rooms: 1,
-    mealType: 'no-meal',
-    needTransfer: false,
-    checkInTime: '14:00',
+    floorSelected: { // After floor select
+      roomType: 'rehab',
+      lockedFields: [],
+      guests: 1,
+      rooms: 1,
+      mealType: 'no-meal',
+      needTransfer: false,
+      checkInTime: '14:00',
+    }
   },
 
-  anotherBookingState: {
-    roomNumberTemplate: '{floor}{suffix}',
-    floorOptions: [14, 2, 7, 11, 3, 8, 1, 12, 10, 6, 9, 4, 5, 13],
-    suffixByRoomType: {
-      standard: '02',
-      superior: '15',
-      rehab: '24',
-    },
-    roomType: 'rehab',
-    guests: 1,
-    rooms: 1,
-    mealType: 'no-meal',
-    needTransfer: false,
-    checkInTime: '14:00',
-  },
-
-
-  passingConditions: {
-    roomId: 'rehab', // Комната "Изоляция" - специальный режим
-  },
-  wrongOptions: {
-    floor: '14', // Выбор номера на 14 этаже приведет к "неправильной" броне
-  },
   captcha: {
     question: 'Введите код:',
     questionEn: 'Input code:',
@@ -342,21 +307,18 @@ export const stayCeilChain: Chain = {
       step: 1,
       actions: [
         {
-          // Путь 1: Клик на лифт → капча → выбор этажа → форма
           id: 'elevator-click',
           type: 'galleryClick',
           trigger: { imageIndex: 3, coords: { x1: 65, y1: 10, x2: 80, y2: 20 } },
           nextStep: 'captcha',
         },
         {
-          // Путь 2: Кнопка "Забронировать" → сразу форма
           id: 'book-now-btn',
           type: 'buttonClick',
           trigger: { elementId: 'book-now-button' },
           nextStep: 'bookingForm',
         },
         {
-          // Путь 3: Карточка номера → Book Now → форма
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
@@ -387,6 +349,15 @@ export const stayCeilChain: Chain = {
     bookingForm: {
       id: 'bookingForm',
       step: 4,
+      formConfig: {
+        initialStateId: 'default',
+        conditionalStates: [
+          {
+            condition: [{ field: 'floorSelected', operator: 'eq', value: true }],
+            stateId: 'floorSelected'
+          }
+        ]
+      },
       actions: [
         {
           id: 'submit-form',
@@ -401,13 +372,18 @@ export const stayCeilChain: Chain = {
         },
       ],
       transitions: {
-        submit: {
-          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+        submitSafe: {
+          conditions: [
+            { field: 'floor', operator: 'ne', value: 14 },
+            { field: 'roomType', operator: 'eq', value: 'rehab' }
+          ],
           nextStep: 'bookingConfirm',
+          params: { bookingResult: 'safe' }
         },
         submitUnsafe: {
           nextStep: 'bookingConfirm',
-        },
+          params: { bookingResult: 'unsafe' }
+        }
       },
     },
 

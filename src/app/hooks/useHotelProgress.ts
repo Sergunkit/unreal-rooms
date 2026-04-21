@@ -5,58 +5,10 @@ import type {
   TempBookingFormData,
   LockedFormField,
   InitialBookingState,
-  Chain,
 } from '../data/hotels-data/hotelTypes';
 
-// Import chains to derive the current chain
-import { stayCeilChain } from '../data/hotels-data/stay-ceil-data';
-import { continentalChain } from '../data/hotels-data/ny-continental-data';
-import { lastPeakChain } from '../data/hotels-data/last-peak-data';
-import { usherChain } from '../data/hotels-data/raven-usher-data';
-import { soldierChain } from '../data/hotels-data/soldier-data';
-import { overluxChain } from '../data/hotels-data/overlux-data';
-
-// Function to get the chain from hotel data
-function getChainForHotel(hotelId: string): Chain | null {
-  if (hotelId === '10') return stayCeilChain;
-  if (hotelId === '1') return continentalChain;
-  if (hotelId === '2') return overluxChain;
-  if (hotelId === '8') return lastPeakChain;
-  if (hotelId === '9') return usherChain;
-  if (hotelId === '7') return soldierChain;
-  return null;
-}
-
-const evaluateConditions = (
-  conditions: any[],
-  inventory: string[],
-  tempBookingForm: TempBookingFormData | null | undefined
-): boolean => {
-  if (!conditions || conditions.length === 0) {
-    return true; // No conditions means they are met
-  }
-
-  return conditions.every((condition) => {
-    const { field, operator, value } = condition;
-
-    switch (field) {
-      case 'inventory':
-        if (operator === 'contains') return inventory.includes(value as string);
-        if (operator === 'not-contains') return !inventory.includes(value as string);
-        break;
-      case 'roomType':
-        if (tempBookingForm?.roomType) {
-          if (operator === 'eq') return tempBookingForm.roomType === value;
-          if (operator === 'ne') return tempBookingForm.roomType !== value;
-        }
-        return false; // Return false if roomType is not available on temp form
-      // TODO: Add cases for other fields like 'season' if needed
-      default:
-        return false; // Field not supported
-    }
-    return false; // Operator not supported for this field
-  });
-};
+import { getChainForHotel } from '../utils/getChainForHotel';
+import { evaluateConditions } from '../utils/evaluateConditions';
 
 export function useHotelProgress(hotelId?: string) {
   const hotel = hotelId ? hotelData[hotelId as keyof typeof hotelData] : null;
@@ -66,33 +18,28 @@ export function useHotelProgress(hotelId?: string) {
   const chain = hotelId ? getChainForHotel(hotelId) : null;
 
   const activeBookingStateAndLocks = useMemo(() => {
-    if (!hotel || !currentProgress || currentProgress.hotelId !== hotel.id.toString()) {
+    if (!hotel || !currentProgress || !chain || currentProgress.hotelId !== hotel.id.toString()) {
       return {
         lockedFields: [] as LockedFormField[],
-        stateName: 'initialBookingState',
+        stateName: 'initial',
         baseState: {},
       };
     }
 
     const activeStepId = currentProgress?.activeStep;
-    const currentStep = activeStepId && chain ? chain.steps[activeStepId] : null;
+    const currentStep = activeStepId ? chain.steps[activeStepId] : null;
     const formConfig = currentStep?.formConfig;
 
     let baseState: Partial<InitialBookingState> = {};
-    let stateName = 'initialBookingState';
+    let stateName = 'initial';
 
-    // New logic: Use formConfig if it exists
     if (formConfig && hotel.bookingStates) {
       baseState = hotel.bookingStates[formConfig.initialStateId] ?? {};
       stateName = formConfig.initialStateId;
 
       if (formConfig.conditionalStates) {
         for (const condState of formConfig.conditionalStates) {
-          const conditionMet = evaluateConditions(
-            condState.condition,
-            inventory,
-            currentProgress?.tempBookingForm
-          );
+          const conditionMet = evaluateConditions(condState.condition, inventory, currentProgress);
 
           if (conditionMet) {
             baseState = { ...baseState, ...hotel.bookingStates[condState.stateId] };
@@ -101,32 +48,26 @@ export function useHotelProgress(hotelId?: string) {
           }
         }
       }
-    } else {
-      // Fallback to old logic
-      const formDataCond = hotel.bookingFormDataConditions;
-      baseState = hotel.initialBookingState ?? {};
-      if (formDataCond) {
-        let conditionMet = false;
-        if (formDataCond.conditionType === 'floorSelected') {
-          conditionMet = currentProgress?.floorSelected ?? false;
-        }
-        if (conditionMet && hotel.anotherBookingState) {
-          stateName = 'anotherBookingState';
-          baseState = { ...hotel.initialBookingState, ...hotel.anotherBookingState };
-        }
-      }
     }
 
-    // @ts-ignore
-    let lockedFields = baseState.lockedFields ?? [];
+    let lockedFields = (baseState as InitialBookingState).lockedFields ?? [];
 
     // Coin-based unlock for NY-Continental
     const hasCoin = inventory?.includes('gold-coin') ?? false;
     if (hasCoin) {
-      lockedFields = lockedFields.filter((f: LockedFormField) => f !== 'paymentMethod');
+      lockedFields = lockedFields.filter((f) => f !== 'paymentMethod');
     }
 
-    console.log('[useHotelProgress] Step:', activeStepId, 'State Name:', stateName, 'Base State:', baseState, 'Locked Fields:', lockedFields);
+    console.log(
+      '[useHotelProgress] Step:',
+      activeStepId,
+      'State Name:',
+      stateName,
+      'Base State:',
+      baseState,
+      'Locked Fields:',
+      lockedFields
+    );
 
     return { lockedFields, stateName, baseState };
   }, [hotel, chain, currentProgress, inventory]);

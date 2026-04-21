@@ -19,6 +19,8 @@ interface ArtifactModalProps {
   hotelId?: string;
   /** Колбэк после нажатия кнопки действия */
   onAction: () => void;
+  /** Уже собран ли артефакт */
+  isCollected?: boolean;
 }
 
 /**
@@ -33,6 +35,7 @@ export function ArtifactModal({
   mode,
   hotelId: _hotelId,
   onAction,
+  isCollected: isCollectedProp,
 }: ArtifactModalProps) {
   const { language } = useLanguage();
   const { hasArtefact, hasInInventory } = useGame();
@@ -43,13 +46,14 @@ export function ArtifactModal({
 
   // Для режима 'collect' проверяем наличие в инвентаре (для потеряшек)
   // Для режима 'place' проверяем, был ли артефакт собран (собран ли вообще)
-  const isAlreadyCollected = mode === 'collect' ? hasInInventory(artifactId) : hasArtefact(artifactId);
+  const isCollected =
+    isCollectedProp ?? (mode === 'collect' ? hasInInventory(artifactId) : hasArtefact(artifactId));
 
   /**
    * Обработать действие (в зависимости от режима)
    */
   const handleAction = () => {
-    if (mode === 'collect' && isAlreadyCollected) {
+    if (mode === 'collect' && isCollected) {
       onClose();
       return;
     }
@@ -69,7 +73,7 @@ export function ArtifactModal({
         : 'You found an artifact! Click the button below to add it to your suitcase.',
     placeDesc:
       language === 'ru'
-        ? 'Артефакт в вашем чемодане. Вы можете оставить его в отеле.'
+        ? 'Артефа-кт в вашем чемодане. Вы можете оставить его в отеле.'
         : 'Artifact is in your suitcase. You can leave it at the hotel.',
     alreadyCollectedDesc:
       language === 'ru'
@@ -81,21 +85,21 @@ export function ArtifactModal({
 
   // Определяем заголовок и описание в зависимости от режима
   const getTitle = () => {
-    if (isAlreadyCollected && mode === 'collect') {
+    if (isCollected && mode === 'collect') {
       return translations.alreadyCollectedTitle;
     }
     return mode === 'collect' ? translations.collectTitle : translations.placeTitle;
   };
 
   const getDescription = () => {
-    if (isAlreadyCollected && mode === 'collect') {
+    if (isCollected && mode === 'collect') {
       return translations.alreadyCollectedDesc;
     }
     return mode === 'collect' ? translations.collectDesc : translations.placeDesc;
   };
 
   // Кнопка скрывается только если артефакт уже собран и мы в режиме collect
-  const shouldShowButton = !(isAlreadyCollected && mode === 'collect');
+  const shouldShowButton = !(isCollected && mode === 'collect');
 
   return (
     <AnimatePresence>

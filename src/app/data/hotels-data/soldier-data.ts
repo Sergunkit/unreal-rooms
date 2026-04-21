@@ -456,15 +456,33 @@ export const soldierData = {
     'Все всборе, начинаем отсчет',
   endWrongBookingMassegeEn:
     'All together now, starting the count',
-  passingConditions: {
-    roomId: 'verdict',
-    mealTypes: ['no-meal', 'half-board'],
-    additionalServices: ['Cater-transfer'],
-    inventory: ['judges-hummer'],
-  },
-  wrongOptions: {
-    additionalServices: ['sauna', 'excursion', 'diving', 'fishing', 'breakfast-in-room'],
-    mealTypes: [],
+  
+  bookingStates: {
+    default: {
+      roomNumberTemplate: '{floor}{suffix}',
+      defaultFloor: 1,
+      floorOptions: [1, 4, 7, 9, 11, 14],
+      suffixByRoomType: {
+        'last-stand': '01',
+        'deep-sleep': '02',
+        'angler’s-rest': '03',
+        'hearth-Home': '04',
+        'golden-hour': '05',
+        'gold-fish': '06',
+        beekeeper: '07',
+        'first-aid': '08',
+        'high-tide': '09',
+        nightcap: '10',
+        verdict: '11',
+      },
+      roomType: 'last-stand',
+      guests: 2,
+      rooms: 1,
+      mealType: 'half-board',
+      needTransfer: false,
+      checkInTime: '14:00',
+      lockedFields: [],
+    }
   },
 };
 
@@ -495,6 +513,9 @@ export const soldierChain: Chain = {
     bookingForm: {
       id: 'bookingForm',
       step: 2,
+      formConfig: {
+        initialStateId: 'default',
+      },
       actions: [
         {
           id: 'submit-form',
@@ -509,13 +530,25 @@ export const soldierChain: Chain = {
         },
       ],
       transitions: {
-        submit: {
-          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+        submitSafe: {
+          conditions: [
+            { field: 'roomType', operator: 'eq', value: 'verdict' },
+            { field: 'mealType', operator: 'includes', value: ['no-meal', 'half-board'] },
+            { field: 'additionalServices', operator: 'contains', value: 'Cater-transfer' },
+            { field: 'inventory', operator: 'contains', value: 'judges-hummer' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'sauna' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'excursion' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'diving' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'fishing' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'breakfast-in-room' },
+          ],
           nextStep: 'bookingConfirm',
+          params: { bookingResult: 'safe' }
         },
         submitUnsafe: {
           nextStep: 'bookingConfirm',
-        },
+          params: { bookingResult: 'unsafe' }
+        }
       },
     },
 

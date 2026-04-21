@@ -49,6 +49,7 @@ export interface CurrentHotelProgress {
   // Цепочка шагов и текущий шаг
   currentChain: string[];
   activeStep: string;
+  bookingResult?: 'safe' | 'unsafe';
   currentChainIndex: number;
   chainType: ChainType;
 

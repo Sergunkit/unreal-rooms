@@ -157,14 +157,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabaseHeartbeat = async () => {
     try {
       // Прямой запрос к PostgreSQL через Supabase клиент
-      const { data, error } = await supabase.rpc('heartbeat');
-      if (error) {
-        // Функция heartbeat может не существовать - это ок,
-        // сам факт обращения к базе уже создаёт активность
-        console.log('ℹ️ Heartbeat RPC not available (expected):', error.message);
-      } else {
+      const { data } = await supabase.rpc('heartbeat');
         console.log('✅ Supabase heartbeat OK:', data);
-      }
+
     } catch (error) {
       console.log('ℹ️ Supabase heartbeat check (expected during dev):', error);
     }
@@ -175,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .from('_health_check')
         .select('count')
         .limit(1);
-      
+
       // Эта таблица скорее всего не существует, но сам HTTP запрос
       // к Supabase REST API создаёт активность
       if (error?.code === 'PGRST116') {
@@ -366,12 +361,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
+      await supabase.auth.signOut();
       await handleTokenExpiration();
     } catch (error) {
       console.error('Error in signOut:', error);
@@ -444,3 +434,4 @@ export function useAuth() {
   }
   return context;
 }
+

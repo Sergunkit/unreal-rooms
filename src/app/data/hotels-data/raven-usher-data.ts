@@ -110,22 +110,22 @@ export const usherData: Hotel = {
       },
     ],
   },
-  initialBookingState: {
-    roomNumberTemplate: '{floor}{suffix}',
-    defaultFloor: 1,
-    floorOptions: [1, 4, 7, 9, 12],
-    suffixByRoomType: {
-      carl: '01',
-      napoleon: '02',
-      tamerlan: '03',
-    },
-    roomType: 'carl',
-    guests: 2,
-    rooms: 1,
-    mealType: 'breakfast',
-    needTransfer: false,
-    checkInTime: '15:00',
-  },
+  // initialBookingState: {
+  //   roomNumberTemplate: '{floor}{suffix}',
+  //   defaultFloor: 1,
+  //   floorOptions: [1, 4, 7, 9, 12],
+  //   suffixByRoomType: {
+  //     carl: '01',
+  //     napoleon: '02',
+  //     tamerlan: '03',
+  //   },
+  //   roomType: 'carl',
+  //   guests: 2,
+  //   rooms: 1,
+  //   mealType: 'breakfast',
+  //   needTransfer: false,
+  //   checkInTime: '15:00',
+  // },
   mealTypes: [
     {
       value: 'breakfast',
@@ -227,16 +227,27 @@ export const usherData: Hotel = {
   endBookingMassegeEn: 'Booking accepted. Welcome to the family.',
   endWrongBookingMassege: 'Ваше сердце здесь будет биться вечно.',
   endWrongBookingMassegeEn: 'Your heart will beat here forever.',
-  passingConditions: {
-    roomId: 'carl', // Выбрать комнату без кошки и зеркал на потолке
-    inventory: ['mechanical-heart'], // Нужно принести сердце из инвентаря
-    promoCode: 'NEVERMORE', // Ввести промокод, который можно получить, кликнув на ворона на фото ресторана
+
+  bookingStates: {
+    default: {
+      roomNumberTemplate: '{floor}{suffix}',
+      defaultFloor: 1,
+      floorOptions: [1, 4, 7, 9, 12],
+      suffixByRoomType: {
+        carl: '01',
+        napoleon: '02',
+        tamerlan: '03',
+      },
+      roomType: 'carl',
+      guests: 2,
+      rooms: 1,
+      mealType: 'breakfast',
+      needTransfer: false,
+      checkInTime: '15:00',
+      lockedFields: [], // No locked fields initially
+    }
   },
-  wrongOptions: {
-    roomId: ['tamerlan', 'napoleon'], // Ловушка с котом
-    additionalServices: ['masquerade'], // Маскарад — это смерть (Friday event)
-    //   checkInTime: 'Friday', // Не бронировать на пятницу
-  },
+
   promoCodes: [
     {
       code: 'NEVERMORE',
@@ -280,6 +291,9 @@ export const usherChain: Chain = {
     bookingForm: {
       id: 'bookingForm',
       step: 2,
+      formConfig: {
+        initialStateId: 'default',
+      },
       actions: [
         {
           id: 'submit-form',
@@ -294,13 +308,22 @@ export const usherChain: Chain = {
         },
       ],
       transitions: {
-        submit: {
-          conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
+        submitSafe: {
+          conditions: [
+            { field: 'roomType', operator: 'eq', value: 'carl' },
+            { field: 'inventory', operator: 'contains', value: 'mechanical-heart' },
+            { field: 'promoCode', operator: 'eq', value: 'NEVERMORE' },
+            { field: 'roomType', operator: 'ne', value: 'tamerlan' },
+            { field: 'roomType', operator: 'ne', value: 'napoleon' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'masquerade' }
+          ],
           nextStep: 'bookingConfirm',
+          params: { bookingResult: 'safe' }
         },
         submitUnsafe: {
           nextStep: 'bookingConfirm',
-        },
+          params: { bookingResult: 'unsafe' }
+        }
       },
     },
 

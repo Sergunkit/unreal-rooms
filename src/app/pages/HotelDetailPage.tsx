@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -83,7 +83,6 @@ export function HotelDetailPage() {
     hasArtefact,
     hasInInventory,
     addToInventory,
-    removeFromInventory,
     clearCurrentHotelProgress,
     setCurrentHotelProgress,
   } = useGame();
@@ -186,6 +185,7 @@ export function HotelDetailPage() {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [foundArtifactId, setFoundArtifactId] = useState<string | null>(null);
   const [lostFoundArtifactId, setLostFoundArtifactId] = useState<string | null>(null);
+  const [isPrizeAlreadyCollected, setIsPrizeAlreadyCollected] = useState(false);
 
   // States for CaptchaModal, moved from BookingFormPage
   const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
@@ -245,6 +245,48 @@ export function HotelDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flowState.currentStep]); // clearCurrentHotelProgress removed from dependencies
 
+  // Effect to handle awarding the prize when the 'prizeModal' step is reached
+  useEffect(() => {
+    if (activeStep === 'prizeModal') {
+      const isSafeBooking = playerStatus.currentHotelProgress?.bookingResult === 'safe';
+
+      if (isSafeBooking && hotel?.prize) {
+        const prizeArtefact = getArtefactById(hotel.prize);
+        if (prizeArtefact) {
+          const alreadyCollected = hasInInventory(prizeArtefact.id);
+          setIsPrizeAlreadyCollected(alreadyCollected);
+
+          if (!alreadyCollected) {
+            addArtefact({
+              artefactId: prizeArtefact.id,
+              name: prizeArtefact.name,
+              nameEn: prizeArtefact.nameEn,
+              image: prizeArtefact.image,
+              collectedAt: new Date().toISOString(),
+            });
+            addToInventory(hotel.prize);
+            window.dispatchEvent(new Event('prizeCollected'));
+          }
+
+          setFoundArtifactId(hotel.prize);
+          setShowArtifactModal(true);
+        } else {
+          nextChainStep();
+        }
+      } else {
+        nextChainStep();
+      }
+    }
+  }, [
+    activeStep,
+    hotel,
+    playerStatus.currentHotelProgress?.bookingResult,
+    hasInInventory,
+    addArtefact,
+    addToInventory,
+    nextChainStep,
+  ]);
+
   // Helper for text translation
   const t = useMemo(
     () => ({
@@ -298,85 +340,11 @@ export function HotelDetailPage() {
     nextChainStep();
   }, [nextChainStep]);
 
-  // Функция для открытия формы бронирования
-  const openBookingForm = useCallback(() => {
-    console.log('[openBookingForm] called');
-    updateFlowState({
-      activeStep: 'bookingForm',
-      currentStep: 'bookingForm',
-      currentChainIndex: 1,
-      completedSteps: ['hotelPage', 'bookingForm'],
-    });
-  }, [updateFlowState]);
-
-  const isSafeToBook = canBook;
-
-  const onFinalizeBooking = useCallback(
-    (_isAlien: boolean = false) => {
-      // Всегда позволяем бронирование, просто показываем разное сообщение
-      // Устанавливаем тип сообщения в зависимости от isSafeToBook
-      updateFlowState({
-        currentStep: 'bookingComplete',
-        currentChainIndex: flowState.currentChain.indexOf('bookingComplete'),
-        completedSteps: [...flowState.completedSteps, 'bookingComplete'],
-        bookingMessage: isSafeToBook ? 'human' : 'alien', // ← Сохраняем тип сообщения
-      });
-
-      // Consume artifacts if booking is safe (inventoryPayment items are consumed)
-      if (isSafeToBook && hotel?.passingConditions?.inventoryPayment) {
-        hotel.passingConditions.inventoryPayment.forEach((artifactId) => {
-          removeFromInventory(artifactId);
-        });
-      }
-
-      // Handle prize logic after a short delay (similar to original logic)
-      const prizeTimer = setTimeout(() => {
-        if (hotel?.prize && isSafeToBook) {
-          // If there's a prize AND booking is safe, add it to inventory and show artifact modal
-          const prizeArtefact = artefacts[hotel.prize];
-          if (prizeArtefact) {
-            addArtefact({
-              artefactId: prizeArtefact.id,
-              name: prizeArtefact.name,
-              nameEn: prizeArtefact.nameEn,
-              image: prizeArtefact.image,
-              collectedAt: new Date().toISOString(),
-            });
-            addToInventory(hotel.prize);
-            window.dispatchEvent(new Event('prizeCollected'));
-            setFoundArtifactId(prizeArtefact.id);
-            setShowArtifactModal(true);
-          }
-          // Go to myBookingsPage after showing prize
-          updateFlowState({
-            currentStep: 'myBookingsPage',
-            currentChainIndex: flowState.currentChain.indexOf('myBookingsPage'),
-            completedSteps: [...flowState.completedSteps, 'myBookingsPage'],
-          });
-        } else {
-          // No prize or unsafe booking, skip prizeModal and go to myBookingsPage
-          updateFlowState({
-            currentStep: 'myBookingsPage',
-            currentChainIndex: flowState.currentChain.indexOf('myBookingsPage'),
-            completedSteps: [...flowState.completedSteps, 'myBookingsPage'],
-          });
-        }
-      }, 2000); // 2 seconds delay for bookingComplete modal
-
-      return () => clearTimeout(prizeTimer); // Cleanup for the timer
-    },
-    [
-      isSafeToBook,
-      hotel?.prize,
-      hotel?.passingConditions?.inventoryPayment,
-      flowState.currentChain,
-      flowState.completedSteps,
-      updateFlowState,
-      addArtefact,
-      addToInventory,
-      removeFromInventory,
-    ]
-  );
+  const onFinalizeBooking = useCallback(() => {
+    // This triggers the 'confirm' transition from the 'bookingConfirm' step.
+    // The chain will handle the effects (consuming coin) and moving to the next step.
+    nextChainStep();
+  }, [nextChainStep]);
 
   // Moved useMemo hooks outside of conditional return
   const selectedBookingRoomType = useMemo(() => {
@@ -704,7 +672,7 @@ export function HotelDetailPage() {
                         <button className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
                           <Heart
                             className={`w-6 h-6 transition-all cursor-pointer ${
-                              !isSafeToBook
+                              !canBook
                                 ? 'fill-red-500 text-red-500'
                                 : 'text-primary-foreground'
                             }`}
@@ -730,7 +698,7 @@ export function HotelDetailPage() {
                     >
                       <Heart
                         className={`w-6 h-6 transition-all ${
-                          !isSafeToBook ? 'fill-red-500 text-red-500' : 'text-primary-foreground'
+                          !canBook ? 'fill-red-500 text-red-500' : 'text-primary-foreground'
                         }`}
                       />
                     </button>
@@ -1157,24 +1125,23 @@ export function HotelDetailPage() {
         )}
 
         {/* Artifact Found Modal */}
-        {showArtifactModal && foundArtifactId && (
+        {showArtifactModal && foundArtifactId && !lostFoundArtifactId && (
           <ArtifactModal
             isOpen={showArtifactModal}
-            onClose={() => setShowArtifactModal(false)}
+            onClose={() => {
+              setShowArtifactModal(false);
+              // After closing the prize modal, move to the next step
+              nextChainStep();
+            }}
             artifactId={foundArtifactId}
             hotelId={id}
             mode="collect"
+            isCollected={isPrizeAlreadyCollected}
             onAction={() => {
-              const artefact = getArtefactById(foundArtifactId);
-              if (artefact && !hasArtefact(foundArtifactId)) {
-                handleCollectArtefact({
-                  id: artefact.id,
-                  name: artefact.name,
-                  nameEn: artefact.nameEn,
-                  image: artefact.image,
-                });
-              }
+              // The action is to simply close the modal,
+              // as the artifact has already been handled in the useEffect.
               setShowArtifactModal(false);
+              // onNextStep is called in onClose to ensure the flow continues
             }}
           />
         )}
@@ -1420,9 +1387,9 @@ export function HotelDetailPage() {
                 <h3 className="text-xl text-foreground font-medium mb-2">{t.bookingConfirmed}</h3>
                 {/* Используем bookingMessage из flowState */}
                 <p className="text-muted-foreground">
-                  {flowState.bookingMessage === 'alien'
-                    ? t.bookingConfirmedAlien
-                    : t.bookingConfirmedHuman}
+                  {playerStatus.currentHotelProgress?.bookingResult === 'unsafe'
+                    ? (language === 'ru' ? hotel.endWrongBookingMassege : hotel.endWrongBookingMassegeEn)
+                    : (language === 'ru' ? hotel.endBookingMassege : hotel.endBookingMassegeEn)}
                 </p>
               </div>
             </div>
@@ -1544,7 +1511,7 @@ export function HotelDetailPage() {
                   {t.cancel}
                 </Button>
                 <Button
-                  onClick={() => onFinalizeBooking(false)}
+                  onClick={onFinalizeBooking}
                   className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
                 >
                   {t.confirm}

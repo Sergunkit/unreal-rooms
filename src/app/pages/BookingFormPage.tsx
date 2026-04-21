@@ -353,7 +353,11 @@ export function BookingFormPage({
                 {/* Room Type */}
                 <div className="space-y-2">
                   <Label>{t.roomType}</Label>
-                  <Select value={roomType} onValueChange={setRoomType} disabled={lockedFields?.includes('roomType')}>
+                  <Select
+                    value={roomType}
+                    onValueChange={setRoomType}
+                    disabled={lockedFields?.includes('roomType')}
+                  >
                     <SelectTrigger className="bg-input-background border-border">
                       <SelectValue />
                     </SelectTrigger>
@@ -568,20 +572,23 @@ export function BookingFormPage({
                       <RadioGroupItem
                         value="cash"
                         id="cash"
-                        disabled={(hotelId === '1' && !hasCoin) || lockedFields?.includes('paymentMethod')}
+                        disabled={
+                          (hotelId === '1' && !hasCoin) || lockedFields?.includes('paymentMethod')
+                        }
                       />
                       <Label
                         htmlFor="cash"
-                        className={`flex items-center gap-2 ${((hotelId === '1' && !hasCoin) || lockedFields?.includes('paymentMethod')) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        className={`flex items-center gap-2 ${(hotelId === '1' && !hasCoin) || lockedFields?.includes('paymentMethod') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                       >
                         <Wallet className="h-4 w-4 text-primary" />
                         {t.cash}
-                        {(hotelId === '1' && !hasCoin) && (
+                        {hotelId === '1' && !hasCoin && (
                           <span className="text-xs text-muted-foreground">(нужна монета)</span>
                         )}
-                        {lockedFields?.includes('paymentMethod') && !(hotelId === '1' && !hasCoin) && (
-                          <span className="text-xs text-muted-foreground">(недоступно)</span>
-                        )}
+                        {lockedFields?.includes('paymentMethod') &&
+                          !(hotelId === '1' && !hasCoin) && (
+                            <span className="text-xs text-muted-foreground">(недоступно)</span>
+                          )}
                       </Label>
                     </div>
                   </RadioGroup>

@@ -21,15 +21,35 @@ export interface Amenities {
 /**
  * Операторы для условий
  */
-export type ConditionOperator = 'eq' | 'ne' | 'gt' | 'lt' | 'includes' | 'notIncludes' | 'contains' | 'not-contains';
+export type ConditionOperator =
+  | 'eq'
+  | 'ne'
+  | 'gt'
+  | 'lt'
+  | 'includes'
+  | 'notIncludes'
+  | 'contains'
+  | 'not-contains'
+  | 'not-intersects';
 
 /**
  * Условие для проверки
  */
 export interface Condition {
-  field: string; // 'isSafeToBook', 'inventory', 'paymentMethod', etc.
+  field:
+    | 'isSafeToBook'
+    | 'inventory'
+    | 'paymentMethod'
+    | 'roomType'
+    | 'additionalServices'
+    | 'mealType'
+    | 'dateRange'
+    | 'promoCode'
+    | 'floor'
+    | 'floorSelected'
+    | 'bookingResult';
   operator: ConditionOperator;
-  value: any;
+  value: unknown;
   or?: Condition[]; // ← Для сложных условий (A или B)
 }
 
@@ -70,7 +90,7 @@ export interface Action {
   type: ActionType;
   trigger?: ActionTrigger; // ← Опционально (например для formSubmit)
   nextStep: string;
-  params?: Record<string, any>; // ← Параметры для передачи в контекст
+  params?: Record<string, unknown>; // ← Параметры для передачи в контекст
 }
 
 /**
@@ -81,8 +101,12 @@ export interface Transitions {
     // 'submit', 'cancel', 'success', 'fail', 'confirm', 'default'
     conditions?: Condition[];
     nextStep: string;
-    params?: Record<string, any>;
+    params?: Record<string, unknown>;
     delay?: number; // ← Задержка перед переходом (в мс)
+    effects?: Array<{
+      type: 'consumeInventory';
+      item: string;
+    }>;
   };
 }
 
@@ -90,7 +114,7 @@ export interface Transitions {
  * Входные данные для шага (для UI)
  */
 export interface StepInput {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -198,31 +222,6 @@ export interface GalleryImageAction {
   actionChain?: LegacyActionChain;
   resetOnReentry?: boolean; // Сбрасывать прогресс при повторном входе
 }
-
-export interface PassingConditions {
-  roomId?: string;
-  mealTypes?: string[];
-  additionalServices?: string[];
-  inventory?: string[]; // Артефакты, которые нужно иметь (возвращаются после бронирования)
-  inventoryPayment?: string[]; // Артефакты, которые забираются как оплата (не возвращаются)
-  promoCode?: string;
-  paymentType?: string;
-}
-
-export interface WrongOptions {
-  mealTypes?: string[];
-  additionalServices?: string[];
-  inventory?: string[];
-  roomId?: string[];
-  checkInTime?: string;
-  paymentMethod?: string;
-  date?: string | { from: string; to: string }; // string = exact match, object = date range (YYYY-MM-DD)
-  floor?: string;
-  exitCode?: string;
-  avoidRoom?: string;
-  paymentType?: string;
-}
-
 export interface InitialFlow {
   steps: string[];
   transitions: Record<string, string>;
@@ -374,18 +373,10 @@ export interface Hotel {
   endAlienBookingMassegeEn?: string;
   endWrongBookingMassege?: string;
   endWrongBookingMassegeEn?: string;
-  passingConditions?: PassingConditions;
-  wrongOptions?: WrongOptions;
   captcha?: Captcha;
   promoCodes?: PromoCode[];
   bookingStates?: { [id: string]: InitialBookingState };
-  /** @deprecated */
-  initialBookingState?: InitialBookingState;
   // Устаревшие поля (для обратной совместимости)
   initialFlow?: InitialFlow;
   customBookingChain?: LegacyChainConfig;
-  /** @deprecated */
-  bookingFormDataConditions?: BookingFormDataConditions;
-  /** @deprecated */
-  anotherBookingState?: Partial<InitialBookingState>;
 }

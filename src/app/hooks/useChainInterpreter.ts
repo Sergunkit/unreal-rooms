@@ -4,7 +4,7 @@ import type { Chain, ChainStep, Condition, Action } from '../data/hotels-data/ho
 /**
  * Проверка одного условия
  */
-function checkCondition(condition: Condition, context: Record<string, any>): boolean {
+function checkCondition(condition: Condition, context: Record<string, unknown>): boolean {
   const { field, operator, value } = condition;
   const fieldValue = context[field];
 
@@ -29,7 +29,10 @@ function checkCondition(condition: Condition, context: Record<string, any>): boo
 /**
  * Проверка всех условий (AND + OR)
  */
-export function checkConditions(conditions: Condition[], context: Record<string, any>): boolean {
+export function checkConditions(
+  conditions: Condition[],
+  context: Record<string, unknown>
+): boolean {
   return conditions.every((condition) => {
     // Если есть OR — проверяем их
     if (condition.or && condition.or.length > 0) {
@@ -48,7 +51,7 @@ export function checkConditions(conditions: Condition[], context: Record<string,
  */
 export function useChainInterpreter(chain: Chain) {
   const [currentStepId, setCurrentStepId] = useState<string>('hotelPage');
-  const [context, setContext] = useState<Record<string, any>>({});
+  const [context, setContext] = useState<Record<string, unknown>>({});
 
   // Получаем текущий шаг
   const currentStep: ChainStep | undefined = chain.steps[currentStepId];
@@ -57,7 +60,7 @@ export function useChainInterpreter(chain: Chain) {
    * Обработка действия (клик, выбор, отправка)
    */
   const handleAction = useCallback(
-    (actionId: string, payload?: Record<string, any>) => {
+    (actionId: string, payload?: Record<string, unknown>) => {
       if (!currentStep || !currentStep.actions) {
         console.warn(`[Chain] No actions in step ${currentStepId}`);
         return;
@@ -102,7 +105,7 @@ export function useChainInterpreter(chain: Chain) {
    * Обработка перехода (успех/неудача/отмена)
    */
   const handleTransition = useCallback(
-    (transitionType: string, payload?: Record<string, any>) => {
+    (transitionType: string, payload?: Record<string, unknown>) => {
       if (!currentStep || !currentStep.transitions) {
         console.warn(`[Chain] No transitions in step ${currentStepId}`);
         return;

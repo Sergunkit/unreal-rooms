@@ -300,8 +300,9 @@ export const overluxData = {
   endBookingMassege: 'Ваше бронирование подтверждено. Добро пожаловать в Overlux. Надеемся, вам понравится наше... общество.',
   endBookingMassegeEn: 'Your reservation is confirmed. Welcome to Overlux. We hope you enjoy our... company.',
 
-  endBookingMassegeWrong: 'Вы всегда были нашим гостем. Ваш любимый столик в золотом зале готов.',
-  endBookingMassegeWrongEn: 'You have always been our guest. Your favorite table in the golden hall is ready.',
+  endWrongBookingMassege: 'Вы всегда были нашим гостем. Ваш любимый столик в золотом зале готов.',
+  endWrongBookingMassegeEn: 'You have always been our guest. Your favorite table in the golden hall is ready.',
+  
   bookingStates: {
     default: {
       roomNumber: '237',
@@ -323,58 +324,22 @@ export const overluxData = {
       checkInTime: '15:00',
     },
   },
-  initialBookingState: {
-    roomNumber: '237',
-    // roomNumberTemplate: '', // Номер жёстко задан
-    // defaultFloor: 2,
-    // floorOptions: [1, 2, 3], // Этажи не так важны, важен номер
-    // suffixByRoomType: {}, // Не используется
-    roomType: 'room237',
-    guests: 2,
-    rooms: 1,
-    // mealType: 'full-board',
-    // needTransfer: true,
-    checkInTime: '15:00',
-    dateRange: { from: '2026-11-01', to: '2027-03-31' }, // Зимний сезон
-    // season: 'winter', // Ключевое поле для условия
-    specialRequests: 'Люблю уединение и тишину.',
-  },
-  anotherBookingState: {
-    roomNumber: '208', // Любой другой номер, кроме 237
-    // roomNumberTemplate: '',
-    // defaultFloor: 2,
-    // floorOptions: [1, 2, 3],
-    roomType: 'deluxe',
-    guests: 2,
-    rooms: 1,
-    // mealType: 'breakfast',
-    needTransfer: false,
-    checkInTime: '15:00',
-    // season: 'summer', // Сезон изменён
-  },
-  passingConditions: {
-    // inventoryPayment: ['gold-coin'], // Золотая монета забирается как оплата
-    // paymentType: 'cash', // Нужно выбрать наличные (оплата монетой)
-    
-  },
-  wrongOptions: {
-    // additionalServices: ['elimination'], // Если выбрать "Элиминацию" — это нарушение правил отеля
-    // paymentType: 'Visa/Mastercard', // Insufficient Status
-    // avoidRoom: '237',
-    roomId: ['room237'],
-    date: { from: '2026-11-01', to: '2027-03-31' }, // Зимний сезон (ноябрь-март)
-  },
-
   
   // Настройки формы бронирования
-  bookingFormDataConditions: {
-    conditionsNotDone: 'initialBookingState',
-    conditionsIsDone: 'anotherBookingState',
-    afterReset: 'allEmpty',
-    afterComeback: 'tempBookingForm',
-    conditionType: 'custom', // Будем проверять season и roomType
-  },
+  // bookingFormDataConditions: {
+  //   conditionsNotDone: 'initialBookingState',
+  //   conditionsIsDone: 'anotherBookingState',
+  //   afterReset: 'allEmpty',
+  //   afterComeback: 'tempBookingForm',
+  //   conditionType: 'custom', // Будем проверять season и roomType
+  // },
 };
+
+// initialFlow: {
+//     steps: ['booking'], // Прямое бронирование с проверкой условий
+//     transitions: {},
+//   },
+// };
 
 // ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
 export const overluxChain: Chain = {
@@ -400,26 +365,9 @@ export const overluxChain: Chain = {
       ],
     },
 
-    gardenHint: {
-      id: 'gardenHint',
-      step: 2,
-      transitions: {
-        close: { nextStep: 'hotelPage' },
-      },
-    },
-
-    artifactModal: {
-      id: 'artifactModal',
-      step: 3,
-      transitions: {
-        addToCase: { nextStep: 'hotelPage' },
-        ignore: { nextStep: 'hotelPage' },
-      },
-    },
-
     bookingForm: {
       id: 'bookingForm',
-      step: 4,
+      step: 2,
       formConfig: {
         initialStateId: 'default',
         conditionalStates: [
@@ -443,23 +391,36 @@ export const overluxChain: Chain = {
         },
       ],
       transitions: {
-        submit: {
-          // Условие безопасной брони: season !== 'winter' И roomType !== 'room237'
+        submitWithPromo: {
           conditions: [
-            { field: 'season', operator: 'ne', value: 'winter' },
-            { field: 'roomType', operator: 'ne', value: 'room237' },
+            { field: 'promoCode', operator: 'eq', value: 'REDRUM' }
           ],
           nextStep: 'bookingConfirm',
+          params: { bookingResult: 'safe' }
+        },
+        submitSafe: {
+          conditions: [
+            { field: 'additionalServices', operator: 'contains', value: 'pantry' },
+            { field: 'additionalServices', operator: 'contains', value: 'satellite-connection' },
+            { field: 'inventory', operator: 'contains', value: 'dannys-ball' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'spa-access' },
+            { field: 'mealType', operator: 'ne', value: 'all-inclusive' },
+            { field: 'roomType', operator: 'ne', value: 'room237' },
+            { field: 'dateRange', operator: 'not-intersects', value: { fromMonth: 10, toMonth: 2 } }
+          ],
+          nextStep: 'bookingConfirm',
+          params: { bookingResult: 'safe' }
         },
         submitUnsafe: {
-          nextStep: 'bookingConfirm', // Всё равно идём на подтверждение, но с другим сообщением
-        },
+          nextStep: 'bookingConfirm',
+          params: { bookingResult: 'unsafe' }
+        }
       },
     },
 
     bookingConfirm: {
       id: 'bookingConfirm',
-      step: 5,
+      step: 3,
       transitions: {
         confirm: { nextStep: 'bookingComplete' },
         cancel: { nextStep: 'bookingForm' },
@@ -468,15 +429,15 @@ export const overluxChain: Chain = {
 
     bookingComplete: {
       id: 'bookingComplete',
-      step: 6,
+      step: 4,
       transitions: {
-        default: { nextStep: 'prizeModal', delay: 2000 },
+        default: { nextStep: 'prizeModal', delay: 3000 },
       },
     },
 
     prizeModal: {
       id: 'prizeModal',
-      step: 7,
+      step: 5,
       conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
       transitions: {
         continue: { nextStep: 'myBookingsPage' },
@@ -486,7 +447,7 @@ export const overluxChain: Chain = {
 
     myBookingsPage: {
       id: 'myBookingsPage',
-      step: 8,
+      step: 6,
       transitions: {
         default: { nextStep: 'hotelPage' },
       },

@@ -170,22 +170,22 @@ export const lastPeakData: Hotel = {
       checkOutDate: '2026-05-01',
     },
   },
-  initialBookingState: {
-    roomNumberTemplate: '{floor}{suffix}',
-    defaultFloor: 10,
-    floorOptions: [10, 13, 17, 21, 24, 27],
-    suffixByRoomType: {
-      'classic-comfort': '01',
-      'infinity-view': '02',
-      'specialist-suite': '03',
-    },
-    roomType: 'classic-comfort',
-    guests: 2,
-    rooms: 1,
-    mealType: 'standard',
-    needTransfer: false,
-    checkInTime: '15:00',
-  },
+  // initialBookingState: {
+  //   roomNumberTemplate: '{floor}{suffix}',
+  //   defaultFloor: 10,
+  //   floorOptions: [10, 13, 17, 21, 24, 27],
+  //   suffixByRoomType: {
+  //     'classic-comfort': '01',
+  //     'infinity-view': '02',
+  //     'specialist-suite': '03',
+  //   },
+  //   roomType: 'classic-comfort',
+  //   guests: 2,
+  //   rooms: 1,
+  //   mealType: 'standard',
+  //   needTransfer: false,
+  //   checkInTime: '15:00',
+  // },
   mealTypes: [
     { value: 'standard', label: 'Стандарт (Органика)', labelEn: 'Standard (Organic)', price: 20 },
     {
@@ -283,12 +283,12 @@ export const lastPeakData: Hotel = {
   endBookingMassegeEn: 'Booking confirmed. Biological status: Human.', //капча?
   endAlienBookingMassege: 'Бронирование подтверждено. Биологический статус: Другое.',
   endAlienBookingMassegeEn: 'Booking confirmed. Biological status: Other.',
-  passingConditions: {
-    roomId: 'classic-comfort',
-    mealTypes: ['standard'],
-    additionalServices: ['dog-service'],
-    inventory: ['mountaineers-hammer'],
-  },
+  // passingConditions: {
+  //   roomId: 'classic-comfort',
+  //   mealTypes: ['standard'],
+  //   additionalServices: ['dog-service'],
+  //   inventory: ['mountaineers-hammer'],
+  // },
 
   // Поток квеста
   initialFlow: {
@@ -323,12 +323,12 @@ export const lastPeakData: Hotel = {
       },
     },
   },
-  wrongOptions: {
-    additionalServices: ['entropy-fix'],
-    roomId: ['infinity-view', 'specialist-suite'],
-    mealTypes: ['molecular-regeneration', 'high-energy'],
-    checkInTime: '00:00', // Инопланетяне заезжают в полночь
-  },
+  // wrongOptions: {
+  //   additionalServices: ['entropy-fix'],
+  //   roomId: ['infinity-view', 'specialist-suite'],
+  //   mealTypes: ['molecular-regeneration', 'high-energy'],
+  //   checkInTime: '00:00', // Инопланетяне заезжают в полночь
+  // },
   captcha: {
     question: 'Выберите изображения с портящейся едой:',
     questionEn: 'Select images with spoiled food:',
