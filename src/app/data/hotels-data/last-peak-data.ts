@@ -343,7 +343,7 @@ export const lastPeakChain: Chain = {
       step: 1,
       actions: [
         {
-          id: 'toggle-lobby',
+          id: 'toggle',
           type: 'galleryClick',
           trigger: { imageIndex: 0 },
           nextStep: 'hotelPage',
@@ -384,17 +384,36 @@ export const lastPeakChain: Chain = {
           nextStep: 'bookingForm',
         },
         {
+          id: 'room-card-open',
+          type: 'roomOpen',
+          trigger: { source: 'roomCard' },
+          nextStep: 'roomCard',
+        },
+      ],
+    },
+
+    roomCard: {
+      id: 'roomCard',
+      step: 2,
+      actions: [
+        {
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
           nextStep: 'bookingForm',
+        },
+        {
+          id: 'room-card-close',
+          type: 'buttonClick',
+          trigger: { elementId: 'room-modal-close' },
+          nextStep: 'hotelPage',
         },
       ],
     },
 
     bookingForm: {
       id: 'bookingForm',
-      step: 2,
+      step: 3,
       formConfig: {
         initialStateId: 'default',
       },
@@ -420,7 +439,7 @@ export const lastPeakChain: Chain = {
 
     captcha: {
       id: 'captcha',
-      step: 3,
+      step: 4,
       transitions: {
         success: { nextStep: 'bookingConfirm' },
         fail: { nextStep: 'bookingForm' },
@@ -430,7 +449,7 @@ export const lastPeakChain: Chain = {
 
     bookingConfirm: {
       id: 'bookingConfirm',
-      step: 4,
+      step: 5,
       transitions: {
         confirm: { nextStep: 'bookingComplete' },
         cancel: { nextStep: 'bookingForm' },
@@ -439,7 +458,7 @@ export const lastPeakChain: Chain = {
 
     bookingComplete: {
       id: 'bookingComplete',
-      step: 5,
+      step: 6,
       transitions: {
         default: { nextStep: 'prizeModal', delay: 2000 },
       },
@@ -447,7 +466,7 @@ export const lastPeakChain: Chain = {
 
     prizeModal: {
       id: 'prizeModal',
-      step: 6,
+      step: 7,
       conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
       transitions: {
         continue: { nextStep: 'myBookingsPage' },
@@ -457,7 +476,7 @@ export const lastPeakChain: Chain = {
 
     myBookingsPage: {
       id: 'myBookingsPage',
-      step: 7,
+      step: 8,
       transitions: {
         default: { nextStep: 'hotelPage' },
       },

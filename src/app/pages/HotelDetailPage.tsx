@@ -161,7 +161,7 @@ export function HotelDetailPage() {
     ]
   );
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
   const [showBookingFlowModal, setShowBookingFlowModal] = useState(false); // Controls the main booking flow modal
   const [selectedRoomTypeForBooking, setSelectedRoomTypeForBooking] = useState<string | null>(null);
@@ -217,6 +217,13 @@ export function HotelDetailPage() {
       setShowBookingFlowModal(true);
     } else {
       setShowBookingFlowModal(false);
+    }
+  }, [flowState.currentStep]);
+
+  // Close room modal when leaving roomCard step
+  React.useEffect(() => {
+    if (flowState.currentStep !== 'roomCard') {
+      setSelectedRoom(null);
     }
   }, [flowState.currentStep]);
 
@@ -580,6 +587,9 @@ export function HotelDetailPage() {
                                     const artefactData = artefacts[galleryAction.artefact];
                                     if (artefactData) {
                                       setFoundArtifactId(artefactData.id);
+                                      // Проверка: уже ли артефакт в инвентаре
+                                      const alreadyInInventory = hasInInventory(artefactData.id);
+                                      setIsPrizeAlreadyCollected(alreadyInInventory);
                                       setShowArtifactModal(true);
                                     }
                                   }
@@ -886,52 +896,74 @@ export function HotelDetailPage() {
             {language === 'ru' ? 'Доступные номера' : 'Available Rooms'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {hotel.rooms.map((room) => (
-              <div
-                key={room.id}
-                className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
-                onClick={() => setSelectedRoom(room)}
-              >
-                <img src={room.image} alt={room.name} className="w-full h-[19.2rem] object-cover" />
-                <div className="p-4">
-                  <h3 className="text-lg text-foreground mb-2">
-                    {language === 'ru' ? room.name : room.nameEn}
-                  </h3>
-                  <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center gap-2">
-                      <Maximize2 className="w-4 h-4" />
-                      <span>{room.size} м²</span>
+            {hotel.rooms.map((room) => {
+              return (
+                <div
+                  key={room.id}
+                  className="bg-card border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
+                  onClick={() => {
+                    if (chain) {
+                      const action = chain.steps.hotelPage?.actions?.find(
+                        (a) => a.id === 'room-card-open'
+                      );
+                      if (action) {
+                        setSelectedRoom(room);
+                        handleChainAction(action);
+                      } else {
+                        setSelectedRoom(room);
+                      }
+                    } else {
+                      setSelectedRoom(room);
+                    }
+                  }}
+                >
+                  <img src={room.image} alt={room.name} className="w-full h-[19.2rem] object-cover" />
+                  <div className="p-4">
+                    <h3 className="text-lg text-foreground mb-2">
+                      {language === 'ru' ? room.name : room.nameEn}
+                    </h3>
+                    <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                      <div className="flex items-center gap-2">
+                        <Maximize2 className="w-4 h-4" />
+                        <span>{room.size} м²</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        <span>
+                          {room.capacity} {language === 'ru' ? 'гостя' : 'guests'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <BedDouble className="w-4 h-4" />
+                        <span>{language === 'ru' ? room.beds : room.bedsEn}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      <span>
-                        {room.capacity} {language === 'ru' ? 'гостя' : 'guests'}
+                    <div className="flex items-center justify-between pt-4 border-t border-border">
+                      <span className="text-2xl text-primary font-semibold">${room.price}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {language === 'ru' ? 'за ночь' : 'per night'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <BedDouble className="w-4 h-4" />
-                      <span>{language === 'ru' ? room.beds : room.bedsEn}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t border-border">
-                    <span className="text-2xl text-primary font-semibold">${room.price}</span>
-                    <span className="text-sm text-muted-foreground">
-                      {language === 'ru' ? 'за ночь' : 'per night'}
-                    </span>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Room Detail Modal */}
-        {selectedRoom && (
+        {(selectedRoom || flowState.currentStep === 'roomCard') && selectedRoom && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-card border border-border rounded-lg w-full h-full max-w-6xl max-h-[95vh] overflow-hidden flex relative">
               <button
-                onClick={() => setSelectedRoom(null)}
+                onClick={() => {
+                  setSelectedRoom(null);
+                  if (flowState.currentStep === 'roomCard') {
+                    updateFlowState({ currentStep: 'hotelPage' });
+                  }
+                }}
                 className="absolute top-4 right-4 p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors z-20"
+                id="room-modal-close"
               >
                 <X className="w-5 h-5 text-white" />
               </button>
@@ -991,17 +1023,18 @@ export function HotelDetailPage() {
                   <button
                     onClick={() => {
                       if (!chain) return;
-                      // Find the 'roomSelect' action in the chain for the current hotel page
-                      const action = chain.steps.hotelPage?.actions?.find(
-                        (a) => a.type === 'roomSelect'
+                      // Используем action из шага roomCard если там, иначе hotelPage
+                      const currentStepId = flowState.currentStep === 'roomCard'
+                        ? 'roomCard'
+                        : 'hotelPage';
+                      const action = chain.steps[currentStepId]?.actions?.find(
+                        (a) => a.type === 'roomSelect' || a.id === 'room-card-book'
                       );
                       // Find matching roomType by name and update the form state
                       const matchingRoomType = hotel.rooms?.find(
-                        (r) => r.name === selectedRoom.name || r.nameEn === selectedRoom.nameEn
+                        (r) => r.name === selectedRoom?.name || r.nameEn === selectedRoom?.nameEn
                       );
                       if (matchingRoomType?.value && playerStatus.currentHotelProgress) {
-                        // This will be replaced by a setter from a dedicated form hook later
-                        // For now, we update the progress directly.
                         const existingForm = playerStatus.currentHotelProgress.tempBookingForm;
                         const updatedTempBookingForm = {
                           guests: existingForm?.guests ?? 1,
@@ -1160,8 +1193,18 @@ export function HotelDetailPage() {
             mode="collect"
             isCollected={isPrizeAlreadyCollected}
             onAction={() => {
-              // The action is to simply close the modal,
-              // as the artifact has already been handled in the useEffect.
+              // Add artifact to inventory if not already there
+              if (foundArtifactId && !hasInInventory(foundArtifactId)) {
+                const artefact = getArtefactById(foundArtifactId);
+                if (artefact) {
+                  handleCollectArtefact({
+                    id: artefact.id,
+                    name: artefact.name,
+                    nameEn: artefact.nameEn,
+                    image: artefact.image,
+                  });
+                }
+              }
               setShowArtifactModal(false);
               // onNextStep is called in onClose to ensure the flow continues
             }}

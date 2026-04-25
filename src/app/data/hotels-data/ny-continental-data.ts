@@ -258,10 +258,29 @@ export const continentalChain: Chain = {
           nextStep: 'bookingForm',
         },
         {
+          id: 'room-card-open',
+          type: 'roomOpen',
+          trigger: { source: 'roomCard' },
+          nextStep: 'roomCard',
+        },
+      ],
+    },
+
+    roomCard: {
+      id: 'roomCard',
+      step: 2,
+      actions: [
+        {
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
           nextStep: 'bookingForm',
+        },
+        {
+          id: 'room-card-close',
+          type: 'buttonClick',
+          trigger: { elementId: 'room-modal-close' },
+          nextStep: 'hotelPage',
         },
       ],
     },

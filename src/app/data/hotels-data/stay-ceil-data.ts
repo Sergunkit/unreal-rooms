@@ -315,17 +315,36 @@ export const stayCeilChain: Chain = {
           nextStep: 'bookingForm',
         },
         {
+          id: 'room-card-open',
+          type: 'roomOpen',
+          trigger: { source: 'roomCard' },
+          nextStep: 'roomCard',
+        },
+      ],
+    },
+
+    roomCard: {
+      id: 'roomCard',
+      step: 2,
+      actions: [
+        {
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
           nextStep: 'bookingForm',
+        },
+        {
+          id: 'room-card-close',
+          type: 'buttonClick',
+          trigger: { elementId: 'room-modal-close' },
+          nextStep: 'hotelPage',
         },
       ],
     },
 
     captcha: {
       id: 'captcha',
-      step: 2,
+      step: 3,
       transitions: {
         success: { nextStep: 'floorSelect' },
         fail: { nextStep: 'captcha' },
@@ -335,7 +354,7 @@ export const stayCeilChain: Chain = {
 
     floorSelect: {
       id: 'floorSelect',
-      step: 3,
+      step: 4,
       transitions: {
         confirm: { nextStep: 'bookingForm' },
         cancel: { nextStep: 'captcha' },
@@ -344,7 +363,7 @@ export const stayCeilChain: Chain = {
 
     bookingForm: {
       id: 'bookingForm',
-      step: 4,
+      step: 5,
       formConfig: {
         initialStateId: 'default',
         conditionalStates: [
@@ -385,7 +404,7 @@ export const stayCeilChain: Chain = {
 
     bookingConfirm: {
       id: 'bookingConfirm',
-      step: 5,
+      step: 6,
       transitions: {
         confirm: { nextStep: 'bookingComplete' },
         cancel: { nextStep: 'bookingForm' },
@@ -394,7 +413,7 @@ export const stayCeilChain: Chain = {
 
     bookingComplete: {
       id: 'bookingComplete',
-      step: 6,
+      step: 7,
       transitions: {
         default: { nextStep: 'prizeModal', delay: 2000 },
       },
@@ -402,7 +421,7 @@ export const stayCeilChain: Chain = {
 
     prizeModal: {
       id: 'prizeModal',
-      step: 7,
+      step: 8,
       conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
       transitions: {
         continue: { nextStep: 'myBookingsPage' },
@@ -412,7 +431,7 @@ export const stayCeilChain: Chain = {
 
     myBookingsPage: {
       id: 'myBookingsPage',
-      step: 8,
+      step: 9,
       transitions: {
         default: { nextStep: 'hotelPage' },
       },

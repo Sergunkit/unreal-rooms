@@ -290,7 +290,7 @@ export const overluxChain: Chain = {
       step: 1,
       actions: [
         {
-          id: 'toggle-lobby',
+          id: 'toggle',
           type: 'galleryClick',
           trigger: { imageIndex: 0 },
           nextStep: 'hotelPage',
@@ -345,17 +345,36 @@ export const overluxChain: Chain = {
           nextStep: 'bookingForm',
         },
         {
+          id: 'room-card-open',
+          type: 'roomOpen',
+          trigger: { source: 'roomCard' },
+          nextStep: 'roomCard',
+        },
+      ],
+    },
+
+    roomCard: {
+      id: 'roomCard',
+      step: 2,
+      actions: [
+        {
           id: 'room-card-book',
           type: 'roomSelect',
           trigger: { source: 'roomDetailModal' },
           nextStep: 'bookingForm',
+        },
+        {
+          id: 'room-card-close',
+          type: 'buttonClick',
+          trigger: { elementId: 'room-modal-close' },
+          nextStep: 'hotelPage',
         },
       ],
     },
 
     bookingForm: {
       id: 'bookingForm',
-      step: 2,
+      step: 3,
       formConfig: {
         initialStateId: 'default',
         conditionalStates: [

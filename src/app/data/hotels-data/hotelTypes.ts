@@ -62,6 +62,7 @@ export type ActionType =
   | 'formSubmit'
   | 'formFieldChange'
   | 'roomSelect'
+  | 'roomOpen'
   | 'inventoryUse'
   | 'paymentSelect'
   | 'timer'
@@ -246,6 +247,7 @@ export interface InitialFlow {
 
 export type LegacyChainStep =
   | 'hotelPage'
+  | 'roomCard'
   | 'bookingForm'
   | 'captcha'
   | 'floorSelect'
