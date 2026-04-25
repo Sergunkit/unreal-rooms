@@ -36,15 +36,6 @@ export const continentalData: Hotel = {
   image: headImage,
   images: [headImage, galleryCont1, galleryCont2, galleryCont3, galleryCont4, galleryCont5],
 
-  galleryActions: [
-    {
-      imageIndex: 3, // Фото с Хароном
-      type: 'hint' as const,
-      coords: { x1: 45, y1: 20, x2: 55, y2: 60 },
-      message: 'Харон: "Приятно снова видеть вас. Номер готов, если у вас есть монета."',
-    },
-  ],
-
   amenities: {
     dining: [
       'Ресторан высокой кухни с живым джазом',
@@ -237,10 +228,7 @@ export const continentalData: Hotel = {
     }
   },
 
-  // initialFlow: {
-  //   steps: ['booking'], // Прямое бронирование с проверкой условий
-  //   transitions: {},
-  // },
+
 };
 
 // ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
@@ -252,6 +240,17 @@ export const continentalChain: Chain = {
       id: 'hotelPage',
       step: 1,
       actions: [
+        {
+          id: 'charon-hint',
+          type: 'galleryClick',
+          trigger: { imageIndex: 3, coords: { x1: 45, y1: 20, x2: 55, y2: 60 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'hint',
+            message: 'Харон: "Приятно снова видеть вас. Номер готов, если у вас есть монета."',
+            coords: { x1: 45, y1: 20, x2: 55, y2: 60 },
+          },
+        },
         {
           id: 'book-now-btn',
           type: 'buttonClick',

@@ -61,30 +61,6 @@ export const lastPeakData: Hotel = {
     galleryImage5_8,
     galleryImage6_8,
   ],
-  galleryActions: [
-    {
-      imageIndex: 0,
-      type: 'toggle' as const,
-      alternateImage: headImageAlt8,
-    },
-    {
-      imageIndex: 1,
-      type: 'hint' as const,
-      alternateImage: galleryImageAlt1_8,
-      coords: { x1: 40, y1: 50, x2: 60, y2: 70 },
-      message: 'Сенбернар Лель проявляет беспокойство. Он чувствует нечеловеческую активность.',
-      messageEn: 'Lel the St. Bernard is anxious. He senses non-human activity.',
-    },
-    {
-      imageIndex: 2,
-      type: 'artifact-find' as const,
-      alternateImage: galleryImageAlt2_8,
-      coords: { x1: 5, y1: 30, x2: 20, y2: 50 },
-      // message: 'Вы увидели лицо Альпиниста. Теперь вы видите мир его глазами.',
-      // messageEn: 'You saw the face of the Mountaineer. Now you see the world through his eyes.',
-      artefact: 'mountaineers-hammer',
-    },
-  ],
   amenities: {
     dining: ['Ресторан "У камина"', 'Бар "Крепкий Грог"', 'Молекулярная кухня (по запросу)'],
     diningEn: ['Fireplace Restaurant', 'Strong Grog Bar', 'Molecular cuisine (on request)'],
@@ -289,14 +265,6 @@ export const lastPeakData: Hotel = {
   //   additionalServices: ['dog-service'],
   //   inventory: ['mountaineers-hammer'],
   // },
-
-  // Поток квеста
-  initialFlow: {
-    steps: ['gallery', 'booking'],
-    transitions: {
-      gallery: 'booking',
-    },
-  },
   customBookingChain: {
     steps: [
       'hotelPage',
@@ -374,6 +342,41 @@ export const lastPeakChain: Chain = {
       id: 'hotelPage',
       step: 1,
       actions: [
+        {
+          id: 'toggle-lobby',
+          type: 'galleryClick',
+          trigger: { imageIndex: 0 },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'toggle',
+            alternateImage: headImageAlt8,
+          },
+        },
+        {
+          id: 'hint-dog',
+          type: 'galleryClick',
+          trigger: { imageIndex: 1, coords: { x1: 40, y1: 50, x2: 60, y2: 70 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'hint',
+            alternateImage: galleryImageAlt1_8,
+            message: 'Сенбернар Лель проявляет беспокойство. Он чувствует нечеловеческую активность.',
+            messageEn: 'Lel the St. Bernard is anxious. He senses non-human activity.',
+            coords: { x1: 40, y1: 50, x2: 60, y2: 70 },
+          },
+        },
+        {
+          id: 'artifact-hammer',
+          type: 'galleryClick',
+          trigger: { imageIndex: 2, coords: { x1: 5, y1: 30, x2: 20, y2: 50 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'artifact-find',
+            alternateImage: galleryImageAlt2_8,
+            artefact: 'mountaineers-hammer',
+            coords: { x1: 5, y1: 30, x2: 20, y2: 50 },
+          },
+        },
         {
           id: 'book-now-btn',
           type: 'buttonClick',

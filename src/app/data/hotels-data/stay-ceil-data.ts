@@ -50,17 +50,6 @@ export const stayCeilData: Hotel = {
     galleryCeil7,
   ],
 
-  galleryActions: [
-    {
-      imageIndex: 3, // Фото лифта с табличкой *EXIT*
-      type: 'capcha-get' as const,
-      coords: { x1: 65, y1: 10, x2: 80, y2: 20 }, // Клик на табличку *EXIT*
-      message: 'Для доступа к управлению лифтом введите код.',
-      messageEn: 'To access the elevator controls, enter the code.',
-      resetOnReentry: true, // При повторном входе сбрасываем прогресс капчи и этажа
-    },
-  ],
-
   amenities: {
     dining: [
       'Столовая самообслуживания (завтрак включен)',
@@ -263,6 +252,7 @@ export const stayCeilData: Hotel = {
       mealType: 'no-meal',
       needTransfer: false,
       checkInTime: '14:00',
+      floorOptions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
     },
     floorSelected: { // After floor select
       roomType: 'rehab',
@@ -311,6 +301,12 @@ export const stayCeilChain: Chain = {
           type: 'galleryClick',
           trigger: { imageIndex: 3, coords: { x1: 65, y1: 10, x2: 80, y2: 20 } },
           nextStep: 'captcha',
+          galleryData: {
+            type: 'capcha-get',
+            message: 'Для доступа к управлению лифтом введите код.',
+            messageEn: 'To access the elevator controls, enter the code.',
+            resetOnReentry: true,
+          },
         },
         {
           id: 'book-now-btn',

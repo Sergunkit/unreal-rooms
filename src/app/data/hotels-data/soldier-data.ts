@@ -3,6 +3,7 @@ import type { Chain } from './hotelTypes';
 import headImage7 from '../images/Soldier/head-image.jpg';
 import headImage2_7 from '../images/Soldier/head-image2.jpg';
 import galleryImageSoldier_7 from '../images/Soldier/gallery-image-soldier.jpg';
+import galleryImageSoldier2_7 from '../images/Soldier/gallery-image-soldier2.jpg';
 import galleryImage1_7 from '../images/Soldier/gallery-image1.jpeg';
 import galleryImage2_7 from '../images/Soldier/gallery-image2.jpg';
 import lastStandSuite7 from '../images/Soldier/Last-Stand-Suite.jpg';
@@ -36,21 +37,6 @@ export const soldierData = {
   locationEn: 'Small (semi)island in Devon, England',
   image: headImage7,
   images: [headImage7, galleryImageSoldier_7, galleryImage1_7, galleryImage2_7],
-  galleryActions: [
-    {
-      imageIndex: 0,
-      type: 'toggle' as const,
-      alternateImage: headImage2_7,
-    },
-    {
-      imageIndex: 1,
-      type: 'hint' as const,
-      alternateImage: galleryImageSoldier_7,
-      coords: { x1: 35, y1: 60, x2: 65, y2: 76 },
-      message: 'Сердце тебе поможет сделать правильный выбор.',
-      messageEn: 'The heart will help you make the right choice.',
-    },
-  ],
   amenities: {
     dining: ['Лобби-бар', 'Уютный ресторан с панорамным видом', 'Обслуживание в номерах'],
     diningEn: ['Lobby bar', 'Cozy restaurant with panoramic view', 'Room service'],
@@ -449,7 +435,7 @@ export const soldierData = {
         'The view from the attic ("High Tide" Attic) is breathtaking. So much so that you just want to take a step forward and not think about anything. The hook in the ceiling is very sturdy, tested. The service is unobtrusive — during my entire stay I didn’t see a single living person, only a voice from the gramophone. Perfect for those who want to be alone with themselves forever.',
     },
   ],
-  noise: '',
+  noise: 'Звук закончвшейся пластинки',
   endBookingMassege: 'Приговор утвержден. Все комнаты заняты',
   endBookingMassegeEn: 'The verdict is in. All rooms are occupied',
   endWrongBookingMassege:
@@ -495,6 +481,29 @@ export const soldierChain: Chain = {
       id: 'hotelPage',
       step: 1,
       actions: [
+        {
+          id: 'toggle-lobby',
+          type: 'galleryClick',
+          trigger: { imageIndex: 0 },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'toggle',
+            alternateImage: headImage2_7,
+          },
+        },
+        {
+          id: 'hint-soldier',
+          type: 'galleryClick',
+          trigger: { imageIndex: 1, coords: { x1: 35, y1: 60, x2: 65, y2: 76 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'hint',
+            alternateImage: galleryImageSoldier2_7,
+            message: 'Сердце тебе поможет сделать правильный выбор.',
+            messageEn: 'The heart will help you make the right choice.',
+            coords: { x1: 35, y1: 60, x2: 65, y2: 76 },
+          },
+        },
         {
           id: 'book-now-btn',
           type: 'buttonClick',

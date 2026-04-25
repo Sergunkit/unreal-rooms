@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import ReactMarkdown from 'react-markdown';
 import {
@@ -100,6 +100,7 @@ export function HotelDetailPage() {
     handleGalleryClick,
     handleCaptchaSuccess,
     handleFloorSelect,
+    getGalleryData,
     canBook,
     nextChainStep,
     updateFlowState,
@@ -160,7 +161,7 @@ export function HotelDetailPage() {
     ]
   );
 
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
   const [showBookingFlowModal, setShowBookingFlowModal] = useState(false); // Controls the main booking flow modal
   const [selectedRoomTypeForBooking, setSelectedRoomTypeForBooking] = useState<string | null>(null);
@@ -286,6 +287,17 @@ export function HotelDetailPage() {
     addToInventory,
     nextChainStep,
   ]);
+
+  const galleryStatesKey = useMemo(() => JSON.stringify(galleryStates), [galleryStates]);
+
+  // Re-init embla after gallery image src changes so loop clones pick up new images
+  useLayoutEffect(() => {
+    if (emblaApi && Object.keys(galleryStates).length > 0) {
+      const idx = emblaApi.selectedScrollSnap();
+      emblaApi.reInit();
+      emblaApi.scrollTo(idx, false);
+    }
+  }, [emblaApi, galleryStates, galleryStatesKey]);
 
   // Helper for text translation
   const t = useMemo(
@@ -485,9 +497,7 @@ export function HotelDetailPage() {
               <div className="overflow-hidden rounded-lg" ref={emblaRef}>
                 <div className="flex">
                   {hotel.images.map((image, index) => {
-                    const galleryAction = hotel.galleryActions?.find(
-                      (action) => action.imageIndex === index
-                    );
+                    const galleryAction = getGalleryData(index);
                     const isHeadImageToggled =
                       galleryAction?.type === 'toggle' && (flowState.galleryStates[index] ?? false);
                     const isFigurinesToggled =
@@ -509,6 +519,7 @@ export function HotelDetailPage() {
                           <div
                             className="relative"
                             onClick={(e) => {
+                              e.stopPropagation();
                               const rect = e.currentTarget.getBoundingClientRect();
                               const x = ((e.clientX - rect.left) / rect.width) * 100;
                               const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -984,25 +995,36 @@ export function HotelDetailPage() {
                       const action = chain.steps.hotelPage?.actions?.find(
                         (a) => a.type === 'roomSelect'
                       );
+                      // Find matching roomType by name and update the form state
+                      const matchingRoomType = hotel.rooms?.find(
+                        (r) => r.name === selectedRoom.name || r.nameEn === selectedRoom.nameEn
+                      );
+                      if (matchingRoomType?.value && playerStatus.currentHotelProgress) {
+                        // This will be replaced by a setter from a dedicated form hook later
+                        // For now, we update the progress directly.
+                        const existingForm = playerStatus.currentHotelProgress.tempBookingForm;
+                        const updatedTempBookingForm = {
+                          guests: existingForm?.guests ?? 1,
+                          rooms: existingForm?.rooms ?? 1,
+                          roomType: matchingRoomType.value,
+                          checkInDate: existingForm?.checkInDate ?? null,
+                          checkOutDate: existingForm?.checkOutDate ?? null,
+                          mealType: existingForm?.mealType ?? '',
+                          needTransfer: existingForm?.needTransfer ?? false,
+                          checkInTime: existingForm?.checkInTime ?? '14:00',
+                          selectedServices: existingForm?.selectedServices ?? [],
+                          promoCode: existingForm?.promoCode,
+                          paymentMethod: existingForm?.paymentMethod,
+                        };
 
+                        setCurrentHotelProgress({
+                          ...playerStatus.currentHotelProgress,
+                          tempBookingForm: updatedTempBookingForm,
+                        });
+                      }
+
+                      // Trigger the action to move to the next step
                       if (action) {
-                        // Find matching roomType by name and update the form state
-                        const matchingRoomType = hotel.rooms?.find(
-                          (r) => r.name === selectedRoom.name || r.nameEn === selectedRoom.nameEn
-                        );
-                        if (matchingRoomType?.value) {
-                          // This will be replaced by a setter from a dedicated form hook later
-                          // For now, we update the progress directly.
-                          setCurrentHotelProgress({
-                            ...playerStatus.currentHotelProgress,
-                            tempBookingForm: {
-                              ...(playerStatus.currentHotelProgress?.tempBookingForm as any),
-                              roomType: matchingRoomType.value,
-                            },
-                          });
-                        }
-
-                        // Trigger the action to move to the next step
                         handleChainAction(action);
                       }
                       setSelectedRoom(null); // Close the modal
@@ -1246,7 +1268,7 @@ export function HotelDetailPage() {
           />
         )}
 
-        {hotel?.initialBookingState?.floorOptions &&
+        {hotel?.bookingStates?.default?.floorOptions &&
           flowState.currentStep === 'floorSelect' &&
           showFloorSelectModal && (
             <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -1286,7 +1308,7 @@ export function HotelDetailPage() {
                   </p>
 
                   <div className="grid grid-cols-2 gap-3">
-                    {hotel.initialBookingState.floorOptions.map((floorOption) => (
+                    {hotel.bookingStates.default.floorOptions.map((floorOption: number) => (
                       <button
                         key={floorOption}
                         type="button"
@@ -1435,7 +1457,7 @@ export function HotelDetailPage() {
                     <span className="text-muted-foreground">{t.roomNumberLabel}:</span>
                     <span>#{roomNumber}</span>
                   </div>
-                  {hotel?.initialBookingState?.floorOptions && (
+                  {hotel?.bookingStates?.default?.floorOptions && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{t.floorLabel}:</span>
                       <span>{floor}</span>

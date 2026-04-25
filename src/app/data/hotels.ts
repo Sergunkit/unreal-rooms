@@ -10,17 +10,17 @@ import { stayCeilData } from './hotels-data/stay-ceil-data';
 const soldierHotel = soldierData as unknown as Hotel;
 const lastPeakHotel = lastPeakData as unknown as Hotel;
 const ravenUsherHotel = usherData as unknown as Hotel;
-// Base hotel data for hotels 1-6 (using placeholder images)
-// const baseHotels: Record<string, Hotel> = {
-// };
+const continentalHotel = continentalData as unknown as Hotel;
+const overluxHotel = overluxData as unknown as Hotel;
+const stayCeilHotel = stayCeilData as unknown as Hotel;
 
 // Combine base hotels with game hotels
 export const hotelData: Record<string, Hotel> = {
   // ...baseHotels,
-  '1': continentalData,
-  '2': overluxData,
+  '1': continentalHotel,
+  '2': overluxHotel,
   '7': soldierHotel,
   '8': lastPeakHotel,
   '9': ravenUsherHotel,
-  '10': stayCeilData,
+  '10': stayCeilHotel,
 };

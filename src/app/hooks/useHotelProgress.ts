@@ -144,9 +144,19 @@ export function useHotelProgress(hotelId?: string) {
         currentProgress?.floor ?? defaultBookingState?.floor ?? 14,
         roomType
       );
+      const existingForm = currentProgress.tempBookingForm || defaultBookingState?.tempBookingForm;
       const newTempForm: TempBookingFormData = {
-        ...(currentProgress.tempBookingForm as TempBookingFormData),
+        guests: existingForm?.guests ?? 1,
+        rooms: existingForm?.rooms ?? 1,
         roomType,
+        checkInDate: existingForm?.checkInDate ?? null,
+        checkOutDate: existingForm?.checkOutDate ?? null,
+        mealType: existingForm?.mealType ?? '',
+        needTransfer: existingForm?.needTransfer ?? false,
+        checkInTime: existingForm?.checkInTime ?? '14:00',
+        selectedServices: existingForm?.selectedServices ?? [],
+        promoCode: existingForm?.promoCode,
+        paymentMethod: existingForm?.paymentMethod,
       };
       setCurrentHotelProgress({
         ...currentProgress,

@@ -14,13 +14,13 @@ function checkCondition(condition: Condition, context: Record<string, unknown>):
     case 'ne':
       return fieldValue !== value;
     case 'gt':
-      return fieldValue > value;
+      return typeof fieldValue === 'number' && typeof value === 'number' && fieldValue > value;
     case 'lt':
-      return fieldValue < value;
+      return typeof fieldValue === 'number' && typeof value === 'number' && fieldValue < value;
     case 'includes':
-      return Array.isArray(fieldValue) && fieldValue.includes(value);
+      return Array.isArray(fieldValue) && fieldValue.includes(value as never);
     case 'notIncludes':
-      return !Array.isArray(fieldValue) || !fieldValue.includes(value);
+      return !Array.isArray(fieldValue) || !fieldValue.includes(value as never);
     default:
       return false;
   }

@@ -35,58 +35,6 @@ export const overluxData = {
   image: headImage,
   // images: [headImage, gallery1, gallery2, gallery3, gallery4, gallery5, gallery6, gallery7],
   images: [headImage, gallery1, gallery2, gallery6, gallery3,],
-  galleryActions: [
-    {
-      imageIndex: 0,
-      type: 'toggle' as const,
-      alternateImage: headImage2,
-      resetOnReentry: true,
-    },
-    {
-      imageIndex: 3,
-      type: 'hint' as const,
-      alternateImage: gallery7,
-      coords: { x1: 20, y1: 60, x2: 60, y2: 85 },
-      message: '',
-      messageEn: '',
-      resetOnReentry: true,
-    },
-    {
-      imageIndex: 4,
-      type: 'hint' as const,
-      alternateImage: gallery3Alt,
-      coords: { x1: 0, y1: 0, x2: 90, y2: 90 },
-      message: 'Иллюзия рассеялась. Вечеринка закончилась много лет назад.',
-      messageEn: 'The illusion faded. The party ended many years ago.',
-      resetOnReentry: true,
-    },
-    // {
-    //   imageIndex: 4,
-    //   type: 'toggle' as const,
-    //   alternateImage: gallery4Alt,
-    //   resetOnReentry: true,
-    // },
-    {
-      imageIndex: 7,
-      type: 'artifact-find' as const,
-      // alternateImage: gallery3Alt,
-      coords: { x1: 35, y1: 35, x2: 65, y2: 65 },
-      // message: 'Афиша "Зимний бал 1921". Но сейчас не зима, если вы не хотите остаться здесь навсегда.',
-      // messageEn: 'Poster "Winter Gala 1921". But it is not winter now, unless you wish to stay forever.',
-      artefact: 'dannys-ball',
-      resetOnReentry: false,
-    },
-    // {
-    //   // Топор и теннисный мячик – при клике на мячик даёт артефакт "Мяч Дэнни"
-    //   imageIndex: 3, // gallery4
-    //   type: 'artifact-get' as const,
-    //   coords: { x1: 60, y1: 70, x2: 75, y2: 85 }, // Мячик на кровати
-    //   artifactId: 'dannys-ball',
-    //   message: 'Вы подобрали теннисный мячик. Он ещё тёплый, словно им только что играли.',
-    //   messageEn: "You picked up a tennis ball. It's still warm, as if just played with.",
-    //   resetOnReentry: false,
-    // },
-  ],
   amenities: {
     dining: [
       'Ресторан "Золотой зал"',
@@ -324,15 +272,6 @@ export const overluxData = {
       checkInTime: '15:00',
     },
   },
-  
-  // Настройки формы бронирования
-  // bookingFormDataConditions: {
-  //   conditionsNotDone: 'initialBookingState',
-  //   conditionsIsDone: 'anotherBookingState',
-  //   afterReset: 'allEmpty',
-  //   afterComeback: 'tempBookingForm',
-  //   conditionType: 'custom', // Будем проверять season и roomType
-  // },
 };
 
 // initialFlow: {
@@ -350,7 +289,56 @@ export const overluxChain: Chain = {
       id: 'hotelPage',
       step: 1,
       actions: [
-         {
+        {
+          id: 'toggle-lobby',
+          type: 'galleryClick',
+          trigger: { imageIndex: 0 },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'toggle',
+            alternateImage: headImage2,
+            resetOnReentry: true,
+          },
+        },
+        {
+          id: 'hint-room',
+          type: 'galleryClick',
+          trigger: { imageIndex: 3, coords: { x1: 20, y1: 60, x2: 60, y2: 85 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'hint',
+            alternateImage: gallery7,
+            resetOnReentry: true,
+            coords: { x1: 20, y1: 60, x2: 60, y2: 85 },
+          },
+        },
+        {
+          id: 'hint-illusion',
+          type: 'galleryClick',
+          trigger: { imageIndex: 4, coords: { x1: 0, y1: 0, x2: 90, y2: 90 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'hint',
+            alternateImage: gallery3Alt,
+            message: 'Иллюзия рассеялась. Вечеринка закончилась много лет назад.',
+            messageEn: 'The illusion faded. The party ended many years ago.',
+            resetOnReentry: true,
+            coords: { x1: 0, y1: 0, x2: 90, y2: 90 },
+          },
+        },
+        {
+          id: 'artifact-ball',
+          type: 'galleryClick',
+          trigger: { imageIndex: 7, coords: { x1: 35, y1: 35, x2: 65, y2: 65 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'artifact-find',
+            artefact: 'dannys-ball',
+            resetOnReentry: false,
+            coords: { x1: 35, y1: 35, x2: 65, y2: 65 },
+          },
+        },
+        {
           id: 'book-now-btn',
           type: 'buttonClick',
           trigger: { elementId: 'book-now-button' },

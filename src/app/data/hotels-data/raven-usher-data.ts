@@ -38,21 +38,6 @@ export const usherData: Hotel = {
     galleryUsher4_9,
     galleryUsher5_9,
   ],
-  galleryActions: [
-    {
-      imageIndex: 0,
-      type: 'toggle' as const,
-      alternateImage: headImageAlt9, // Альтернативное изображение для отеля Usher
-    },
-    {
-      imageIndex: 2, // Фото ресторана
-      type: 'hint' as const,
-      alternateImage: galleryUsher2_9,
-      coords: { x1: 40, y1: 40, x2: 60, y2: 60 }, // Клик на ворона
-      message: 'Ворон каркнул: "NEVERMORE". Промокод на скидку получен!',
-      messageEn: 'The Raven croaked: "NEVERMORE". Discount code received!',
-    },
-  ],
   amenities: {
     dining: ['Уютный ресторан TaVerna', 'Бар в лобби с камином', 'Завтрак включен в стоимость'],
     diningEn: ['Cozy TaVerna Restaurant', 'Lobby Bar with Fireplace', 'Breakfast included'],
@@ -256,12 +241,6 @@ export const usherData: Hotel = {
       descriptionEn: 'Discount for choosing the right room',
     },
   ],
-
-  // Поток квеста
-  initialFlow: {
-    steps: ['booking'], // Прямое бронирование с проверкой условий
-    transitions: {},
-  },
 };
 
 // ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
@@ -273,6 +252,29 @@ export const usherChain: Chain = {
       id: 'hotelPage',
       step: 1,
       actions: [
+        {
+          id: 'toggle-lobby',
+          type: 'galleryClick',
+          trigger: { imageIndex: 0 },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'toggle',
+            alternateImage: headImageAlt9,
+          },
+        },
+        {
+          id: 'hint-raven',
+          type: 'galleryClick',
+          trigger: { imageIndex: 2, coords: { x1: 40, y1: 40, x2: 60, y2: 60 } },
+          nextStep: 'hotelPage',
+          galleryData: {
+            type: 'hint',
+            alternateImage: galleryUsher2_9,
+            message: 'Ворон каркнул: "NEVERMORE". Промокод на скидку получен!',
+            messageEn: 'The Raven croaked: "NEVERMORE". Discount code received!',
+            coords: { x1: 40, y1: 40, x2: 60, y2: 60 },
+          },
+        },
         {
           id: 'book-now-btn',
           type: 'buttonClick',

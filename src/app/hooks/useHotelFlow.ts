@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { hotelData } from '../data/hotels';
 import { useGame } from '../contexts/GameContext';
+import type { CurrentHotelProgress } from '../contexts/GameContext';
 import { evaluateConditions } from '../utils/evaluateConditions';
 import { getChainForHotel } from '../utils/getChainForHotel';
 import type { LegacyChainStep, Action } from '../data/hotels-data/hotelTypes';
@@ -62,10 +63,16 @@ export function useHotelFlow(hotelId?: string) {
       if (action.params) {
         console.log('[Chain Action] Params:', action.params);
       }
-      setCurrentHotelProgress({
-        ...progress,
-        activeStep: action.nextStep,
-        completedSteps: [...progress.completedSteps, action.nextStep],
+      // Используем функциональное обновление чтобы получить актуальное состояние
+      setCurrentHotelProgress((prev) => {
+        if (!prev) return prev;
+        console.log('[handleChainAction] prev.galleryStates:', prev.galleryStates);
+        return {
+          ...prev,
+          activeStep: action.nextStep,
+          completedSteps: [...prev.completedSteps, action.nextStep],
+          // galleryStates и galleryActionsTriggered сохраняются автоматически через ...prev
+        };
       });
     },
     [progress, setCurrentHotelProgress]
@@ -86,6 +93,21 @@ export function useHotelFlow(hotelId?: string) {
       const transitionKeys = Object.keys(currentStep.transitions);
       for (const transitionKey of transitionKeys) {
         const transition = currentStep.transitions[transitionKey];
+        // Если conditions нет или она пустая - это fallback transition
+        if (!transition.conditions || transition.conditions.length === 0) {
+          nextStep = transition.nextStep;
+          params = transition.params ?? {};
+
+          if (transition.effects) {
+            transition.effects.forEach((effect) => {
+              if (effect.type === 'consumeInventory') {
+                removeFromInventory(effect.item);
+              }
+            });
+          }
+
+          break;
+        }
         if (evaluateConditions(transition.conditions, playerStatus.inventory, progress)) {
           nextStep = transition.nextStep;
           params = transition.params ?? {};
@@ -106,7 +128,7 @@ export function useHotelFlow(hotelId?: string) {
 
       const captchaReason = nextStep === 'captcha' ? determineCaptchaReason() : undefined;
 
-      const newProgress = {
+      const newProgress: CurrentHotelProgress & { bookingResult?: 'safe' | 'unsafe' } = {
         ...progress,
         activeStep: nextStep,
         currentChainIndex: progress.currentChainIndex + 1,
@@ -115,8 +137,13 @@ export function useHotelFlow(hotelId?: string) {
         ...(captchaReason ? { captchaReason } : {}),
       };
 
-      if (params.bookingResult) {
-        // @ts-expect-error - bookingResult is a valid property to add to the progress
+      // Type guard для bookingResult в params
+      if (
+        params &&
+        typeof params === 'object' &&
+        'bookingResult' in params &&
+        (params.bookingResult === 'safe' || params.bookingResult === 'unsafe')
+      ) {
         newProgress.bookingResult = params.bookingResult;
       }
 
@@ -196,6 +223,7 @@ export function useHotelFlow(hotelId?: string) {
       if (!chain || !progress || !hotel) return null;
 
       const hotelPageStep = chain.steps.hotelPage;
+
       if (hotelPageStep?.actions) {
         const action = hotelPageStep.actions.find((a) => {
           if (a.type !== 'galleryClick') return false;
@@ -204,20 +232,67 @@ export function useHotelFlow(hotelId?: string) {
             const { x1, x2, y1, y2 } = a.trigger.coords;
             return coords.x >= x1 && coords.x <= x2 && coords.y >= y1 && coords.y <= y2;
           }
+          // Если coords не переданы и в action нет coords - это match
+          if (!coords && !a.trigger.coords) {
+            return true;
+          }
+          // Если coords не переданы, но в action есть coords - это не match
+          if (!coords && a.trigger.coords) {
+            return false;
+          }
           return true;
         });
         if (action) {
+          setCurrentHotelProgress((prev) => {
+            if (!prev) return prev;
+
+            const nextGalleryStates = { ...(prev.galleryStates || {}) };
+
+            if (action.galleryData?.type === 'toggle') {
+              nextGalleryStates[imageIndex] = !(prev.galleryStates?.[imageIndex] ?? false);
+            }
+
+            if (
+              action.galleryData?.type === 'hint' ||
+              action.galleryData?.type === 'artifact-find'
+            ) {
+              nextGalleryStates[imageIndex] = true;
+            }
+
+            return {
+              ...prev,
+              galleryStates: nextGalleryStates,
+              activeStep: action.nextStep,
+              completedSteps: [...prev.completedSteps, action.nextStep],
+            };
+          });
+
           markGalleryActionTriggered(imageIndex);
-          handleChainAction(action);
           return action;
         }
       }
 
+      // Legacy fallback: check hotel.galleryActions if chain action not found
       const legacyAction = hotel.galleryActions?.find((a) => a.imageIndex === imageIndex);
       if (!legacyAction) return null;
-      // ... rest of legacy logic
+      // ... legacy logic can be removed in the future
     },
-    [chain, progress, hotel, markGalleryActionTriggered, handleChainAction]
+    [chain, progress, hotel, markGalleryActionTriggered, setCurrentHotelProgress]
+  );
+
+  // Helper to get galleryData from chain actions by imageIndex
+  const getGalleryData = useCallback(
+    (imageIndex: number) => {
+      if (!chain) return null;
+      const hotelPageStep = chain.steps.hotelPage;
+      if (!hotelPageStep?.actions) return null;
+
+      const action = hotelPageStep.actions.find(
+        (a) => a.type === 'galleryClick' && a.trigger?.imageIndex === imageIndex
+      );
+      return action?.galleryData || null;
+    },
+    [chain]
   );
 
   const updateFlowState = useCallback(
@@ -235,19 +310,22 @@ export function useHotelFlow(hotelId?: string) {
 
   const handleCaptchaSuccess = useCallback(
     (_sequence: string[]) => {
-      if (!progress || !chain) return;
-      const currentStep = chain.steps[progress.activeStep];
-      if (currentStep?.transitions?.success) {
-        const nextStep = currentStep.transitions.success.nextStep;
-        setCurrentHotelProgress({
-          ...progress,
-          activeStep: nextStep,
-          captchaCompleted: true,
-          completedSteps: [...progress.completedSteps, nextStep],
+      if (!chain) return;
+      const captchaStep = chain.steps['captcha'];
+      if (captchaStep?.transitions?.success) {
+        const nextStep = captchaStep.transitions.success.nextStep;
+        setCurrentHotelProgress((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            activeStep: nextStep,
+            captchaCompleted: true,
+            completedSteps: [...prev.completedSteps, nextStep],
+          };
         });
       }
     },
-    [progress, chain, setCurrentHotelProgress]
+    [chain, setCurrentHotelProgress]
   );
 
   const handleFloorSelect = useCallback(
@@ -281,6 +359,7 @@ export function useHotelFlow(hotelId?: string) {
     handleGalleryClick,
     handleCaptchaSuccess,
     handleFloorSelect,
+    getGalleryData,
     canBook: isSafeBookingState,
     nextChainStep,
     updateFlowState,

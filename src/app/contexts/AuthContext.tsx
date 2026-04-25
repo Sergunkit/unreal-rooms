@@ -179,7 +179,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else if (data) {
         console.log('✅ Supabase REST API heartbeat OK');
       }
-    } catch (error) {
+    } catch {
       console.log('ℹ️ Supabase REST check (expected during dev)');
     }
   };

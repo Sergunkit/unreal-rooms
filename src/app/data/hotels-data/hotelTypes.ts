@@ -83,6 +83,19 @@ export interface ActionTrigger {
 }
 
 /**
+ * Данные для galleryClick action
+ */
+export interface GalleryActionData {
+  type: 'toggle' | 'hint' | 'figurines' | 'artifact-find' | 'capcha-get';
+  alternateImage?: string;
+  coords?: { x1: number; y1: number; x2: number; y2: number };
+  message?: string;
+  messageEn?: string;
+  artefact?: string; // id артефакта
+  resetOnReentry?: boolean;
+}
+
+/**
  * Действие в шаге цепочки
  */
 export interface Action {
@@ -91,6 +104,7 @@ export interface Action {
   trigger?: ActionTrigger; // ← Опционально (например для formSubmit)
   nextStep: string;
   params?: Record<string, unknown>; // ← Параметры для передачи в контекст
+  galleryData?: GalleryActionData; // ← Данные для galleryClick (альтернатива galleryActions)
 }
 
 /**
@@ -277,6 +291,21 @@ export interface BookingFormDataConditions {
   conditionType?: string;
 }
 
+export type LockedFormField =
+  | 'guests'
+  | 'rooms'
+  | 'roomType'
+  | 'mealType'
+  | 'needTransfer'
+  | 'checkInDate'
+  | 'checkOutDate'
+  | 'dateRange'
+  | 'checkInTime'
+  | 'selectedServices'
+  | 'promoCode'
+  | 'paymentMethod'
+  | 'roomNumber';
+
 export interface CaptchaItem {
   id: string;
   isCorrect: boolean;
@@ -354,7 +383,7 @@ export interface Hotel {
   commonFeedbackEn: string;
   image: string;
   images: string[];
-  galleryActions?: GalleryImageAction[];
+  galleryActions?: GalleryImageAction[]; // ← Устарело, используйте chain.steps.hotelPage.actions с galleryData
   amenities: Amenities;
   heart_tool_tip?: string;
   heart_tool_tipEn?: string;

@@ -158,7 +158,12 @@ interface GameContextType {
   setCurrentBooking: (booking: RoomBooking | null) => void;
   clearCurrentBooking: () => void;
   // Методы для текущего прогресса отеля
-  setCurrentHotelProgress: (progress: CurrentHotelProgress | null) => void;
+  setCurrentHotelProgress: (
+    progress:
+      | CurrentHotelProgress
+      | null
+      | ((prev: CurrentHotelProgress | null) => CurrentHotelProgress | null)
+  ) => void;
   clearCurrentHotelProgress: () => void;
   getCurrentHotelProgress: () => CurrentHotelProgress | null;
   getCurrentHotelId: () => string | undefined;
@@ -294,15 +299,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
   /**
    * Установить прогресс текущего отеля
    */
-  const setCurrentHotelProgress = (progress: CurrentHotelProgress | null) => {
+  const setCurrentHotelProgress = (
+    progress:
+      | CurrentHotelProgress
+      | null
+      | ((prev: CurrentHotelProgress | null) => CurrentHotelProgress | null)
+  ) => {
     setPlayerStatus((prev) => {
-      const isSame = JSON.stringify(prev.currentHotelProgress) === JSON.stringify(progress);
+      const newProgress =
+        typeof progress === 'function' ? progress(prev.currentHotelProgress) : progress;
+      const isSame = JSON.stringify(prev.currentHotelProgress) === JSON.stringify(newProgress);
       if (isSame) {
         return prev;
       }
       return {
         ...prev,
-        currentHotelProgress: progress,
+        currentHotelProgress: newProgress,
         updatedAt: new Date().toISOString(),
       };
     });
@@ -670,21 +682,39 @@ export function GameProvider({ children }: { children: ReactNode }) {
   /**
    * Установить состояние галереи
    */
-  const setGalleryState = (imageIndex: number, toggled: boolean) => {
+  const setGalleryState = (
+    imageIndexOrFn: number | ((prev: Record<number, boolean>) => Record<number, boolean>),
+    toggled?: boolean
+  ) => {
     setPlayerStatus((prev) => {
       if (!prev.currentHotelProgress) return prev;
 
-      return {
-        ...prev,
-        currentHotelProgress: {
-          ...prev.currentHotelProgress,
-          galleryStates: {
-            ...prev.currentHotelProgress.galleryStates,
-            [imageIndex]: toggled,
+      if (typeof imageIndexOrFn === 'function') {
+        // Функциональное обновление
+        const newGalleryStates = imageIndexOrFn(prev.currentHotelProgress.galleryStates || {});
+        return {
+          ...prev,
+          currentHotelProgress: {
+            ...prev.currentHotelProgress,
+            galleryStates: newGalleryStates,
           },
-        },
-        updatedAt: new Date().toISOString(),
-      };
+          updatedAt: new Date().toISOString(),
+        };
+      } else {
+        // Прямое обновление
+        const imageIndex = imageIndexOrFn;
+        return {
+          ...prev,
+          currentHotelProgress: {
+            ...prev.currentHotelProgress,
+            galleryStates: {
+              ...prev.currentHotelProgress.galleryStates,
+              [imageIndex]: toggled,
+            },
+          },
+          updatedAt: new Date().toISOString(),
+        };
+      }
     });
   };
 
