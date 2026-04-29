@@ -257,8 +257,8 @@ export const lastPeakData: Hotel = {
   noise: '◌●◦.˳◯. ‹‹ ⊜ ◔◡◔ ⊘ ››',
   endBookingMassege: 'Бронирование подтверждено. Биологический статус: Человек.',
   endBookingMassegeEn: 'Booking confirmed. Biological status: Human.', //капча?
-  endAlienBookingMassege: 'Бронирование подтверждено. Биологический статус: Другое.',
-  endAlienBookingMassegeEn: 'Booking confirmed. Biological status: Other.',
+  endWrongBookingMassege: 'Бронирование подтверждено. Биологический статус: Другое.',
+  endWrongBookingMassegeEn: 'Booking confirmed. Biological status: Other.',
   captcha: {
     question: 'Выберите изображения с портящейся едой:',
     questionEn: 'Select images with spoiled food:',
@@ -391,6 +391,13 @@ export const lastPeakChain: Chain = {
         },
       ],
       transitions: {
+        submitInvalidDates: {
+          conditions: [
+            { field: 'dateOrder', operator: 'is-before', value: false }, // Check if checkInDate is NOT before checkOutDate
+          ],
+          nextStep: 'captcha',
+          params: { captchaReason: 'alien' as const, bookingResult: 'unsafe' as const },
+        },
         submitSafe: {
           conditions: [
             { field: 'roomType', operator: 'eq', value: 'classic-comfort' },

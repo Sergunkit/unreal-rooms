@@ -12,10 +12,13 @@ export const evaluateConditions = (
 
   const tempBookingForm = progress?.tempBookingForm;
 
-  return conditions.every((condition) => {
+  const result = conditions.every((condition) => {
     const { field, operator, value } = condition;
 
-    if (!tempBookingForm && field !== 'inventory' && field !== 'bookingResult') return false;
+    if (!tempBookingForm && field !== 'inventory' && field !== 'bookingResult') {
+      console.log(`[evaluateConditions] No tempBookingForm for field ${field}`);
+      return false;
+    }
 
     switch (field) {
       case 'inventory':
@@ -70,6 +73,28 @@ export const evaluateConditions = (
         if (operator === 'eq') return tempBookingForm!.paymentMethod === value;
         if (operator === 'ne') return tempBookingForm!.paymentMethod !== value;
         break;
+      case 'dateOrder':
+        if (operator === 'is-before') {
+          const checkInDate = tempBookingForm!.checkInDate;
+          const checkOutDate = tempBookingForm!.checkOutDate;
+          if (!checkInDate || !checkOutDate) {
+            console.log('[evaluateConditions] dateOrder: Missing checkInDate or checkOutDate', { checkInDate, checkOutDate });
+            return false; // If either date is missing, condition is not met
+          }
+          const checkIn = new Date(checkInDate);
+          const checkOut = new Date(checkOutDate);
+          const isCheckInBeforeCheckOut = checkIn < checkOut;
+          const conditionMet = (isCheckInBeforeCheckOut === value); // value is expected to be boolean
+          console.log('[evaluateConditions] dateOrder:', {
+            checkInDate,
+            checkOutDate,
+            isCheckInBeforeCheckOut,
+            expectedValue: value,
+            conditionMet
+          });
+          return conditionMet;
+        }
+        break;
       case 'dateRange':
         if (operator === 'not-intersects') {
           if (
@@ -105,8 +130,11 @@ export const evaluateConditions = (
         }
         break;
       default:
+        console.log(`[evaluateConditions] Unknown field or operator for field ${field}`);
         return false;
     }
     return false;
   });
+  console.log(`[evaluateConditions] Overall conditions.every() result: ${result}`);
+  return result;
 };

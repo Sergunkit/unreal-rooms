@@ -109,6 +109,11 @@ export function useHotelFlow(hotelId?: string) {
       console.log('[useHotelFlow] nextChainStep called. Current activeStep:', progress?.activeStep);
       console.log('[useHotelFlow] Current progress.floor:', progress?.floor);
       console.log('[useHotelFlow] nextFloor argument:', nextFloor);
+      console.log('[useHotelFlow] tempBookingForm dates:', {
+        checkInDate: progress?.tempBookingForm?.checkInDate,
+        checkOutDate: progress?.tempBookingForm?.checkOutDate,
+      });
+
       if (!progress || !chain) return;
 
       const currentStepId = progress.activeStep;
