@@ -423,7 +423,7 @@ export const soldierData = {
     {
       id: 2,
       author: 'Owen',
-      text: 'Прилив здесь — это не просто природное явление, а часть се��виса. Когда вода отрезает остров от мир��, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
+      text: 'Прилив здесь — это не просто природное явление, а часть сервиса. Когда вода отрезает остров от мира, ты наконец понимаешь, что никто не придет и не помешает тебе насладиться отдыхом. Кухня изысканная, особенно запомнилась макрель. Жаль, что гости так быстро расходятся по своим номерам и больше не выходят к ужину. Отель действительно дает каждому именно то, что он заслужил. До встречи в суде... то есть, в лобби',
       textEn:
         'The tide here is not just a natural phenomenon but part of the service. When the water cuts off the island from the world, you finally realize that no one will come and disturb your relaxation. The cuisine is exquisite, especially the mackerel. Too bad guests quickly disperse to their rooms and never come out for dinner again. The hotel truly gives each person exactly what they deserve. See you in court... no, in the lobby.',
     },
@@ -435,7 +435,7 @@ export const soldierData = {
         'The view from the attic ("High Tide" Attic) is breathtaking. So much so that you just want to take a step forward and not think about anything. The hook in the ceiling is very sturdy, tested. The service is unobtrusive — during my entire stay I didn’t see a single living person, only a voice from the gramophone. Perfect for those who want to be alone with themselves forever.',
     },
   ],
-  noise: 'Звук закончвшейся пластинки',
+  noise: 'Звук законченной пластинки',
   endBookingMassege: 'Приговор утвержден. Все комнаты заняты',
   endBookingMassegeEn: 'The verdict is in. All rooms are occupied',
   endWrongBookingMassege:
@@ -445,23 +445,23 @@ export const soldierData = {
   
   bookingStates: {
     default: {
-      roomNumberTemplate: '{floor}{suffix}',
+      // roomNumberTemplate: '{floor}{suffix}',
       defaultFloor: 1,
-      floorOptions: [1, 4, 7, 9, 11, 14],
-      suffixByRoomType: {
-        'last-stand': '01',
-        'deep-sleep': '02',
-        'angler’s-rest': '03',
-        'hearth-Home': '04',
-        'golden-hour': '05',
-        'gold-fish': '06',
-        beekeeper: '07',
-        'first-aid': '08',
-        'high-tide': '09',
-        nightcap: '10',
-        verdict: '11',
-      },
-      roomType: 'last-stand',
+      // floorOptions: [1, 4, 7, 9, 11, 14],
+      // suffixByRoomType: {
+      //   'last-stand': '01',
+      //   'deep-sleep': '02',
+      //   'angler’s-rest': '03',
+      //   'hearth-Home': '04',
+      //   'golden-hour': '05',
+      //   'gold-fish': '06',
+      //   beekeeper: '07',
+      //   'first-aid': '08',
+      //   'high-tide': '09',
+      //   nightcap: '10',
+      //   verdict: '11',
+      // },
+      roomType: 'high-tide',
       guests: 2,
       rooms: 1,
       mealType: 'half-board',
@@ -501,7 +501,6 @@ export const soldierChain: Chain = {
             alternateImage: galleryImageSoldier2_7,
             message: 'Сердце тебе поможет сделать правильный выбор.',
             messageEn: 'The heart will help you make the right choice.',
-            coords: { x1: 35, y1: 60, x2: 65, y2: 76 },
           },
         },
         {

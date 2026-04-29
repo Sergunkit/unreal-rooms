@@ -95,22 +95,6 @@ export const usherData: Hotel = {
       },
     ],
   },
-  // initialBookingState: {
-  //   roomNumberTemplate: '{floor}{suffix}',
-  //   defaultFloor: 1,
-  //   floorOptions: [1, 4, 7, 9, 12],
-  //   suffixByRoomType: {
-  //     carl: '01',
-  //     napoleon: '02',
-  //     tamerlan: '03',
-  //   },
-  //   roomType: 'carl',
-  //   guests: 2,
-  //   rooms: 1,
-  //   mealType: 'breakfast',
-  //   needTransfer: false,
-  //   checkInTime: '15:00',
-  // },
   mealTypes: [
     {
       value: 'breakfast',
@@ -243,7 +227,7 @@ export const usherData: Hotel = {
   ],
 };
 
-// ==================== НОВАЯ ЦЕПОЧКА (для миграции) ====================
+// ==================== НОВАЯ ЦЕПОЧКА (для миграции) ========================================
 export const usherChain: Chain = {
   hotelId: 9,
   type: 'custom',
@@ -272,7 +256,6 @@ export const usherChain: Chain = {
             alternateImage: galleryUsher2_9,
             message: 'Ворон каркнул: "NEVERMORE". Промокод на скидку получен!',
             messageEn: 'The Raven croaked: "NEVERMORE". Discount code received!',
-            coords: { x1: 40, y1: 40, x2: 60, y2: 60 },
           },
         },
         {

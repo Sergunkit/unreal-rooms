@@ -248,7 +248,6 @@ export const continentalChain: Chain = {
           galleryData: {
             type: 'hint',
             message: 'Харон: "Приятно снова видеть вас. Номер готов, если у вас есть монета."',
-            coords: { x1: 45, y1: 20, x2: 55, y2: 60 },
           },
         },
         {

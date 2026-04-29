@@ -100,7 +100,7 @@ export function HotelDetailPage() {
     handleGalleryClick,
     handleCaptchaSuccess,
     handleFloorSelect,
-    getGalleryData,
+    getGalleryAction,
     canBook,
     nextChainStep,
     updateFlowState,
@@ -504,25 +504,25 @@ export function HotelDetailPage() {
               <div className="overflow-hidden rounded-lg" ref={emblaRef}>
                 <div className="flex">
                   {hotel.images.map((image, index) => {
-                    const galleryAction = getGalleryData(index);
+                    const galleryAction = getGalleryAction(index);
                     const isHeadImageToggled =
-                      galleryAction?.type === 'toggle' && (flowState.galleryStates[index] ?? false);
+                      galleryAction?.galleryData?.type === 'toggle' && (flowState.galleryStates[index] ?? false);
                     const isFigurinesToggled =
-                      galleryAction?.type === 'hint' && (flowState.galleryStates[index] ?? false);
+                      galleryAction?.galleryData?.type === 'hint' && (flowState.galleryStates[index] ?? false);
                     const isArtifactToggled =
-                      galleryAction?.type === 'artifact-find' &&
+                      galleryAction?.galleryData?.type === 'artifact-find' &&
                       (flowState.galleryStates[index] ?? false);
 
                     return (
                       <div key={index} className="flex-[0_0_100%] min-w-0">
-                        {galleryAction?.type === 'toggle' ? (
+                        {galleryAction?.galleryData?.type === 'toggle' ? (
                           <img
-                            src={isHeadImageToggled ? galleryAction.alternateImage : image}
+                            src={isHeadImageToggled ? galleryAction.galleryData?.alternateImage : image}
                             alt={`${hotel.name} ${index + 1}`}
                             className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
                             onClick={() => handleGalleryClick(index)}
                           />
-                        ) : galleryAction?.type === 'hint' ? (
+                        ) : galleryAction?.galleryData?.type === 'hint' ? (
                           <div
                             className="relative"
                             onClick={(e) => {
@@ -530,13 +530,14 @@ export function HotelDetailPage() {
                               const rect = e.currentTarget.getBoundingClientRect();
                               const x = ((e.clientX - rect.left) / rect.width) * 100;
                               const y = ((e.clientY - rect.top) / rect.height) * 100;
+                              const triggerCoords = galleryAction.trigger?.coords;
 
                               if (
-                                galleryAction.coords &&
-                                x >= galleryAction.coords.x1 &&
-                                x <= galleryAction.coords.x2 &&
-                                y >= galleryAction.coords.y1 &&
-                                y <= galleryAction.coords.y2
+                                triggerCoords &&
+                                x >= triggerCoords.x1 &&
+                                x <= triggerCoords.x2 &&
+                                y >= triggerCoords.y1 &&
+                                y <= triggerCoords.y2
                               ) {
                                 const triggeredAction = handleGalleryClick(index, { x, y });
                                 if (triggeredAction) {
@@ -544,8 +545,8 @@ export function HotelDetailPage() {
                                     show: true,
                                     text:
                                       language === 'ru'
-                                        ? galleryAction.message!
-                                        : galleryAction.messageEn!,
+                                        ? galleryAction.galleryData?.message!
+                                        : galleryAction.galleryData?.messageEn!,
                                   });
                                   setTimeout(
                                     () => setShowGalleryMessage({ show: false, text: '' }),
@@ -557,34 +558,35 @@ export function HotelDetailPage() {
                           >
                             <img
                               src={
-                                isFigurinesToggled && galleryAction.alternateImage
-                                  ? galleryAction.alternateImage
+                                isFigurinesToggled && galleryAction.galleryData?.alternateImage
+                                  ? galleryAction.galleryData?.alternateImage
                                   : image
                               }
                               alt={`${hotel.name} ${index + 1}`}
                               className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
                             />
                           </div>
-                        ) : galleryAction?.type === 'artifact-find' ? (
+                        ) : galleryAction?.galleryData?.type === 'artifact-find' ? (
                           <div
                             className="relative"
                             onClick={(e) => {
                               const rect = e.currentTarget.getBoundingClientRect();
                               const x = ((e.clientX - rect.left) / rect.width) * 100;
                               const y = ((e.clientY - rect.top) / rect.height) * 100;
+                              const triggerCoords = galleryAction.trigger?.coords;
 
                               if (
-                                galleryAction.coords &&
-                                x >= galleryAction.coords.x1 &&
-                                x <= galleryAction.coords.x2 &&
-                                y >= galleryAction.coords.y1 &&
-                                y <= galleryAction.coords.y2
+                                triggerCoords &&
+                                x >= triggerCoords.x1 &&
+                                x <= triggerCoords.x2 &&
+                                y >= triggerCoords.y1 &&
+                                y <= triggerCoords.y2
                               ) {
                                 const triggeredAction = handleGalleryClick(index, { x, y });
                                 if (triggeredAction) {
                                   // Show artifact modal
-                                  if (galleryAction.artefact) {
-                                    const artefactData = artefacts[galleryAction.artefact];
+                                  if (galleryAction.galleryData?.artefact) {
+                                    const artefactData = artefacts[galleryAction.galleryData?.artefact];
                                     if (artefactData) {
                                       setFoundArtifactId(artefactData.id);
                                       // Проверка: уже ли артефакт в инвентаре
@@ -599,15 +601,15 @@ export function HotelDetailPage() {
                           >
                             <img
                               src={
-                                isArtifactToggled && galleryAction.alternateImage
-                                  ? galleryAction.alternateImage
+                                isArtifactToggled && galleryAction.galleryData?.alternateImage
+                                  ? galleryAction.galleryData?.alternateImage
                                   : image
                               }
                               alt={`${hotel.name} ${index + 1}`}
                               className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
                             />
                           </div>
-                        ) : galleryAction?.type === 'capcha-get' ? (
+                        ) : galleryAction?.galleryData?.type === 'capcha-get' ? (
                           <div
                             className="relative"
                             onClick={(e) => {
@@ -621,8 +623,8 @@ export function HotelDetailPage() {
                                   show: true,
                                   text:
                                     language === 'ru'
-                                      ? galleryAction.message!
-                                      : galleryAction.messageEn!,
+                                      ? galleryAction.galleryData?.message!
+                                      : galleryAction.galleryData?.messageEn!,
                                 });
                                 setTimeout(
                                   () => setShowGalleryMessage({ show: false, text: '' }),

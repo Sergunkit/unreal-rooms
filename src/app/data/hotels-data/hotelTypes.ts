@@ -90,6 +90,7 @@ export interface GalleryActionData {
   type: 'toggle' | 'hint' | 'figurines' | 'artifact-find' | 'capcha-get';
   alternateImage?: string;
   coords?: { x1: number; y1: number; x2: number; y2: number };
+  triggerCoords?: { x1: number; y1: number; x2: number; y2: number };
   message?: string;
   messageEn?: string;
   artefact?: string; // id артефакта

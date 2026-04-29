@@ -62,12 +62,12 @@ export const overluxData = {
     ],
     sports: [
       'Теннисный корт (мячики предоставляются)',
-      'Бильярдная',
+      'Прокат велосипедов',
       'Пешие маршруты',
     ],
     sportsEn: [
       'Tennis court (balls are provided)',
-      'Billiard room',
+      'Bicycle rental',
       'Hiking trails',
     ],
     additional: [
@@ -89,11 +89,11 @@ export const overluxData = {
     additionalServices: [
       {
         id: 'spa-access',
-        name: 'Абонемент в бассейн, SPA',
-        nameEn: 'Pool and SPA membership',
+        name: 'Абонемент в криосауну',
+        nameEn: 'Cryosauna membership',
         price: 30,
       },
-      { id: 'snowmobile-rent', name: 'Аренда велосипедов (снегоходов)', nameEn: 'Bicycle (snowmobile) rental', price: 5 },
+      { id: 'neck-massage', name: 'Массаж шеи', nameEn: 'Neck massage', price: 5 },
       {
         id: 'pantry',
         name: 'Доступ в кладовую с продуктами',
@@ -217,8 +217,16 @@ export const overluxData = {
     'All work and no play makes Jack a dull boy.',
   ],
   prize: 'bottle-with-note',
-  
-  
+
+  promoCodes: [
+    {
+      code: 'REDRUM',
+      discount: 20,
+      description: 'Скидка за правильный выбор',
+      descriptionEn: 'Discount for the right choice',
+    },
+  ],
+
   feedBacks: [
     {
       id: 1,
@@ -306,10 +314,9 @@ export const overluxChain: Chain = {
           trigger: { imageIndex: 3, coords: { x1: 20, y1: 60, x2: 60, y2: 85 } },
           nextStep: 'hotelPage',
           galleryData: {
-            type: 'hint',
+            type: 'toggle',
             alternateImage: gallery7,
             resetOnReentry: true,
-            coords: { x1: 20, y1: 60, x2: 60, y2: 85 },
           },
         },
         {
@@ -320,10 +327,9 @@ export const overluxChain: Chain = {
           galleryData: {
             type: 'hint',
             alternateImage: gallery3Alt,
-            message: 'Иллюзия рассеялась. Вечеринка закончилась много лет назад.',
-            messageEn: 'The illusion faded. The party ended many years ago.',
+            message: 'Зима тут не самое лучшее время для отрыва от цивилизации.',
+            messageEn: 'Winter is not the best time to get away from civilization here.',
             resetOnReentry: true,
-            coords: { x1: 0, y1: 0, x2: 90, y2: 90 },
           },
         },
         {
@@ -335,7 +341,6 @@ export const overluxChain: Chain = {
             type: 'artifact-find',
             artefact: 'dannys-ball',
             resetOnReentry: false,
-            coords: { x1: 35, y1: 35, x2: 65, y2: 65 },
           },
         },
         {
@@ -411,6 +416,7 @@ export const overluxChain: Chain = {
             { field: 'additionalServices', operator: 'contains', value: 'satellite-connection' },
             { field: 'inventory', operator: 'contains', value: 'dannys-ball' },
             { field: 'additionalServices', operator: 'not-contains', value: 'spa-access' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'neck-massage' },
             { field: 'mealType', operator: 'ne', value: 'all-inclusive' },
             { field: 'roomType', operator: 'ne', value: 'room237' },
             { field: 'dateRange', operator: 'not-intersects', value: { fromMonth: 10, toMonth: 2 } }

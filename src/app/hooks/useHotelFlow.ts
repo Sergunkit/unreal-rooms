@@ -29,29 +29,55 @@ export function useHotelFlow(hotelId?: string) {
   const isSafeBookingState = useMemo(() => {
     // If a booking result has been determined, that is the source of truth.
     if (progress?.bookingResult) {
+      console.log('[isSafeBookingState] bookingResult:', progress.bookingResult);
       return progress.bookingResult === 'safe';
     }
 
+    // Check if hotel has floor selection step (Stay Ceil has floorSelect step)
+    const hasFloorSelection = chain?.steps?.floorSelect;
+    if (hasFloorSelection) {
+      // Если floor НЕ был выбран через капчу (floorSelected !== true) — это опасно,
+      // потому что по умолчанию используется 14 этаж с номером 1402
+      if (progress?.floorSelected !== true) {
+        console.log('[isSafeBookingState] floorSelected !== true, returning false (unsafe)');
+        return false;
+      }
+
+      // floorSelected === true, проверяем что floor не 14
+      const currentFloor =
+        typeof progress?.floor === 'string' ? parseInt(progress.floor, 10) : progress?.floor;
+      if (currentFloor === 14) {
+        console.log('[isSafeBookingState] floor === 14, returning false (unsafe)');
+        return false;
+      }
+    }
+
     // If we are not on the booking form, the concept of a "safe booking state" is not applicable
-    // in the same way. We can default to false, assuming an unknown state is potentially unsafe.
     if (!chain || !progress?.tempBookingForm || progress.activeStep !== 'bookingForm') {
+      console.log('[isSafeBookingState] not on bookingForm, returning false');
       return false;
     }
 
     // If on the booking form, evaluate the conditions for a safe transition.
     const currentStep = chain.steps.bookingForm;
-    if (!currentStep?.transitions) return false;
+    if (!currentStep?.transitions) {
+      console.log('[isSafeBookingState] no transitions, returning false');
+      return false;
+    }
 
     const safeTransitions = ['submitWithPromo', 'submitSafe'];
     for (const transitionName of safeTransitions) {
       const transition = currentStep.transitions[transitionName];
       if (transition?.conditions) {
-        if (evaluateConditions(transition.conditions, playerStatus.inventory, progress)) {
+        const result = evaluateConditions(transition.conditions, playerStatus.inventory, progress);
+        console.log(`[isSafeBookingState] ${transitionName} conditions result:`, result);
+        if (result) {
           return true;
         }
       }
     }
 
+    console.log('[isSafeBookingState] no safe transition matched, returning false');
     return false;
   }, [chain, progress, playerStatus.inventory]);
 
@@ -81,6 +107,8 @@ export function useHotelFlow(hotelId?: string) {
   const nextChainStep = useCallback(
     (nextFloor?: number) => {
       console.log('[useHotelFlow] nextChainStep called. Current activeStep:', progress?.activeStep);
+      console.log('[useHotelFlow] Current progress.floor:', progress?.floor);
+      console.log('[useHotelFlow] nextFloor argument:', nextFloor);
       if (!progress || !chain) return;
 
       const currentStepId = progress.activeStep;
@@ -93,8 +121,10 @@ export function useHotelFlow(hotelId?: string) {
       const transitionKeys = Object.keys(currentStep.transitions);
       for (const transitionKey of transitionKeys) {
         const transition = currentStep.transitions[transitionKey];
+        console.log(`[useHotelFlow] Checking transition: ${transitionKey}`);
         // Если conditions нет или она пустая - это fallback transition
         if (!transition.conditions || transition.conditions.length === 0) {
+          console.log(`[useHotelFlow] ${transitionKey} is fallback (no conditions)`);
           nextStep = transition.nextStep;
           params = transition.params ?? {};
 
@@ -108,7 +138,14 @@ export function useHotelFlow(hotelId?: string) {
 
           break;
         }
-        if (evaluateConditions(transition.conditions, playerStatus.inventory, progress)) {
+        const conditionsMet = evaluateConditions(
+          transition.conditions,
+          playerStatus.inventory,
+          progress
+        );
+        console.log(`[useHotelFlow] ${transitionKey} conditions result:`, conditionsMet);
+        if (conditionsMet) {
+          console.log(`[useHotelFlow] ${transitionKey} conditions met!`);
           nextStep = transition.nextStep;
           params = transition.params ?? {};
 
@@ -126,7 +163,16 @@ export function useHotelFlow(hotelId?: string) {
 
       if (!nextStep) return;
 
-      const captchaReason = nextStep === 'captcha' ? determineCaptchaReason() : undefined;
+      // Check for captchaReason in params first, then fall back to determineCaptchaReason
+      let captchaReason: 'alien' | 'human' | undefined;
+      if (
+        'captchaReason' in params &&
+        (params.captchaReason === 'alien' || params.captchaReason === 'human')
+      ) {
+        captchaReason = params.captchaReason;
+      } else if (nextStep === 'captcha') {
+        captchaReason = determineCaptchaReason();
+      }
 
       const newProgress: CurrentHotelProgress & { bookingResult?: 'safe' | 'unsafe' } = {
         ...progress,
@@ -147,6 +193,10 @@ export function useHotelFlow(hotelId?: string) {
         newProgress.bookingResult = params.bookingResult;
       }
 
+      console.log('[useHotelFlow] Final transition:', {
+        nextStep,
+        bookingResult: newProgress.bookingResult,
+      });
       setCurrentHotelProgress(newProgress);
     },
     [
@@ -280,8 +330,8 @@ export function useHotelFlow(hotelId?: string) {
     [chain, progress, hotel, markGalleryActionTriggered, setCurrentHotelProgress]
   );
 
-  // Helper to get galleryData from chain actions by imageIndex
-  const getGalleryData = useCallback(
+  // Helper to get full action data for gallery by imageIndex
+  const getGalleryAction = useCallback(
     (imageIndex: number) => {
       if (!chain) return null;
       const hotelPageStep = chain.steps.hotelPage;
@@ -290,7 +340,7 @@ export function useHotelFlow(hotelId?: string) {
       const action = hotelPageStep.actions.find(
         (a) => a.type === 'galleryClick' && a.trigger?.imageIndex === imageIndex
       );
-      return action?.galleryData || null;
+      return action || null;
     },
     [chain]
   );
@@ -333,6 +383,7 @@ export function useHotelFlow(hotelId?: string) {
       if (!progress || !chain) return;
       const currentStep = chain.steps[progress.activeStep];
       if (currentStep?.transitions?.confirm) {
+        // console.log('[handleFloorSelect] Setting floor:', floor);
         setCurrentHotelProgress({
           ...progress,
           activeStep: currentStep.transitions.confirm.nextStep,
@@ -359,7 +410,7 @@ export function useHotelFlow(hotelId?: string) {
     handleGalleryClick,
     handleCaptchaSuccess,
     handleFloorSelect,
-    getGalleryData,
+    getGalleryAction,
     canBook: isSafeBookingState,
     nextChainStep,
     updateFlowState,

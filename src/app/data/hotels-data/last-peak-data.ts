@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import type { Chain, LegacyChainStep, Hotel } from './hotelTypes';
+import type { Chain, Hotel } from './hotelTypes';
 import headImage8 from '../images/LastPeak/head-Image.jpg';
 import headImageAlt8 from '../images/LastPeak/head-Image-alt.jpg';
 import galleryImage1_8 from '../images/LastPeak/gallery-1.jpg';
@@ -50,7 +50,7 @@ export const lastPeakData: Hotel = {
     'A secluded mountain lodge in a snowy gorge. A place for those seeking true solitude and fresh mountain air. A building with a rich history, shrouded in legends of fallen heroes and strange lights in the sky. Here, every guest is a mystery, and every avalanche is a reason to stay longer. Please, keep an eye on your watch.',
   commonFeedback: '(Отзывы часто написаны на языках, не распознаваемых браузером)',
   commonFeedbackEn: '(Reviews are often written in languages not recognized by the browser)',
-  location: 'Перевал Мертвого Альпиниста, Альпы',
+  location: 'Перевал Погибшего Альпиниста, Альпы',
   locationEn: 'Dead Mountaineer’s Pass, Alps',
   image: headImage8,
   images: [
@@ -128,18 +128,18 @@ export const lastPeakData: Hotel = {
   },
   bookingStates: {
     default: {
-      roomNumberTemplate: '{floor}{suffix}',
-      defaultFloor: 10,
-      floorOptions: [10, 13, 17, 21, 24, 27],
-      suffixByRoomType: {
-        'classic-comfort': '01',
-        'infinity-view': '02',
-        'specialist-suite': '03',
-      },
-      roomType: 'classic-comfort',
+      // roomNumberTemplate: '{floor}{suffix}',
+      // defaultFloor: 10,
+      // floorOptions: [10, 13, 17, 21, 24, 27],
+      // suffixByRoomType: {
+      //   'classic-comfort': '01',
+      //   'infinity-view': '02',
+      //   'specialist-suite': '03',
+      // },
+      roomType: 'infinity-view',
       guests: 2,
       rooms: 1,
-      mealType: 'standard',
+      mealType: 'high-energy',
       needTransfer: false,
       checkInTime: '15:00',
       checkInDate: '2026-05-10',
@@ -259,44 +259,6 @@ export const lastPeakData: Hotel = {
   endBookingMassegeEn: 'Booking confirmed. Biological status: Human.', //капча?
   endAlienBookingMassege: 'Бронирование подтверждено. Биологический статус: Другое.',
   endAlienBookingMassegeEn: 'Booking confirmed. Biological status: Other.',
-  // passingConditions: {
-  //   roomId: 'classic-comfort',
-  //   mealTypes: ['standard'],
-  //   additionalServices: ['dog-service'],
-  //   inventory: ['mountaineers-hammer'],
-  // },
-  customBookingChain: {
-    steps: [
-      'hotelPage',
-      'bookingForm',
-      'captcha',
-      'bookingConfirm',
-      'bookingComplete',
-      'prizeModal',
-      'myBookingsPage',
-    ] as LegacyChainStep[],
-    // Условия перехода от bookingForm к captcha
-    transitions: {
-      bookingForm: {
-        requires: {
-          roomType: 'classic-comfort',
-          mealTypes: ['standard'],
-          services: ['dog-service'],
-          inventory: ['mountaineers-hammer'],
-        },
-        alternative: {
-          step: 'captcha',
-          reason: 'alien', // Если условия не выполнены — капча для инопланетян
-        },
-      },
-    },
-  },
-  // wrongOptions: {
-  //   additionalServices: ['entropy-fix'],
-  //   roomId: ['infinity-view', 'specialist-suite'],
-  //   mealTypes: ['molecular-regeneration', 'high-energy'],
-  //   checkInTime: '00:00', // Инопланетяне заезжают в полночь
-  // },
   captcha: {
     question: 'Выберите изображения с портящейся едой:',
     questionEn: 'Select images with spoiled food:',
@@ -362,7 +324,6 @@ export const lastPeakChain: Chain = {
             alternateImage: galleryImageAlt1_8,
             message: 'Сенбернар Лель проявляет беспокойство. Он чувствует нечеловеческую активность.',
             messageEn: 'Lel the St. Bernard is anxious. He senses non-human activity.',
-            coords: { x1: 40, y1: 50, x2: 60, y2: 70 },
           },
         },
         {
@@ -374,7 +335,6 @@ export const lastPeakChain: Chain = {
             type: 'artifact-find',
             alternateImage: galleryImageAlt2_8,
             artefact: 'mountaineers-hammer',
-            coords: { x1: 5, y1: 30, x2: 20, y2: 50 },
           },
         },
         {
@@ -421,7 +381,7 @@ export const lastPeakChain: Chain = {
         {
           id: 'submit-form',
           type: 'formSubmit',
-          nextStep: 'captcha', // ← Всегда идем на капчу
+          nextStep: 'captcha',
         },
         {
           id: 'cancel-booking',
@@ -431,8 +391,19 @@ export const lastPeakChain: Chain = {
         },
       ],
       transitions: {
-        submit: {
-          nextStep: 'captcha', // ← Капча определит тип (alien/human)
+        submitSafe: {
+          conditions: [
+            { field: 'roomType', operator: 'eq', value: 'classic-comfort' },
+            { field: 'mealType', operator: 'eq', value: 'standard' },
+            { field: 'additionalServices', operator: 'contains', value: 'dog-service' },
+            { field: 'inventory', operator: 'contains', value: 'mountaineers-hammer' },
+          ],
+          nextStep: 'captcha',
+          params: { captchaReason: 'human' as const, bookingResult: 'safe' as const },
+        },
+        submitUnsafe: {
+          nextStep: 'captcha',
+          params: { captchaReason: 'alien' as const, bookingResult: 'unsafe' as const },
         },
       },
     },
