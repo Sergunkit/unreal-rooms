@@ -14,6 +14,7 @@ import mechanicalHeart from './images/artefacts/Mechanical-Heart.jpg';
 import secureCode from './images/artefacts/Secure-Code.jpg';
 import goldCoin from './images/artefacts/Gold-coin.jpg';
 import dannysBall from './images/artefacts/Dannys-ball.jpg';
+import dogCollar from './images/artefacts/Dog-collar.jpg';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -142,6 +143,16 @@ export const artefacts: Record<string, Artefact> = {
     descriptionEn: 'Tennis ball from the Overlook Hotel',
     image: dannysBall,
     type: 'lost-and-found',
+    hotelId: '2',
+  },
+  'dog-collar': {
+    id: 'dog-collar',
+    name: 'Собачий ошейник',
+    nameEn: 'Dog collar',
+    description: 'Ошейник для сенбернара',
+    descriptionEn: 'Collar for a St. Bernard',
+    image: dogCollar,
+    type: 'prize',
     hotelId: '2',
   },
 };

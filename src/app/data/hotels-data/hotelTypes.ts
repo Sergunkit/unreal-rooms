@@ -30,7 +30,8 @@ export type ConditionOperator =
   | 'notIncludes'
   | 'contains'
   | 'not-contains'
-  | 'not-intersects';
+  | 'not-intersects'
+  | 'is-before';
 
 /**
  * Условие для проверки
@@ -44,6 +45,7 @@ export interface Condition {
     | 'additionalServices'
     | 'mealType'
     | 'dateRange'
+    | 'dateOrder'
     | 'promoCode'
     | 'floor'
     | 'floorSelected'

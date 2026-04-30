@@ -74,14 +74,14 @@ export const stayCeilData: Hotel = {
     additional: [
       'Кристально чистая вода (собственная фильтрация).',
       'Круглосуточный пост фельдшера.',
-      'Рамки металлоискателей на входе.',
+      'Рамки металлоискателей на входе и *выходе*.',
       'Еженедельное освящение всех помещений.',
       'Психологическая поддержка персонала 24/7.',
     ],
     additionalEn: [
       'Crystal clear water (own filtration).',
       '24/7 Paramedic post.',
-      'Metal detector frames at the entrance.',
+      'Metal detector frames at the entrance and *exit*.',
       'Weekly blessing of all premises.',
       '24/7 staff psychological support.',
     ],
@@ -244,23 +244,24 @@ export const stayCeilData: Hotel = {
 
   bookingStates: {
     default: { // Before floor select
-      roomNumber: '1402',
-      roomType: 'rehab',
+      defaultFloor: 14,
+      roomNumberTemplate: '{floor}02',
+      roomType: 'standard',
       lockedFields: ['roomNumber', 'roomType'],
       guests: 1,
       rooms: 1,
       mealType: 'no-meal',
-      needTransfer: false,
+      // needTransfer: false,
       checkInTime: '14:00',
       floorOptions: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
     },
     floorSelected: { // After floor select
-      roomType: 'rehab',
+      roomType: 'standard',
       lockedFields: [],
       guests: 1,
       rooms: 1,
       mealType: 'no-meal',
-      needTransfer: false,
+      // needTransfer: false,
       checkInTime: '14:00',
     }
   },
@@ -415,7 +416,7 @@ export const stayCeilChain: Chain = {
       id: 'bookingComplete',
       step: 7,
       transitions: {
-        default: { nextStep: 'prizeModal', delay: 2000 },
+        default: { nextStep: 'prizeModal', delay: 3000 },
       },
     },
 

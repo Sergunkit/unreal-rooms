@@ -403,9 +403,10 @@ export const lastPeakChain: Chain = {
             { field: 'roomType', operator: 'eq', value: 'classic-comfort' },
             { field: 'mealType', operator: 'eq', value: 'standard' },
             { field: 'additionalServices', operator: 'contains', value: 'dog-service' },
+            { field: 'additionalServices', operator: 'not-contains', value: 'entropy-fix' },
             { field: 'inventory', operator: 'contains', value: 'mountaineers-hammer' },
           ],
-          nextStep: 'captcha',
+          nextStep: 'bookingConfirm',
           params: { captchaReason: 'human' as const, bookingResult: 'safe' as const },
         },
         submitUnsafe: {

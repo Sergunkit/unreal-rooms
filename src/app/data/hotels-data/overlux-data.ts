@@ -210,13 +210,13 @@ export const overluxData = {
     'All work and no play makes Jack a dull boy.',
     'All work and no play makes Jack a dull boy.',
   ],
-  chatMassegesEn: [
+  chatMessagesEn: [
     'All work and no play makes Jack a dull boy.',
     'All work and no play makes Jack a dull boy.',
     'All work and no play makes Jack a dull boy.',
     'All work and no play makes Jack a dull boy.',
   ],
-  prize: 'bottle-with-note',
+  prize: 'mechanical-heart',
 
   promoCodes: [
     {
@@ -403,7 +403,7 @@ export const overluxChain: Chain = {
         },
       ],
       transitions: {
-        submitWithPromo: {
+        altSubmitSafe: {
           conditions: [
             { field: 'promoCode', operator: 'eq', value: 'REDRUM' }
           ],

@@ -27,9 +27,12 @@ export function useHotelFlow(hotelId?: string) {
     return getChainForHotel(hotelId);
   }, [hotelId, hotel]);
   const isSafeBookingState = useMemo(() => {
+    console.log('[isSafeBookingState] re-evaluating...'); // ADDED LOG
     // If a booking result has been determined, that is the source of truth.
-    if (progress?.bookingResult) {
-      console.log('[isSafeBookingState] bookingResult:', progress.bookingResult);
+    // But only use cached result if we're NOT on bookingForm — on bookingForm we need to
+    // re-evaluate based on current form data (user might change parameters after returning)
+    if (progress?.bookingResult && progress.activeStep !== 'bookingForm') {
+      console.log('[isSafeBookingState] bookingResult:', progress.bookingResult); // ADDED LOG
       return progress.bookingResult === 'safe';
     }
 
@@ -65,7 +68,7 @@ export function useHotelFlow(hotelId?: string) {
       return false;
     }
 
-    const safeTransitions = ['submitWithPromo', 'submitSafe'];
+    const safeTransitions = ['altSubmitSafe', 'submitSafe'];
     for (const transitionName of safeTransitions) {
       const transition = currentStep.transitions[transitionName];
       if (transition?.conditions) {
@@ -270,6 +273,7 @@ export function useHotelFlow(hotelId?: string) {
       captchaCompleted: false,
       floorSelected: false,
       completedSteps: [firstStepId],
+      bookingResult: undefined, // ADDED: Reset bookingResult
     });
   }, [hotelId, hotel, chain, progress?.hotelId, setCurrentHotelProgress]);
 

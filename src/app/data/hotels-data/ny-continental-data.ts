@@ -181,7 +181,7 @@ export const continentalData: Hotel = {
     },
   ],
   lostandfaund: ['gold-coin'],
-  prize: 'mechanical-heart',
+  prize: 'dog-collar',
   chatMassages: [
     'Рад вас видеть. Напоминаю, наш отель — зона мира.',
     'Ваш заказ у Сомелье будет готов через 10 минут.',

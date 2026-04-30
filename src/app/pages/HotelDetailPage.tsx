@@ -545,8 +545,8 @@ export function HotelDetailPage() {
                                     show: true,
                                     text:
                                       language === 'ru'
-                                        ? galleryAction.galleryData?.message!
-                                        : galleryAction.galleryData?.messageEn!,
+                                        ? (galleryAction.galleryData?.message ?? '')
+                                        : (galleryAction.galleryData?.messageEn ?? ''),
                                   });
                                   setTimeout(
                                     () => setShowGalleryMessage({ show: false, text: '' }),
@@ -623,8 +623,8 @@ export function HotelDetailPage() {
                                   show: true,
                                   text:
                                     language === 'ru'
-                                      ? galleryAction.galleryData?.message!
-                                      : galleryAction.galleryData?.messageEn!,
+                                      ? (galleryAction.galleryData?.message ?? '')
+                                      : (galleryAction.galleryData?.messageEn ?? ''),
                                 });
                                 setTimeout(
                                   () => setShowGalleryMessage({ show: false, text: '' }),
@@ -885,7 +885,7 @@ export function HotelDetailPage() {
               (item, i) => (
                 <div key={i} className="text-muted-foreground flex items-center gap-2">
                   <span className="text-primary">•</span>
-                  <span>{item}</span>
+                  <MarkdownText text={item} />
                 </div>
               )
             )}
