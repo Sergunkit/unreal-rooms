@@ -100,7 +100,7 @@ export function HotelDetailPage() {
     handleGalleryClick,
     handleCaptchaSuccess,
     handleFloorSelect,
-    getGalleryAction,
+    getGalleryActions,
     canBook,
     nextChainStep,
     updateFlowState,
@@ -504,137 +504,91 @@ export function HotelDetailPage() {
               <div className="overflow-hidden rounded-lg" ref={emblaRef}>
                 <div className="flex">
                   {hotel.images.map((image, index) => {
-                    const galleryAction = getGalleryAction(index);
+                    const galleryActions = getGalleryActions(index);
+                    const toggleAction = galleryActions.find((a) => a.galleryData?.type === 'toggle');
+                    const hintAction = galleryActions.find((a) => a.galleryData?.type === 'hint');
+                    const artifactAction = galleryActions.find((a) => a.galleryData?.type === 'artifact-find');
+                    const captchaAction = galleryActions.find((a) => a.galleryData?.type === 'capcha-get');
+
                     const isHeadImageToggled =
-                      galleryAction?.galleryData?.type === 'toggle' && (flowState.galleryStates[index] ?? false);
+                      toggleAction && (flowState.galleryStates[index] ?? false);
                     const isFigurinesToggled =
-                      galleryAction?.galleryData?.type === 'hint' && (flowState.galleryStates[index] ?? false);
+                      hintAction && (flowState.galleryStates[index] ?? false);
                     const isArtifactToggled =
-                      galleryAction?.galleryData?.type === 'artifact-find' &&
-                      (flowState.galleryStates[index] ?? false);
+                      artifactAction && (flowState.galleryStates[index] ?? false);
+
+                    const handleGalleryImageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+                      e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = ((e.clientX - rect.left) / rect.width) * 100;
+                      const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+                      const triggeredAction = handleGalleryClick(index, { x, y });
+                      if (!triggeredAction) return;
+
+                      // Handle hint type
+                      if (triggeredAction.galleryData?.type === 'hint') {
+                        setShowGalleryMessage({
+                          show: true,
+                          text:
+                            language === 'ru'
+                              ? (triggeredAction.galleryData?.message ?? '')
+                              : (triggeredAction.galleryData?.messageEn ?? ''),
+                        });
+                        setTimeout(
+                          () => setShowGalleryMessage({ show: false, text: '' }),
+                          3000
+                        );
+                      }
+
+                      // Handle artifact-find type
+                      if (triggeredAction.galleryData?.type === 'artifact-find' && triggeredAction.galleryData?.artefact) {
+                        const artefactData = artefacts[triggeredAction.galleryData.artefact];
+                        if (artefactData) {
+                          setFoundArtifactId(artefactData.id);
+                          const alreadyInInventory = hasInInventory(artefactData.id);
+                          setIsPrizeAlreadyCollected(alreadyInInventory);
+                          setShowArtifactModal(true);
+                        }
+                      }
+
+                      // Handle capcha-get type
+                      if (triggeredAction.galleryData?.type === 'capcha-get') {
+                        setShowGalleryMessage({
+                          show: true,
+                          text:
+                            language === 'ru'
+                              ? (triggeredAction.galleryData?.message ?? '')
+                              : (triggeredAction.galleryData?.messageEn ?? ''),
+                        });
+                        setTimeout(
+                          () => setShowGalleryMessage({ show: false, text: '' }),
+                          3000
+                        );
+                      }
+                    };
+
+                    const hasInteractiveActions = hintAction || artifactAction || captchaAction;
 
                     return (
                       <div key={index} className="flex-[0_0_100%] min-w-0">
-                        {galleryAction?.galleryData?.type === 'toggle' ? (
+                        {toggleAction ? (
                           <img
-                            src={isHeadImageToggled ? galleryAction.galleryData?.alternateImage : image}
+                            src={isHeadImageToggled ? toggleAction.galleryData?.alternateImage : image}
                             alt={`${hotel.name} ${index + 1}`}
                             className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
                             onClick={() => handleGalleryClick(index)}
                           />
-                        ) : galleryAction?.galleryData?.type === 'hint' ? (
-                          <div
-                            className="relative"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              const x = ((e.clientX - rect.left) / rect.width) * 100;
-                              const y = ((e.clientY - rect.top) / rect.height) * 100;
-                              const triggerCoords = galleryAction.trigger?.coords;
-
-                              if (
-                                triggerCoords &&
-                                x >= triggerCoords.x1 &&
-                                x <= triggerCoords.x2 &&
-                                y >= triggerCoords.y1 &&
-                                y <= triggerCoords.y2
-                              ) {
-                                const triggeredAction = handleGalleryClick(index, { x, y });
-                                if (triggeredAction) {
-                                  setShowGalleryMessage({
-                                    show: true,
-                                    text:
-                                      language === 'ru'
-                                        ? (galleryAction.galleryData?.message ?? '')
-                                        : (galleryAction.galleryData?.messageEn ?? ''),
-                                  });
-                                  setTimeout(
-                                    () => setShowGalleryMessage({ show: false, text: '' }),
-                                    3000
-                                  );
-                                }
-                              }
-                            }}
-                          >
+                        ) : hasInteractiveActions ? (
+                          <div className="relative" onClick={handleGalleryImageClick}>
                             <img
                               src={
-                                isFigurinesToggled && galleryAction.galleryData?.alternateImage
-                                  ? galleryAction.galleryData?.alternateImage
-                                  : image
+                                (isFigurinesToggled && hintAction?.galleryData?.alternateImage)
+                                  ? hintAction.galleryData.alternateImage
+                                  : (isArtifactToggled && artifactAction?.galleryData?.alternateImage)
+                                    ? artifactAction.galleryData.alternateImage
+                                    : image
                               }
-                              alt={`${hotel.name} ${index + 1}`}
-                              className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
-                            />
-                          </div>
-                        ) : galleryAction?.galleryData?.type === 'artifact-find' ? (
-                          <div
-                            className="relative"
-                            onClick={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              const x = ((e.clientX - rect.left) / rect.width) * 100;
-                              const y = ((e.clientY - rect.top) / rect.height) * 100;
-                              const triggerCoords = galleryAction.trigger?.coords;
-
-                              if (
-                                triggerCoords &&
-                                x >= triggerCoords.x1 &&
-                                x <= triggerCoords.x2 &&
-                                y >= triggerCoords.y1 &&
-                                y <= triggerCoords.y2
-                              ) {
-                                const triggeredAction = handleGalleryClick(index, { x, y });
-                                if (triggeredAction) {
-                                  // Show artifact modal
-                                  if (galleryAction.galleryData?.artefact) {
-                                    const artefactData = artefacts[galleryAction.galleryData?.artefact];
-                                    if (artefactData) {
-                                      setFoundArtifactId(artefactData.id);
-                                      // Проверка: уже ли артефакт в инвентаре
-                                      const alreadyInInventory = hasInInventory(artefactData.id);
-                                      setIsPrizeAlreadyCollected(alreadyInInventory);
-                                      setShowArtifactModal(true);
-                                    }
-                                  }
-                                }
-                              }
-                            }}
-                          >
-                            <img
-                              src={
-                                isArtifactToggled && galleryAction.galleryData?.alternateImage
-                                  ? galleryAction.galleryData?.alternateImage
-                                  : image
-                              }
-                              alt={`${hotel.name} ${index + 1}`}
-                              className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
-                            />
-                          </div>
-                        ) : galleryAction?.galleryData?.type === 'capcha-get' ? (
-                          <div
-                            className="relative"
-                            onClick={(e) => {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              const x = ((e.clientX - rect.left) / rect.width) * 100;
-                              const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-                              const triggeredAction = handleGalleryClick(index, { x, y });
-                              if (triggeredAction) {
-                                setShowGalleryMessage({
-                                  show: true,
-                                  text:
-                                    language === 'ru'
-                                      ? (galleryAction.galleryData?.message ?? '')
-                                      : (galleryAction.galleryData?.messageEn ?? ''),
-                                });
-                                setTimeout(
-                                  () => setShowGalleryMessage({ show: false, text: '' }),
-                                  3000
-                                );
-                              }
-                            }}
-                          >
-                            <img
-                              src={image}
                               alt={`${hotel.name} ${index + 1}`}
                               className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover"
                             />

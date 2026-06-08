@@ -61,11 +61,23 @@ export function useHotelFlow(hotelId?: string) {
       return false;
     }
 
-    // If on the booking form, evaluate the conditions for a safe transition.
+    // On the booking form — check unsafe transitions first (danger overrides safety).
     const currentStep = chain.steps.bookingForm;
     if (!currentStep?.transitions) {
       console.log('[isSafeBookingState] no transitions, returning false');
       return false;
+    }
+
+    const unsafeTransitions = ['submitUnsafe', 'altSubmitUnsafe'];
+    for (const transitionName of unsafeTransitions) {
+      const transition = currentStep.transitions[transitionName];
+      if (transition?.conditions) {
+        const result = evaluateConditions(transition.conditions, playerStatus.inventory, progress);
+        console.log(`[isSafeBookingState] ${transitionName} conditions result:`, result);
+        if (result) {
+          return false;
+        }
+      }
     }
 
     const safeTransitions = ['altSubmitSafe', 'submitSafe'];
@@ -284,23 +296,28 @@ export function useHotelFlow(hotelId?: string) {
       const hotelPageStep = chain.steps.hotelPage;
 
       if (hotelPageStep?.actions) {
-        const action = hotelPageStep.actions.find((a) => {
+        // Сначала фильтруем все galleryClick actions с нужным imageIndex
+        const candidateActions = hotelPageStep.actions.filter((a) => {
           if (a.type !== 'galleryClick') return false;
           if (!a.trigger || a.trigger.imageIndex !== imageIndex) return false;
-          if (coords && a.trigger.coords) {
-            const { x1, x2, y1, y2 } = a.trigger.coords;
-            return coords.x >= x1 && coords.x <= x2 && coords.y >= y1 && coords.y <= y2;
-          }
-          // Если coords не переданы и в action нет coords - это match
-          if (!coords && !a.trigger.coords) {
-            return true;
-          }
-          // Если coords не переданы, но в action есть coords - это не match
-          if (!coords && a.trigger.coords) {
-            return false;
-          }
           return true;
         });
+
+        // Затем проверяем координаты для каждого кандидата
+        let action = null;
+        for (const candidate of candidateActions) {
+          if (!candidate.trigger) continue;
+          if (coords && candidate.trigger.coords) {
+            const { x1, x2, y1, y2 } = candidate.trigger.coords;
+            if (coords.x >= x1 && coords.x <= x2 && coords.y >= y1 && coords.y <= y2) {
+              action = candidate;
+              break;
+            }
+          } else if (!coords && !candidate.trigger.coords) {
+            action = candidate;
+            break;
+          }
+        }
         if (action) {
           setCurrentHotelProgress((prev) => {
             if (!prev) return prev;
@@ -339,17 +356,16 @@ export function useHotelFlow(hotelId?: string) {
     [chain, progress, hotel, markGalleryActionTriggered, setCurrentHotelProgress]
   );
 
-  // Helper to get full action data for gallery by imageIndex
-  const getGalleryAction = useCallback(
+  // Helper to get all action data for gallery by imageIndex
+  const getGalleryActions = useCallback(
     (imageIndex: number) => {
-      if (!chain) return null;
+      if (!chain) return [];
       const hotelPageStep = chain.steps.hotelPage;
-      if (!hotelPageStep?.actions) return null;
+      if (!hotelPageStep?.actions) return [];
 
-      const action = hotelPageStep.actions.find(
+      return hotelPageStep.actions.filter(
         (a) => a.type === 'galleryClick' && a.trigger?.imageIndex === imageIndex
       );
-      return action || null;
     },
     [chain]
   );
@@ -419,7 +435,7 @@ export function useHotelFlow(hotelId?: string) {
     handleGalleryClick,
     handleCaptchaSuccess,
     handleFloorSelect,
-    getGalleryAction,
+    getGalleryActions,
     canBook: isSafeBookingState,
     nextChainStep,
     updateFlowState,

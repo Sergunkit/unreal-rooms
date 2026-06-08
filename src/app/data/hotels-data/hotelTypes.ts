@@ -49,7 +49,8 @@ export interface Condition {
     | 'promoCode'
     | 'floor'
     | 'floorSelected'
-    | 'bookingResult';
+    | 'bookingResult'
+    | 'needTransfer';
   operator: ConditionOperator;
   value: unknown;
   or?: Condition[]; // ← Для сложных условий (A или B)

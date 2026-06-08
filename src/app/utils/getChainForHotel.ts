@@ -6,6 +6,7 @@ import { usherChain } from '../data/hotels-data/raven-usher-data';
 import { soldierChain } from '../data/hotels-data/soldier-data';
 import { overluxChain } from '../data/hotels-data/overlux-data';
 import { brandtChain } from '../data/hotels-data/brandt-data';
+import { twisterChain } from '../data/hotels-data/twister-data';
 
 export function getChainForHotel(hotelId: string): Chain | null {
   if (hotelId === '10') return stayCeilChain;
@@ -15,5 +16,6 @@ export function getChainForHotel(hotelId: string): Chain | null {
   if (hotelId === '9') return usherChain;
   if (hotelId === '7') return soldierChain;
   if (hotelId === '3') return brandtChain;
+  if (hotelId === '4') return twisterChain;
   return null;
 }

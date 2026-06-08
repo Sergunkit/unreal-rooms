@@ -15,6 +15,11 @@ import secureCode from './images/artefacts/Secure-Code.jpg';
 import goldCoin from './images/artefacts/Gold-coin.jpg';
 import dannysBall from './images/artefacts/Dannys-ball.jpg';
 import dogCollar from './images/artefacts/Dog-collar.jpg';
+import silverCross from './images/artefacts/Silver-cross.jpg';
+import woodenStake from './images/artefacts/Wooden-stake.jpg';
+import gun from './images/artefacts/Gun.jpg';
+import goldenSnake from './images/artefacts/Golden-snake.jpg';
+import goldenApple from './images/artefacts/Golden-snake.jpg'; // изображение нужно генерировать
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -152,6 +157,56 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Ошейник для сенбернара',
     descriptionEn: 'Collar for a St. Bernard',
     image: dogCollar,
+    type: 'prize',
+    hotelId: '2',
+  },
+  'silver-cross': {
+    id: 'silver-cross',
+    name: 'Серебряная крест',
+    nameEn: 'Silver cross',
+    description: 'Крест животворящий',
+    descriptionEn: 'The Life-Giving Cross',
+    image: silverCross,
+    type: 'prize',
+    hotelId: '3',
+  },
+  'golden-snake': {
+    id: 'golden-snake',
+    name: 'Золотая змейка',
+    nameEn: 'Golden Snake',
+    description: 'Ацтекская змея',
+    descriptionEn: 'Aztec snake',
+    image: goldenSnake,
+    type: 'prize',
+    hotelId: '4',
+  },
+  gun: {
+    id: 'gun',
+    name: 'Револьвер с серебряными пулями',
+    nameEn: 'Revolver with silver bullets',
+    description: 'Пистолет с серебряными пулями',
+    descriptionEn: 'A pistol with silver bullets',
+    image: gun,
+    type: 'prize',
+    hotelId: '4',
+  },
+  'wooden-stake': {
+    id: 'wooden-stake',
+    name: 'Осиновый кол',
+    nameEn: 'Wooden-stake',
+    description: 'Артеффакт от вампиров',
+    descriptionEn: 'Artifact from vampires',
+    image: woodenStake,
+    type: 'prize',
+    hotelId: '3',
+  },
+  'golden-apple': {
+    id: 'golden-apple',
+    name: 'Золотая яблоко',
+    nameEn: 'Golden apple',
+    description: '',
+    descriptionEn: '',
+    image: goldenApple,
     type: 'prize',
     hotelId: '2',
   },

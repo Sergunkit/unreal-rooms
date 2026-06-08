@@ -332,6 +332,18 @@ export const overluxChain: Chain = {
             resetOnReentry: true,
           },
         },
+        // {
+        //   id: 'hint-typewriter',
+        //   type: 'galleryClick',
+        //   trigger: { imageIndex: X, coords: { ... } }, // индекс картинки с печатной машинкой
+        //   nextStep: 'hotelPage',
+        //   galleryData: {
+        //     type: 'hint',
+        //     message: 'Машинка печатает сама: "1408". Отель "Дельфин", Нью-Йорк. Писатель, береги свои часы и не слушай радио.',
+        //     messageEn: 'The typewriter types by itself: "1408". Hotel Dolphin, New York. Writer, guard your watch and don\'t listen to the radio.',
+        //     resetOnReentry: false,
+        //   },
+        // },  подсказка для Дольфин - настроить картинку и область клика
         {
           id: 'artifact-ball',
           type: 'galleryClick',

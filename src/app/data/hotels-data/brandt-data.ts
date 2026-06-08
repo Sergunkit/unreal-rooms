@@ -205,7 +205,7 @@ export const brandtData = {
   ],
 
   lostandfaund: [
-    'ancient-coin',   // Древний коин
+    'silver-cross',   // Древний коин
     'wooden-stake',   // Осиновый кол (также приз)
   ],
 
@@ -273,16 +273,16 @@ export const brandtData = {
       checkInTime: '20:00',
       lockedFields: [],  // Поля не заблокированы, чтобы игрок мог менять
     },
-    safe: {
-      roomType: 'deluxe',    // будет переопределено условиями
-      mealType: 'no-meal',
-      additionalServices: [],
-      transferType: 'day',   // или 'night' для второго варианта
-      guests: 2,
-      rooms: 1,
-      checkInTime: '15:00',
-      lockedFields: [],
-    },
+    // safe: {
+    //   roomType: 'deluxe',    // будет переопределено условиями
+    //   mealType: 'no-meal',
+    //   additionalServices: [],
+    //   transferType: 'day',   // или 'night' для второго варианта
+    //   guests: 2,
+    //   rooms: 1,
+    //   checkInTime: '15:00',
+    //   lockedFields: [],
+    // },
   },
 };
 
@@ -295,20 +295,6 @@ export const brandtChain: Chain = {
       id: 'hotelPage',
       step: 1,
       actions: [
-        // Интерактив в галерее
-        // {
-        //   id: 'toggle-castle-view',
-        //   type: 'galleryClick',
-        //   trigger: { imageIndex: 0 }, // панорама замка
-        //   nextStep: 'hotelPage',
-        //   galleryData: {
-        //     type: 'toggle',
-        //     alternateImage: 'castle-night.jpg', // условное ночное изображение
-        //     message: 'С наступлением темноты замок выглядит ещё величественнее.',
-        //     messageEn: 'At nightfall, the castle looks even more majestic.',
-        //     resetOnReentry: true,
-        //   },
-        // },
         {
           id: 'hint-stairs',
           type: 'galleryClick',
@@ -317,37 +303,11 @@ export const brandtChain: Chain = {
           galleryData: {
             type: 'hint',
             alternateImage: galleryStairs,
-            message: 'Говорят, по этой лестнице можно спуститься в подземелье, но зеркал там нет.',
-            messageEn: 'They say this staircase leads down to the dungeon, but there are no mirrors there.',
+            message: 'Возьми кол туда, растут только кактусы',
+            messageEn: 'Take the stairs to the place, only the cacti grow.',
             resetOnReentry: false,
           },
         },
-        // {
-        //   id: 'artifact-coin',
-        //   type: 'galleryClick',
-        //   trigger: { imageIndex: 2, coords: { x1: 30, y1: 50, x2: 70, y2: 85 } }, // склепы
-        //   nextStep: 'hotelPage',
-        //   galleryData: {
-        //     type: 'artifact-find',
-        //     artefact: 'ancient-coin',
-        //     message: 'Вы нашли древнюю монету среди склепов. Она холодная на ощупь.',
-        //     messageEn: 'You found an ancient coin among the crypts. It is cold to the touch.',
-        //     resetOnReentry: false,
-        //   },
-        // },
-        // {
-        //   id: 'hint-dinner',
-        //   type: 'galleryClick',
-        //   trigger: { imageIndex: 6, coords: { x1: 10, y1: 40, x2: 90, y2: 90 } }, // длинный стол
-        //   nextStep: 'hotelPage',
-        //   galleryData: {
-        //     type: 'hint',
-        //     message: 'За этим столом ужинает Хозяин. Лучше не присоединяться, если вы дорожите жизнью.',
-        //     messageEn: 'The Host dines at this table. Better not join if you value your life.',
-        //     resetOnReentry: false,
-        //   },
-        // },
-        // Кнопки
         {
           id: 'book-now-btn',
           type: 'buttonClick',
@@ -387,28 +347,6 @@ export const brandtChain: Chain = {
       step: 3,
       formConfig: {
         initialStateId: 'default',
-        // conditionalStates: [
-        //   {
-        //     condition: [
-        //       { field: 'inventory', operator: 'contains', value: 'silver-cross' },
-        //       { field: 'transferType', operator: 'eq', value: 'day' },
-        //       { field: 'roomType', operator: 'eq', value: 'deluxe' },
-        //       { field: 'mealType', operator: 'eq', value: 'no-meal' },
-        //       { field: 'additionalServices', operator: 'empty' }
-        //     ],
-        //     stateId: 'safe',
-        //   },
-        //   {
-        //     condition: [
-        //       { field: 'inventory', operator: 'contains', value: 'silver-cross' },
-        //       { field: 'transferType', operator: 'eq', value: 'night' },
-        //       { field: 'roomType', operator: 'eq', value: 'crypt' },
-        //       { field: 'mealType', operator: 'eq', value: 'no-meal' },
-        //       { field: 'additionalServices', operator: 'empty' }
-        //     ],
-        //     stateId: 'safe',
-        //   },
-        // ],
       },
       actions: [
         {
@@ -426,49 +364,30 @@ export const brandtChain: Chain = {
       transitions: {
         altSubmitSafe: {
             conditions: [
-              { field: 'inventory', operator: 'contains', value: 'silver-cross' },
+            //   { field: 'inventory', operator: 'contains', value: 'silver-cross' },
             //   { field: 'transferType', operator: 'eq', value: 'night' },
-              { field: 'roomType', operator: 'eq', value: 'crypt' },
+              { field: 'roomType', operator: 'eq', value: 'detox' },
               { field: 'mealType', operator: 'eq', value: 'no-meal' },
               { field: 'additionalServices', operator: 'eq', value: [] }
+
+             
             ],
             nextStep: 'bookingConfirm',
           params: { bookingResult: 'safe' }
         },
         submitSafe: {
           conditions: [
-            { field: 'inventory', operator: 'contains', value: 'silver-cross' },
-            { field: 'inventory', operator: 'contains', value: 'silver-cross' },
-            // { field: 'transferType', operator: 'eq', value: 'day' },
-            { field: 'roomType', operator: 'eq', value: 'deluxe' },
+            { field: 'roomType', operator: 'eq', value: 'crypt' },
             { field: 'mealType', operator: 'eq', value: 'no-meal' },
-            // { field: 'additionalServices', operator: 'eq', value: [] }
-            // {
-            //   field: 'or',
-            //   value: [
-            //     {
-            //       and: [
-            //         { field: 'transferType', operator: 'eq', value: 'day' },
-            //         { field: 'roomType', operator: 'eq', value: 'deluxe' },
-            //         { field: 'mealType', operator: 'eq', value: 'no-meal' },
-            //         { field: 'additionalServices', operator: 'eq', value: [] }
-            //       ]
-            //     },
-            //     {
-            //       and: [
-            //         { field: 'transferType', operator: 'eq', value: 'night' },
-            //         { field: 'roomType', operator: 'eq', value: 'crypt' },
-            //         { field: 'mealType', operator: 'eq', value: 'no-meal' },
-            //         { field: 'additionalServices', operator: 'eq', value: [] }
-            //       ]
-            //     }
-            //   ]
-            // }
+            { field: 'additionalServices', operator: 'contains', value: 'night-transfer' }
           ],
           nextStep: 'bookingConfirm',
           params: { bookingResult: 'safe' }
         },
         submitUnsafe: {
+          conditions: [
+            { field: 'additionalServices', operator: 'contains', value: ['blood-transfer'] }
+          ],
           nextStep: 'bookingConfirm',
           params: { bookingResult: 'unsafe' }
         }

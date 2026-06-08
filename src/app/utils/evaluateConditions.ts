@@ -12,127 +12,112 @@ export const evaluateConditions = (
 
   const tempBookingForm = progress?.tempBookingForm;
 
-  const result = conditions.every((condition) => {
-    const { field, operator, value } = condition;
-
-    if (!tempBookingForm && field !== 'inventory' && field !== 'bookingResult') {
-      console.log(`[evaluateConditions] No tempBookingForm for field ${field}`);
+  const matchField = (f: string, op: string, v: unknown): boolean => {
+    if (!tempBookingForm && f !== 'inventory' && f !== 'bookingResult') {
+      console.log(`[evaluateConditions] No tempBookingForm for field ${f}`);
       return false;
     }
 
-    switch (field) {
+    switch (f) {
       case 'inventory':
-        if (operator === 'contains') return inventory.includes(value as string);
-        if (operator === 'not-contains') return !inventory.includes(value as string);
+        if (op === 'contains') return inventory.includes(v as string);
+        if (op === 'not-contains') return !inventory.includes(v as string);
         break;
       case 'roomType':
-        if (operator === 'eq') return tempBookingForm!.roomType === value;
-        if (operator === 'ne') return tempBookingForm!.roomType !== value;
+        if (op === 'eq') return tempBookingForm!.roomType === v;
+        if (op === 'ne') return tempBookingForm!.roomType !== v;
         break;
       case 'mealType':
-        if (operator === 'eq') return tempBookingForm!.mealType === value;
-        if (operator === 'ne') return tempBookingForm!.mealType !== value;
-        if (operator === 'includes') return (value as string[]).includes(tempBookingForm!.mealType);
+        if (op === 'eq') return tempBookingForm!.mealType === v;
+        if (op === 'ne') return tempBookingForm!.mealType !== v;
+        if (op === 'includes') return (v as string[]).includes(tempBookingForm!.mealType);
         break;
       case 'floor': {
         const floorValue = progress?.floor;
-        console.log('[evaluateConditions] floor condition:', {
-          floorValue,
-          operator,
-          value,
-          result: operator === 'ne' ? floorValue !== value : floorValue === value,
-        });
-        if (operator === 'eq') return floorValue === value;
-        if (operator === 'ne') return floorValue !== value;
+        console.log('[evaluateConditions] floor condition:', { floorValue, operator: op, value: v, result: op === 'ne' ? floorValue !== v : floorValue === v });
+        if (op === 'eq') return floorValue === v;
+        if (op === 'ne') return floorValue !== v;
         break;
       }
       case 'floorSelected':
-        if (operator === 'eq') return progress?.floorSelected === value;
-        if (operator === 'ne') return progress?.floorSelected !== value;
+        if (op === 'eq') return progress?.floorSelected === v;
+        if (op === 'ne') return progress?.floorSelected !== v;
         break;
       case 'bookingResult':
-        if (operator === 'eq') return progress?.bookingResult === value;
-        if (operator === 'ne') return progress?.bookingResult !== value;
+        if (op === 'eq') return progress?.bookingResult === v;
+        if (op === 'ne') return progress?.bookingResult !== v;
         break;
       case 'isSafeToBook':
-        if (operator === 'eq') return (progress?.bookingResult === 'safe') === value;
+        if (op === 'eq') return (progress?.bookingResult === 'safe') === v;
         break;
       case 'additionalServices':
-        if (operator === 'contains')
-          return tempBookingForm!.selectedServices.includes(value as string);
-        if (operator === 'not-contains')
-          return !tempBookingForm!.selectedServices.includes(value as string);
+        if (op === 'contains') return tempBookingForm!.selectedServices.includes(v as string);
+        if (op === 'not-contains') return !tempBookingForm!.selectedServices.includes(v as string);
+        if (op === 'eq' && Array.isArray(v) && (v as unknown[]).length === 0) {
+          return tempBookingForm!.selectedServices.length === 0;
+        }
         break;
       case 'promoCode':
-        if (operator === 'eq')
-          return tempBookingForm!.promoCode?.toUpperCase() === (value as string).toUpperCase();
-        if (operator === 'ne')
-          return tempBookingForm!.promoCode?.toUpperCase() !== (value as string).toUpperCase();
+        if (op === 'eq') return tempBookingForm!.promoCode?.toUpperCase() === (v as string).toUpperCase();
+        if (op === 'ne') return tempBookingForm!.promoCode?.toUpperCase() !== (v as string).toUpperCase();
         break;
       case 'paymentMethod':
-        if (operator === 'eq') return tempBookingForm!.paymentMethod === value;
-        if (operator === 'ne') return tempBookingForm!.paymentMethod !== value;
+        if (op === 'eq') return tempBookingForm!.paymentMethod === v;
+        if (op === 'ne') return tempBookingForm!.paymentMethod !== v;
         break;
       case 'dateOrder':
-        if (operator === 'is-before') {
+        if (op === 'is-before') {
           const checkInDate = tempBookingForm!.checkInDate;
           const checkOutDate = tempBookingForm!.checkOutDate;
           if (!checkInDate || !checkOutDate) {
             console.log('[evaluateConditions] dateOrder: Missing checkInDate or checkOutDate', { checkInDate, checkOutDate });
-            return false; // If either date is missing, condition is not met
+            return false;
           }
           const checkIn = new Date(checkInDate);
           const checkOut = new Date(checkOutDate);
           const isCheckInBeforeCheckOut = checkIn < checkOut;
-          const conditionMet = (isCheckInBeforeCheckOut === value); // value is expected to be boolean
-          console.log('[evaluateConditions] dateOrder:', {
-            checkInDate,
-            checkOutDate,
-            isCheckInBeforeCheckOut,
-            expectedValue: value,
-            conditionMet
-          });
+          const conditionMet = isCheckInBeforeCheckOut === v;
+          console.log('[evaluateConditions] dateOrder:', { checkInDate, checkOutDate, isCheckInBeforeCheckOut, expectedValue: v, conditionMet });
           return conditionMet;
         }
         break;
+      case 'needTransfer':
+        if (op === 'eq') return tempBookingForm!.needTransfer === v;
+        break;
       case 'dateRange':
-        if (operator === 'not-intersects') {
-          if (
-            !tempBookingForm!.checkInDate ||
-            !tempBookingForm!.checkOutDate ||
-            (value as { fromMonth: number; toMonth: number }).fromMonth === undefined ||
-            (value as { fromMonth: number; toMonth: number }).toMonth === undefined
-          ) {
-            return true; // If dates/range invalid, condition passes
+        if (op === 'not-intersects') {
+          if (!tempBookingForm!.checkInDate || !tempBookingForm!.checkOutDate || (v as { fromMonth: number; toMonth: number }).fromMonth === undefined || (v as { fromMonth: number; toMonth: number }).toMonth === undefined) {
+            return true;
           }
-          const { fromMonth, toMonth } = value as { fromMonth: number; toMonth: number };
+          const { fromMonth, toMonth } = v as { fromMonth: number; toMonth: number };
           const checkIn = new Date(tempBookingForm!.checkInDate);
           const checkOut = new Date(tempBookingForm!.checkOutDate);
-
-          const isMonthInRange = (month: number) => {
-            if (fromMonth <= toMonth) {
-              return month >= fromMonth && month <= toMonth;
-            } else {
-              return month >= fromMonth || month <= toMonth;
-            }
-          };
-
+          const isMonthInRange = (month: number) => fromMonth <= toMonth ? month >= fromMonth && month <= toMonth : month >= fromMonth || month <= toMonth;
           let overlaps = false;
           const currentDate = new Date(checkIn);
           while (currentDate <= checkOut) {
-            if (isMonthInRange(currentDate.getMonth())) {
-              overlaps = true;
-              break;
-            }
+            if (isMonthInRange(currentDate.getMonth())) { overlaps = true; break; }
             currentDate.setDate(currentDate.getDate() + 1);
           }
           return !overlaps;
         }
         break;
       default:
-        console.log(`[evaluateConditions] Unknown field or operator for field ${field}`);
+        console.log(`[evaluateConditions] Unknown field or operator for field ${f}`);
         return false;
     }
+    return false;
+  };
+
+  const result = conditions.every((condition) => {
+    const { field, operator, value, or: orConditions } = condition;
+
+    if (matchField(field, operator, value)) return true;
+
+    if (orConditions?.length) {
+      return orConditions.some((oc) => matchField(oc.field, oc.operator, oc.value));
+    }
+
     return false;
   });
   console.log(`[evaluateConditions] Overall conditions.every() result: ${result}`);

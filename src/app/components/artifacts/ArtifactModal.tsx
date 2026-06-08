@@ -73,7 +73,7 @@ export function ArtifactModal({
         : 'You found an artifact! Click the button below to add it to your suitcase.',
     placeDesc:
       language === 'ru'
-        ? 'Артефа-кт в вашем чемодане. Вы можете оставить его в отеле.'
+        ? 'Артефакт в вашем чемодане. Вы можете оставить его в отеле.'
         : 'Artifact is in your suitcase. You can leave it at the hotel.',
     alreadyCollectedDesc:
       language === 'ru'
