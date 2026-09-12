@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Search, X } from 'lucide-react';
+import { X } from 'lucide-react';
+import type { Dispatch, SetStateAction } from 'react';
 
-import type { Captcha } from '../data/hotels-data/hotelTypes';
+import type { Captcha } from '../../data/hotels-data/hotelTypes';
 
 export type CaptchaMode = 'sequence' | 'toggle';
 
@@ -10,7 +11,7 @@ export interface CaptchaModalProps {
   onClose: () => void;
   captcha: Captcha;
   selection: string[];
-  setSelection: React.Dispatch<React.SetStateAction<string[]>>;
+  setSelection: Dispatch<SetStateAction<string[]>>;
   onConfirm: () => void;
   errorMessage?: string;
   title?: string;
@@ -27,8 +28,8 @@ export function CaptchaModal({
   selection,
   setSelection,
   onConfirm,
-  errorMessage,
-  title,
+  // errorMessage,
+  // title,
   mode = 'sequence',
   showSelection = true,
   confirmLabel,
@@ -55,29 +56,25 @@ export function CaptchaModal({
   return (
     <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-card border border-border rounded-lg max-w-2xl w-full my-4">
-        <div className="p-6 border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Search className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl text-foreground font-medium">{title || 'Captcha'}</h2>
-          </div>
-          <button
-            onClick={() => {
-              onClose();
-              setSelection([]);
-            }}
-            className="p-2 hover:bg-secondary rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-foreground" />
-          </button>
-        </div>
         <div className="overflow-y-auto p-6">
-          <p className="text-sm text-foreground mb-4">{question}</p>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-foreground">{question}</p>
+            <button
+              onClick={() => {
+                onClose();
+                setSelection([]);
+              }}
+              className="p-2 hover:bg-secondary rounded-lg transition-colors flex-shrink-0"
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
 
-          {errorMessage && (
+          {/* {errorMessage && (
             <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg">
               <p className="text-sm text-red-500">{errorMessage}</p>
             </div>
-          )}
+          )} */}
 
           {showSelection && selection.length > 0 && (
             <div className="mb-4 p-3 bg-primary/10 border border-primary/30 rounded-lg">

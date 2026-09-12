@@ -14,12 +14,13 @@ import mechanicalHeart from './images/artefacts/Mechanical-Heart.jpg';
 import secureCode from './images/artefacts/Secure-Code.jpg';
 import goldCoin from './images/artefacts/Gold-coin.jpg';
 import dannysBall from './images/artefacts/Dannys-ball.jpg';
-import dogCollar from './images/artefacts/Dog-collar.jpg';
 import silverCross from './images/artefacts/Silver-cross.jpg';
 import woodenStake from './images/artefacts/Wooden-stake.jpg';
 import gun from './images/artefacts/Gun.jpg';
 import goldenSnake from './images/artefacts/Golden-snake.jpg';
 import goldenApple from './images/artefacts/Golden-snake.jpg'; // изображение нужно генерировать
+import radio from './images/artefacts/Radio.png';
+import roomKey from './images/Dolphin/1408.png';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)
@@ -31,7 +32,6 @@ export interface Artefact {
   description?: string;
   descriptionEn?: string;
   image: string;
-  type: 'lost-and-found' | 'prize';
   hotelId?: string;
 }
 
@@ -47,7 +47,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Молоток, используемый судьёй для вынесения приговоров',
     descriptionEn: 'A hammer used by the judge to deliver verdicts',
     image: judgesHummer7,
-    type: 'lost-and-found',
     hotelId: '7',
   },
   'bottle-with-note': {
@@ -57,7 +56,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Бутылка с таинственной запиской внутри',
     descriptionEn: 'A bottle with a mysterious note inside',
     image: bottleWithNote7,
-    type: 'prize',
     hotelId: '7',
   },
   'bronze-hand': {
@@ -67,7 +65,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Загадочная бронзовая рука, найденная в отеле The Last Peak Lodge',
     descriptionEn: 'A mysterious bronze hand found at The Last Peak Lodge',
     image: bronzeHand8,
-    type: 'lost-and-found',
     hotelId: '8',
   },
   'strange-watch': {
@@ -77,7 +74,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Наручные часы, идущие в обратную сторону',
     descriptionEn: 'A wristwatch that runs backwards',
     image: strangeWatch8,
-    type: 'prize',
     hotelId: '8',
   },
   'mountaineers-hammer': {
@@ -87,7 +83,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Молоток, принадлежащий погибшему альпинисту',
     descriptionEn: 'A hammer belonging to a fallen mountaineer',
     image: mountaineersHammer8,
-    type: 'lost-and-found',
     hotelId: '8',
   },
   'raven-feather': {
@@ -97,7 +92,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Перо ворона из отеля Usher Guest House',
     descriptionEn: 'A raven feather from Usher Guest House',
     image: ravenFeather9,
-    type: 'lost-and-found',
     hotelId: '9',
   },
   'gold-bug': {
@@ -107,7 +101,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Загадочный золотой жук — приз из отеля Usher',
     descriptionEn: 'A mysterious gold bug — prize from Usher hotel',
     image: goldBug9,
-    type: 'prize',
     hotelId: '9',
   },
   'mechanical-heart': {
@@ -117,7 +110,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Загадочное механическое сердце для прохождения в отеле Usher',
     descriptionEn: 'A mysterious mechanical heart needed to pass Usher hotel',
     image: mechanicalHeart,
-    type: 'lost-and-found',
     hotelId: '9',
   },
   'secure-code': {
@@ -127,7 +119,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Секретный код для бронирования отеля Stay-Ceil',
     descriptionEn: 'A secret code for accessing Stay-Ceil hotel',
     image: secureCode,
-    type: 'lost-and-found',
     hotelId: '10',
   },
   'gold-coin': {
@@ -137,7 +128,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Золотая монета для оплаты бронирования в NY Continental',
     descriptionEn: 'Gold coin for booking at NY Continental',
     image: goldCoin,
-    type: 'lost-and-found',
     hotelId: '1',
   },
   'dannys-ball': {
@@ -147,17 +137,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Теннисный мяч из отеля Оверлук',
     descriptionEn: 'Tennis ball from the Overlook Hotel',
     image: dannysBall,
-    type: 'lost-and-found',
-    hotelId: '2',
-  },
-  'dog-collar': {
-    id: 'dog-collar',
-    name: 'Собачий ошейник',
-    nameEn: 'Dog collar',
-    description: 'Ошейник для сенбернара',
-    descriptionEn: 'Collar for a St. Bernard',
-    image: dogCollar,
-    type: 'prize',
     hotelId: '2',
   },
   'silver-cross': {
@@ -167,7 +146,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Крест животворящий',
     descriptionEn: 'The Life-Giving Cross',
     image: silverCross,
-    type: 'prize',
     hotelId: '3',
   },
   'golden-snake': {
@@ -177,7 +155,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Ацтекская змея',
     descriptionEn: 'Aztec snake',
     image: goldenSnake,
-    type: 'prize',
     hotelId: '4',
   },
   gun: {
@@ -187,7 +164,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Пистолет с серебряными пулями',
     descriptionEn: 'A pistol with silver bullets',
     image: gun,
-    type: 'prize',
     hotelId: '4',
   },
   'wooden-stake': {
@@ -197,7 +173,6 @@ export const artefacts: Record<string, Artefact> = {
     description: 'Артеффакт от вампиров',
     descriptionEn: 'Artifact from vampires',
     image: woodenStake,
-    type: 'prize',
     hotelId: '3',
   },
   'golden-apple': {
@@ -207,16 +182,26 @@ export const artefacts: Record<string, Artefact> = {
     description: '',
     descriptionEn: '',
     image: goldenApple,
-    type: 'prize',
     hotelId: '2',
   },
-};
-
-/**
- * Получить все артефакты определённого типа
- */
-export const getArtefactsByType = (type: 'lost-and-found' | 'prize'): Artefact[] => {
-  return Object.values(artefacts).filter((artefact) => artefact.type === type);
+  radio: {
+    id: 'radio',
+    name: 'Радио',
+    nameEn: 'Radio',
+    description: '',
+    descriptionEn: '',
+    image: radio,
+    hotelId: '5',
+  },
+  'room-key': {
+    id: 'room-key',
+    name: 'Ключ от номера',
+    nameEn: 'Room Key',
+    description: 'Ключ от номера 1408. Тяжёлый, латунный, с намёком на вечность.',
+    descriptionEn: 'Key to room 1408. Heavy, brass, with a hint of eternity.',
+    image: roomKey,
+    hotelId: '5',
+  },
 };
 
 /**

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import type { TempBookingFormData } from '../data/hotels-data/hotelTypes';
+import type { ModalConfig, TempBookingFormData } from '../data/hotels-data/hotelTypes';
 
 /**
  * Максимальное количество слотов в чемодане
@@ -55,12 +55,14 @@ export interface CurrentHotelProgress {
 
   // Состояния для галереи, капчи, этажей
   galleryStates: Record<number, boolean>;
-  galleryActionsTriggered: Record<number, boolean>;
+  triggeredActions: Record<string, true | undefined>;
   captchaCompleted: boolean;
   floorSelected: boolean;
   completedSteps: string[];
   captchaReason?: 'alien' | 'human';
   bookingMessage?: 'human' | 'alien'; // ← Тип сообщения о бронировании
+  activeModal?: ModalConfig | null;
+  lostAndFoundItems: string[]; // ← Артефакты в lost & found
 }
 
 /**
@@ -89,17 +91,6 @@ export interface VisitedHotel {
 }
 
 /**
- * Полученный артефакт
- */
-export interface CollectedArtefact {
-  artefactId: string;
-  name: string;
-  nameEn: string;
-  image: string;
-  collectedAt: string;
-}
-
-/**
  * Статистика игрока
  */
 export interface PlayerStats {
@@ -119,7 +110,6 @@ export interface PlayerStatus {
   visitedHotels: VisitedHotel[];
   currentBooking: RoomBooking | null;
   currentHotelProgress: CurrentHotelProgress | null;
-  collectedArtefacts: CollectedArtefact[];
   inventory: string[];
   stats: PlayerStats;
   createdAt: string;
@@ -134,7 +124,6 @@ const initialPlayerStatus: PlayerStatus = {
   visitedHotels: [],
   currentBooking: null,
   currentHotelProgress: null,
-  collectedArtefacts: [],
   inventory: [],
   stats: {
     totalHotelsVisited: 0,
@@ -182,20 +171,20 @@ interface GameContextType {
   resetChainProgress: () => void;
   // Методы для состояний галереи, капчи, этажей
   setGalleryState: (imageIndex: number, toggled: boolean) => void;
-  markGalleryActionTriggered: (imageIndex: number) => void;
+  markActionTriggered: (actionId: string) => void;
   setCaptchaCompleted: (completed: boolean) => void;
   setFloorSelected: (selected: boolean) => void;
   setCompletedSteps: (steps: string[]) => void;
   // Методы для посещённых отелей
   addVisitedHotel: (hotel: VisitedHotel) => void;
   completeHotelVisit: (hotelId: string) => void;
-  // Методы для артефактов
-  addArtefact: (artefact: CollectedArtefact) => void;
-  hasArtefact: (artefactId: string) => boolean;
   // Методы для инвентаря
   addToInventory: (item: string) => void;
   removeFromInventory: (item: string) => void;
   hasInInventory: (item: string) => boolean;
+  // Методы для Lost & Found артефактов
+  addToLostAndFound: (artefactId: string) => void;
+  hasInLostAndFound: (artefactId: string) => boolean;
   // Методы для статистики
   incrementStat: (stat: keyof PlayerStats, amount?: number) => void;
   // Сброс прогресса
@@ -482,34 +471,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
   };
 
   /**
-   * Добавить артефакт в коллекцию
-   */
-  const addArtefact = (artefact: CollectedArtefact) => {
-    setPlayerStatus((prev) => {
-      const exists = prev.collectedArtefacts.some((a) => a.artefactId === artefact.artefactId);
-      if (exists) {
-        return prev;
-      }
-      return {
-        ...prev,
-        collectedArtefacts: [...prev.collectedArtefacts, artefact],
-        stats: {
-          ...prev.stats,
-          artefactsCollected: prev.stats.artefactsCollected + 1,
-        },
-        updatedAt: new Date().toISOString(),
-      };
-    });
-  };
-
-  /**
-   * Проверить наличие артефакта
-   */
-  const hasArtefact = (artefactId: string) => {
-    return playerStatus.collectedArtefacts.some((a) => a.artefactId === artefactId);
-  };
-
-  /**
    * Добавить предмет в инвентарь
    */
   const addToInventory = (item: string) => {
@@ -520,6 +481,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       return {
         ...prev,
         inventory: [...prev.inventory, item],
+        stats: {
+          ...prev.stats,
+          artefactsCollected: prev.stats.artefactsCollected + 1,
+        },
         updatedAt: new Date().toISOString(),
       };
     });
@@ -709,7 +674,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             ...prev.currentHotelProgress,
             galleryStates: {
               ...prev.currentHotelProgress.galleryStates,
-              [imageIndex]: toggled,
+              [imageIndex]: toggled ?? false,
             },
           },
           updatedAt: new Date().toISOString(),
@@ -719,20 +684,20 @@ export function GameProvider({ children }: { children: ReactNode }) {
   };
 
   /**
-   * Отметить действие галереи как выполненное
+   * Отметить действие как выполненное (для отслеживания пасхалок и ограничения повторений)
    */
-  const markGalleryActionTriggered = (imageIndex: number) => {
+  const markActionTriggered = (actionId: string) => {
     setPlayerStatus((prev) => {
       if (!prev.currentHotelProgress) return prev;
-
-      const newTriggered = { ...prev.currentHotelProgress.galleryActionsTriggered };
-      delete newTriggered[imageIndex];
 
       return {
         ...prev,
         currentHotelProgress: {
           ...prev.currentHotelProgress,
-          galleryActionsTriggered: newTriggered,
+          triggeredActions: {
+            ...prev.currentHotelProgress.triggeredActions,
+            [actionId]: true,
+          },
         },
         updatedAt: new Date().toISOString(),
       };
@@ -798,6 +763,33 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  /**
+   * Добавить артефакт в Lost & Found текущего отеля
+   */
+  const addToLostAndFound = (artefactId: string) => {
+    setPlayerStatus((prev) => {
+      if (!prev.currentHotelProgress) return prev;
+      const items = prev.currentHotelProgress.lostAndFoundItems || [];
+      if (items.includes(artefactId)) return prev;
+
+      return {
+        ...prev,
+        currentHotelProgress: {
+          ...prev.currentHotelProgress,
+          lostAndFoundItems: [...items, artefactId],
+        },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  /**
+   * Проверить наличие артефакта в Lost & Found текущего отеля
+   */
+  const hasInLostAndFound = (artefactId: string) => {
+    return (playerStatus.currentHotelProgress?.lostAndFoundItems || []).includes(artefactId);
+  };
+
   return (
     <GameContext.Provider
       value={{
@@ -820,17 +812,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
         nextChainStep,
         resetChainProgress,
         setGalleryState,
-        markGalleryActionTriggered,
+        markActionTriggered,
         setCaptchaCompleted,
         setFloorSelected,
         setCompletedSteps,
         addVisitedHotel,
         completeHotelVisit,
-        addArtefact,
-        hasArtefact,
         addToInventory,
         removeFromInventory,
         hasInInventory,
+        addToLostAndFound,
+        hasInLostAndFound,
         incrementStat,
         resetProgress,
         resetUserId,

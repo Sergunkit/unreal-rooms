@@ -34,7 +34,12 @@ export const evaluateConditions = (
         break;
       case 'floor': {
         const floorValue = progress?.floor;
-        console.log('[evaluateConditions] floor condition:', { floorValue, operator: op, value: v, result: op === 'ne' ? floorValue !== v : floorValue === v });
+        console.log('[evaluateConditions] floor condition:', {
+          floorValue,
+          operator: op,
+          value: v,
+          result: op === 'ne' ? floorValue !== v : floorValue === v,
+        });
         if (op === 'eq') return floorValue === v;
         if (op === 'ne') return floorValue !== v;
         break;
@@ -58,8 +63,10 @@ export const evaluateConditions = (
         }
         break;
       case 'promoCode':
-        if (op === 'eq') return tempBookingForm!.promoCode?.toUpperCase() === (v as string).toUpperCase();
-        if (op === 'ne') return tempBookingForm!.promoCode?.toUpperCase() !== (v as string).toUpperCase();
+        if (op === 'eq')
+          return tempBookingForm!.promoCode?.toUpperCase() === (v as string).toUpperCase();
+        if (op === 'ne')
+          return tempBookingForm!.promoCode?.toUpperCase() !== (v as string).toUpperCase();
         break;
       case 'paymentMethod':
         if (op === 'eq') return tempBookingForm!.paymentMethod === v;
@@ -70,33 +77,67 @@ export const evaluateConditions = (
           const checkInDate = tempBookingForm!.checkInDate;
           const checkOutDate = tempBookingForm!.checkOutDate;
           if (!checkInDate || !checkOutDate) {
-            console.log('[evaluateConditions] dateOrder: Missing checkInDate or checkOutDate', { checkInDate, checkOutDate });
+            console.log('[evaluateConditions] dateOrder: Missing checkInDate or checkOutDate', {
+              checkInDate,
+              checkOutDate,
+            });
             return false;
           }
           const checkIn = new Date(checkInDate);
           const checkOut = new Date(checkOutDate);
           const isCheckInBeforeCheckOut = checkIn < checkOut;
           const conditionMet = isCheckInBeforeCheckOut === v;
-          console.log('[evaluateConditions] dateOrder:', { checkInDate, checkOutDate, isCheckInBeforeCheckOut, expectedValue: v, conditionMet });
+          console.log('[evaluateConditions] dateOrder:', {
+            checkInDate,
+            checkOutDate,
+            isCheckInBeforeCheckOut,
+            expectedValue: v,
+            conditionMet,
+          });
           return conditionMet;
         }
         break;
       case 'needTransfer':
         if (op === 'eq') return tempBookingForm!.needTransfer === v;
         break;
+      case 'lostAndFound': {
+        const lostAndFoundItems = progress?.lostAndFoundItems || [];
+        console.log('[evaluateConditions] lostAndFound:', {
+          field: f,
+          operator: op,
+          value: v,
+          lostAndFoundItems,
+          contains: op === 'contains' ? lostAndFoundItems.includes(v as string) : undefined,
+          notContains: op === 'not-contains' ? !lostAndFoundItems.includes(v as string) : undefined,
+        });
+        if (op === 'contains') return lostAndFoundItems.includes(v as string);
+        if (op === 'not-contains') return !lostAndFoundItems.includes(v as string);
+        break;
+      }
       case 'dateRange':
         if (op === 'not-intersects') {
-          if (!tempBookingForm!.checkInDate || !tempBookingForm!.checkOutDate || (v as { fromMonth: number; toMonth: number }).fromMonth === undefined || (v as { fromMonth: number; toMonth: number }).toMonth === undefined) {
+          if (
+            !tempBookingForm!.checkInDate ||
+            !tempBookingForm!.checkOutDate ||
+            (v as { fromMonth: number; toMonth: number }).fromMonth === undefined ||
+            (v as { fromMonth: number; toMonth: number }).toMonth === undefined
+          ) {
             return true;
           }
           const { fromMonth, toMonth } = v as { fromMonth: number; toMonth: number };
           const checkIn = new Date(tempBookingForm!.checkInDate);
           const checkOut = new Date(tempBookingForm!.checkOutDate);
-          const isMonthInRange = (month: number) => fromMonth <= toMonth ? month >= fromMonth && month <= toMonth : month >= fromMonth || month <= toMonth;
+          const isMonthInRange = (month: number) =>
+            fromMonth <= toMonth
+              ? month >= fromMonth && month <= toMonth
+              : month >= fromMonth || month <= toMonth;
           let overlaps = false;
           const currentDate = new Date(checkIn);
           while (currentDate <= checkOut) {
-            if (isMonthInRange(currentDate.getMonth())) { overlaps = true; break; }
+            if (isMonthInRange(currentDate.getMonth())) {
+              overlaps = true;
+              break;
+            }
             currentDate.setDate(currentDate.getDate() + 1);
           }
           return !overlaps;

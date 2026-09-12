@@ -303,7 +303,7 @@ export const brandtChain: Chain = {
           galleryData: {
             type: 'hint',
             alternateImage: galleryStairs,
-            message: 'Возьми кол туда, растут только кактусы',
+            message: 'Возьми кол туда, где растут только кактусы',
             messageEn: 'Take the stairs to the place, only the cacti grow.',
             resetOnReentry: false,
           },

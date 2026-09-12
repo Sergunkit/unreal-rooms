@@ -16,11 +16,10 @@ import { ChatPage } from './pages/ChatPage';
 import { HotelDetailPage } from './pages/HotelDetailPage';
 // import { useLanguage } from './contexts/LanguageContext';
 import { ArtifactModal } from './components/artifacts/ArtifactModal';
-import { getArtefactById } from './data/artefacts';
 
 // Внутренний компонент для обработки логики модалки артефакта
 function AppContent() {
-  const { addArtefact, hasArtefact, addToInventory, getCurrentHotelId } = useGame();
+  const { addToInventory, getCurrentHotelId } = useGame();
   const [suitcaseGlow, setSuitcaseGlow] = useState(false);
   const [showArtifactModal, setShowArtifactModal] = useState(false);
   const [foundArtifactId, setFoundArtifactId] = useState<string | null>(null);
@@ -53,18 +52,8 @@ function AppContent() {
 
   const handleCollectArtefact = () => {
     if (foundArtifactId) {
-      const artefact = getArtefactById(foundArtifactId);
-      if (artefact && !hasArtefact(foundArtifactId)) {
-        addArtefact({
-          artefactId: foundArtifactId,
-          name: artefact.name,
-          nameEn: artefact.nameEn,
-          image: artefact.image,
-          collectedAt: new Date().toISOString(),
-        });
-        addToInventory(foundArtifactId);
-        window.dispatchEvent(new Event('artefactCollected'));
-      }
+      addToInventory(foundArtifactId);
+      window.dispatchEvent(new Event('artefactCollected'));
     }
     setShowArtifactModal(false);
   };

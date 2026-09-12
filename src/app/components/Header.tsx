@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { AuthModal } from './AuthModal';
+import { AuthModal } from '../components/modals/AuthModal';
 import { toast } from 'sonner';
 import {
   DropdownMenu,

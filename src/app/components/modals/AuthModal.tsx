@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { useAuth } from '../contexts/AuthContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { useAuth } from '../../contexts/AuthContext';
 import { User, Mail, Lock, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 

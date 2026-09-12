@@ -7,6 +7,7 @@ import { usherData } from './hotels-data/raven-usher-data';
 import { stayCeilData } from './hotels-data/stay-ceil-data';
 import { brandtData } from './hotels-data/brandt-data';
 import { twisterData } from './hotels-data/twister-data';
+import { dolphinData } from './hotels-data/dolphin-data';
 
 // Type assertions for game hotels with complex gallery actions
 const soldierHotel = soldierData as unknown as Hotel;
@@ -23,6 +24,7 @@ export const hotelData: Record<string, Hotel> = {
   '2': overluxHotel,
   '3': brandtData,
   '4': twisterData,
+  '5': dolphinData,
   '7': soldierHotel,
   '8': lastPeakHotel,
   '9': ravenUsherHotel,

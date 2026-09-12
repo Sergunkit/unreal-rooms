@@ -1,11 +1,9 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useCallback, useMemo, useEffect, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import ReactMarkdown from 'react-markdown';
 import {
   Star,
   MapPin,
-  // Wifi,
   UtensilsCrossed,
   Dumbbell,
   Waves,
@@ -17,60 +15,42 @@ import {
   Maximize2,
   Users,
   BedDouble,
-  X,
-  Sparkles,
   Sparkle,
   MessageSquare,
   Search,
   TriangleAlert,
-  Calendar,
-  // TV,
-  // BriefcaseMedical,
-  // Snowflake,
-  // ConciergeBell,
 } from 'lucide-react';
 
 import { useLanguage } from '../contexts/LanguageContext';
 import { BookingFormPage } from './BookingFormPage';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ConciergeChat } from '../components/ConciergeChat';
-import { CaptchaModal } from '../components/CaptchaModal';
+import { CaptchaModal } from '../components/modals/CaptchaModal';
 import { useHotelProgress } from '../hooks/useHotelProgress';
 import { useHotelFlow } from '../hooks/useHotelFlow';
 import { useGame } from '../contexts/GameContext';
 import { artefacts, getArtefactById } from '../data/artefacts';
+import type { LegacyChainStep, Room } from '../data/hotels-data/hotelTypes';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/app/components/ui/dialog'; // Importing Dialog components
-import { Button } from '@/app/components/ui/button'; // Importing Button component
-import { format } from 'date-fns';
-import { ru, enUS } from 'date-fns/locale';
 import { ArtifactModal } from '../components/artifacts/ArtifactModal';
 import { LostAndFoundModal } from '../components/artifacts/LostAndFoundModal';
-
-/**
- * Компонент для рендеринга inline markdown (*курсив*, **жирный** и т.д.)
- * Без обёрток div/p, только inline-элементы.
- */
-function MarkdownText({ text }: { text: string }) {
-  return (
-    <ReactMarkdown
-      components={{
-        p: ({ children }) => <span className="m-0 p-0">{children}</span>,
-        em: ({ children }) => <em className="italic">{children}</em>,
-        strong: ({ children }) => <strong className="font-bold">{children}</strong>,
-      }}
-    >
-      {text}
-    </ReactMarkdown>
-  );
-}
+import { MarkdownText } from '../components/MarkdownText';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/app/components/ui/alert-dialog';
+import { FeedbackModal } from '../components/modals/FeedbackModal';
+import { FloorSelectModal } from '../components/modals/FloorSelectModal';
+import { BookingFlowModal } from '../components/modals/BookingFlowModal';
+import { BookingCompleteModal } from '../components/modals/BookingCompleteModal';
+import { ConfirmationDialog } from '../components/modals/ConfirmationDialog';
+import { RoomDetailModal } from '../components/modals/RoomDetailModal';
+import { getRouteForStep } from '../utils/getRouteForStep';
+import { shouldResetHotelProgress } from '../utils/shouldResetHotelProgress';
 
 export function HotelDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -79,10 +59,9 @@ export function HotelDetailPage() {
 
   const {
     playerStatus,
-    addArtefact,
-    hasArtefact,
     hasInInventory,
     addToInventory,
+    addToLostAndFound,
     clearCurrentHotelProgress,
     setCurrentHotelProgress,
   } = useGame();
@@ -94,11 +73,13 @@ export function HotelDetailPage() {
     currentChainIndex,
     completedSteps,
     galleryStates,
-    galleryActionsTriggered,
+    triggeredActions,
     captchaCompleted,
     floorSelected,
     handleGalleryClick,
     handleCaptchaSuccess,
+    handleCaptchaFailure,
+    handleCaptchaClose,
     handleFloorSelect,
     getGalleryActions,
     canBook,
@@ -106,14 +87,18 @@ export function HotelDetailPage() {
     updateFlowState,
     handleChainAction,
   } = useHotelFlow(id);
-  const { hotel, floor, tempBookingForm, roomNumber } = useHotelProgress(id);
+  const { hotel, floor, tempBookingForm, roomNumber, roomType } = useHotelProgress(id);
 
   // Устанавливаем hotelId при загрузке страницы отеля
   React.useEffect(() => {
-    if (
-      id &&
-      (!playerStatus.currentHotelProgress || playerStatus.currentHotelProgress.hotelId !== id)
-    ) {
+    const shouldReset = shouldResetHotelProgress({
+      currentStep: playerStatus.currentHotelProgress?.activeStep,
+      hotelId: id,
+      progressHotelId: playerStatus.currentHotelProgress?.hotelId,
+      isHotelRoute: !!id,
+    });
+
+    if (shouldReset) {
       setCurrentHotelProgress({
         hotelId: id,
         tempBookingForm: null,
@@ -123,13 +108,14 @@ export function HotelDetailPage() {
         currentChainIndex: 0,
         chainType: 'standard',
         galleryStates: {},
-        galleryActionsTriggered: {},
+        triggeredActions: {},
         captchaCompleted: false,
         floorSelected: false,
         completedSteps: [],
+        lostAndFoundItems: [],
       });
     }
-  }, [id, playerStatus.currentHotelProgress, setCurrentHotelProgress]);
+  }, [id, playerStatus.currentHotelProgress?.activeStep, playerStatus.currentHotelProgress?.hotelId, setCurrentHotelProgress]);
 
   // Создаём flowState для обратной совместимости с существующим кодом
   const flowState = useMemo(
@@ -137,27 +123,27 @@ export function HotelDetailPage() {
       currentStep: activeStep,
       completedSteps,
       galleryStates,
-      galleryActionsTriggered,
+      triggeredActions,
       captchaCompleted,
       floorSelected,
       currentChain,
       currentChainIndex,
       chainType,
       captchaReason: playerStatus.currentHotelProgress?.captchaReason,
-      bookingMessage: playerStatus.currentHotelProgress?.bookingMessage, // ← Добавляем
+      bookingMessage: playerStatus.currentHotelProgress?.bookingMessage,
     }),
     [
       activeStep,
       completedSteps,
       galleryStates,
-      galleryActionsTriggered,
+      triggeredActions,
       captchaCompleted,
       floorSelected,
       currentChain,
       currentChainIndex,
       chainType,
       playerStatus.currentHotelProgress?.captchaReason,
-      playerStatus.currentHotelProgress?.bookingMessage, // ← Добавляем
+      playerStatus.currentHotelProgress?.bookingMessage,
     ]
   );
 
@@ -165,19 +151,7 @@ export function HotelDetailPage() {
   const [showLostFoundModal, setShowLostFoundModal] = useState(false);
   const [showBookingFlowModal, setShowBookingFlowModal] = useState(false); // Controls the main booking flow modal
   const [selectedRoomTypeForBooking, setSelectedRoomTypeForBooking] = useState<string | null>(null);
-  const [selectedRoom, setSelectedRoom] = useState<{
-    id: number;
-    name: string;
-    nameEn: string;
-    image: string;
-    size: number;
-    capacity: number;
-    beds: string;
-    bedsEn: string;
-    price: number;
-    amenities: string[];
-    amenitiesEn: string[];
-  } | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [showGalleryMessage, setShowGalleryMessage] = useState<{ show: boolean; text: string }>({
     show: false,
     text: '',
@@ -195,6 +169,26 @@ export function HotelDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [showFloorSelectModal, setShowFloorSelectModal] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
+  const [blockedAlert, setBlockedAlert] = useState<{
+    message: string;
+    messageEn: string;
+    title?: string;
+    titleEn?: string;
+  } | null>(null);
+
+  React.useEffect(() => {
+    const modal = playerStatus.currentHotelProgress?.activeModal;
+    if (modal) {
+      setBlockedAlert({
+        message: modal.message,
+        messageEn: modal.messageEn,
+        title: modal.title,
+        titleEn: modal.titleEn,
+      });
+    } else {
+      setBlockedAlert(null);
+    }
+  }, [playerStatus.currentHotelProgress?.activeModal]);
 
   // Force re-render when tempBookingForm changes to update heart icon in real-time
   const [, forceUpdate] = React.useState(0);
@@ -245,13 +239,18 @@ export function HotelDetailPage() {
     }
   }, [flowState.currentStep]);
 
-  // Clear current hotel progress when the flow transitions to myBookingsPage
   React.useEffect(() => {
-    if (flowState.currentStep === 'myBookingsPage') {
-      clearCurrentHotelProgress();
+    const route = getRouteForStep(flowState.currentStep);
+
+    if (route) {
+      if (flowState.currentStep === 'myBookingsPage' || flowState.currentStep === 'homePage') {
+        clearCurrentHotelProgress();
+      }
+
+      navigate(route, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flowState.currentStep]); // clearCurrentHotelProgress removed from dependencies
+  }, [flowState.currentStep, navigate]);
 
   // Effect to handle awarding the prize when the 'prizeModal' step is reached
   useEffect(() => {
@@ -265,13 +264,6 @@ export function HotelDetailPage() {
           setIsPrizeAlreadyCollected(alreadyCollected);
 
           if (!alreadyCollected) {
-            addArtefact({
-              artefactId: prizeArtefact.id,
-              name: prizeArtefact.name,
-              nameEn: prizeArtefact.nameEn,
-              image: prizeArtefact.image,
-              collectedAt: new Date().toISOString(),
-            });
             addToInventory(hotel.prize);
             window.dispatchEvent(new Event('prizeCollected'));
           }
@@ -290,7 +282,6 @@ export function HotelDetailPage() {
     hotel,
     playerStatus.currentHotelProgress?.bookingResult,
     hasInInventory,
-    addArtefact,
     addToInventory,
     nextChainStep,
   ]);
@@ -464,21 +455,8 @@ export function HotelDetailPage() {
     nameEn: string;
     image: string;
   }) => {
-    // For artifacts from lost & found, we should check inventory, not collectedArtefacts
-    // because they might have been collected before but placed in lost & found
     if (!hasInInventory(String(item.id))) {
-      // Add to collectedArtefacts if not already there
-      if (!hasArtefact(String(item.id))) {
-        addArtefact({
-          artefactId: String(item.id),
-          name: item.name,
-          nameEn: item.nameEn,
-          image: item.image,
-          collectedAt: new Date().toISOString(),
-        });
-      }
-      // Add to inventory
-      addToInventory(String(item.id)); // Dispatch event for suitcase animation
+      addToInventory(String(item.id));
       window.dispatchEvent(new Event('artefactCollected'));
     }
   };
@@ -505,10 +483,16 @@ export function HotelDetailPage() {
                 <div className="flex">
                   {hotel.images.map((image, index) => {
                     const galleryActions = getGalleryActions(index);
-                    const toggleAction = galleryActions.find((a) => a.galleryData?.type === 'toggle');
+                    const toggleAction = galleryActions.find(
+                      (a) => a.galleryData?.type === 'toggle'
+                    );
                     const hintAction = galleryActions.find((a) => a.galleryData?.type === 'hint');
-                    const artifactAction = galleryActions.find((a) => a.galleryData?.type === 'artifact-find');
-                    const captchaAction = galleryActions.find((a) => a.galleryData?.type === 'capcha-get');
+                    const artifactAction = galleryActions.find(
+                      (a) => a.galleryData?.type === 'artifact-find'
+                    );
+                    const captchaAction = galleryActions.find(
+                      (a) => a.galleryData?.type === 'capcha-get'
+                    );
 
                     const isHeadImageToggled =
                       toggleAction && (flowState.galleryStates[index] ?? false);
@@ -535,19 +519,26 @@ export function HotelDetailPage() {
                               ? (triggeredAction.galleryData?.message ?? '')
                               : (triggeredAction.galleryData?.messageEn ?? ''),
                         });
-                        setTimeout(
-                          () => setShowGalleryMessage({ show: false, text: '' }),
-                          3000
-                        );
+                        setTimeout(() => setShowGalleryMessage({ show: false, text: '' }), 3000);
                       }
 
                       // Handle artifact-find type
-                      if (triggeredAction.galleryData?.type === 'artifact-find' && triggeredAction.galleryData?.artefact) {
+                      if (
+                        triggeredAction.galleryData?.type === 'artifact-find' &&
+                        triggeredAction.galleryData?.artefact
+                      ) {
                         const artefactData = artefacts[triggeredAction.galleryData.artefact];
                         if (artefactData) {
-                          setFoundArtifactId(artefactData.id);
-                          const alreadyInInventory = hasInInventory(artefactData.id);
-                          setIsPrizeAlreadyCollected(alreadyInInventory);
+                          // Check if this artifact is in the hotel's lost & found
+                          const isLostAndFound = hotel.lostandfaund?.includes(artefactData.id);
+
+                          if (isLostAndFound) {
+                            setLostFoundArtifactId(artefactData.id);
+                          } else {
+                            setFoundArtifactId(artefactData.id);
+                            const alreadyInInventory = hasInInventory(artefactData.id);
+                            setIsPrizeAlreadyCollected(alreadyInInventory);
+                          }
                           setShowArtifactModal(true);
                         }
                       }
@@ -561,10 +552,7 @@ export function HotelDetailPage() {
                               ? (triggeredAction.galleryData?.message ?? '')
                               : (triggeredAction.galleryData?.messageEn ?? ''),
                         });
-                        setTimeout(
-                          () => setShowGalleryMessage({ show: false, text: '' }),
-                          3000
-                        );
+                        setTimeout(() => setShowGalleryMessage({ show: false, text: '' }), 3000);
                       }
                     };
 
@@ -574,7 +562,9 @@ export function HotelDetailPage() {
                       <div key={index} className="flex-[0_0_100%] min-w-0">
                         {toggleAction ? (
                           <img
-                            src={isHeadImageToggled ? toggleAction.galleryData?.alternateImage : image}
+                            src={
+                              isHeadImageToggled ? toggleAction.galleryData?.alternateImage : image
+                            }
                             alt={`${hotel.name} ${index + 1}`}
                             className="w-full h-[300px] md:h-[400px] lg:h-[500px] xl:h-[750px] object-cover cursor-pointer"
                             onClick={() => handleGalleryClick(index)}
@@ -583,9 +573,9 @@ export function HotelDetailPage() {
                           <div className="relative" onClick={handleGalleryImageClick}>
                             <img
                               src={
-                                (isFigurinesToggled && hintAction?.galleryData?.alternateImage)
+                                isFigurinesToggled && hintAction?.galleryData?.alternateImage
                                   ? hintAction.galleryData.alternateImage
-                                  : (isArtifactToggled && artifactAction?.galleryData?.alternateImage)
+                                  : isArtifactToggled && artifactAction?.galleryData?.alternateImage
                                     ? artifactAction.galleryData.alternateImage
                                     : image
                               }
@@ -649,9 +639,7 @@ export function HotelDetailPage() {
                         <button className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
                           <Heart
                             className={`w-6 h-6 transition-all cursor-pointer ${
-                              !canBook
-                                ? 'fill-red-500 text-red-500'
-                                : 'text-primary-foreground'
+                              !canBook ? 'fill-red-500 text-red-500' : 'text-primary-foreground'
                             }`}
                           />
                         </button>
@@ -721,11 +709,15 @@ export function HotelDetailPage() {
             <button
               onClick={() => {
                 if (!chain) return;
-                const action = chain.steps.hotelPage?.actions?.find(
-                  (a) => a.id === 'book-now-btn'
-                );
+                const action = chain.steps.hotelPage?.actions?.find((a) => a.id === 'book-now-btn');
                 if (action) {
-                  handleChainAction(action);
+                  const result = handleChainAction(action);
+                  if (result?.blocked) {
+                    setBlockedAlert({
+                      message: result.message ?? '',
+                      messageEn: result.messageEn ?? '',
+                    });
+                  }
                 }
               }}
               className="px-8 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 mt-auto"
@@ -873,7 +865,11 @@ export function HotelDetailPage() {
                     }
                   }}
                 >
-                  <img src={room.image} alt={room.name} className="w-full h-[19.2rem] object-cover" />
+                  <img
+                    src={room.image}
+                    alt={room.name}
+                    className="w-full h-[19.2rem] object-cover"
+                  />
                   <div className="p-4">
                     <h3 className="text-lg text-foreground mb-2">
                       {language === 'ru' ? room.name : room.nameEn}
@@ -907,126 +903,58 @@ export function HotelDetailPage() {
           </div>
         </div>
 
-        {/* Room Detail Modal */}
-        {(selectedRoom || flowState.currentStep === 'roomCard') && selectedRoom && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg w-full h-full max-w-6xl max-h-[95vh] overflow-hidden flex relative">
-              <button
-                onClick={() => {
-                  setSelectedRoom(null);
-                  if (flowState.currentStep === 'roomCard') {
-                    updateFlowState({ currentStep: 'hotelPage' });
-                  }
-                }}
-                className="absolute top-4 right-4 p-2 bg-primary rounded-full hover:bg-primary/80 transition-colors z-20"
-                id="room-modal-close"
-              >
-                <X className="w-5 h-5 text-white" />
-              </button>
-              <div className="w-[57.5%] h-full relative">
-                <img
-                  src={selectedRoom.image}
-                  alt={selectedRoom.name}
-                  className="w-full h-full object-cover rounded-l-lg"
-                />
-              </div>
-              <div className="w-[42.5%] flex flex-col p-6 overflow-y-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl text-foreground font-semibold">
-                    {language === 'ru' ? selectedRoom.name : selectedRoom.nameEn}
-                  </h3>
-                </div>
-                <div className="space-y-4 mb-6 text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <Maximize2 className="w-5 h-5" />
-                      <span>{selectedRoom.size} м²</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-5 h-5" />
-                      <span>
-                        {selectedRoom.capacity} {language === 'ru' ? 'гостя' : 'guests'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <BedDouble className="w-5 h-5" />
-                    <span>{language === 'ru' ? selectedRoom.beds : selectedRoom.bedsEn}</span>
-                  </div>
-                </div>
-                <div className="mb-6">
-                  <h4 className="text-lg text-foreground mb-3">
-                    {language === 'ru' ? 'Удобства' : 'Amenities'}
-                  </h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {(language === 'ru' ? selectedRoom.amenities : selectedRoom.amenitiesEn).map(
-                      (amenity, i) => (
-                        <div key={i} className="flex items-center gap-2 text-muted-foreground">
-                          <Sparkle className="w-4 h-4 text-primary" />
-                          <span>{amenity}</span>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between pt-6 border-t border-border mt-auto">
-                  <div>
-                    <div className="text-3xl text-primary font-semibold">${selectedRoom.price}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {language === 'ru' ? 'за ночь' : 'per night'}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (!chain) return;
-                      // Используем action из шага roomCard если там, иначе hotelPage
-                      const currentStepId = flowState.currentStep === 'roomCard'
-                        ? 'roomCard'
-                        : 'hotelPage';
-                      const action = chain.steps[currentStepId]?.actions?.find(
-                        (a) => a.type === 'roomSelect' || a.id === 'room-card-book'
-                      );
-                      // Find matching roomType by name and update the form state
-                      const matchingRoomType = hotel.rooms?.find(
-                        (r) => r.name === selectedRoom?.name || r.nameEn === selectedRoom?.nameEn
-                      );
-                      if (matchingRoomType?.value && playerStatus.currentHotelProgress) {
-                        const existingForm = playerStatus.currentHotelProgress.tempBookingForm;
-                        const updatedTempBookingForm = {
-                          guests: existingForm?.guests ?? 1,
-                          rooms: existingForm?.rooms ?? 1,
-                          roomType: matchingRoomType.value,
-                          checkInDate: existingForm?.checkInDate ?? null,
-                          checkOutDate: existingForm?.checkOutDate ?? null,
-                          mealType: existingForm?.mealType ?? '',
-                          needTransfer: existingForm?.needTransfer ?? false,
-                          checkInTime: existingForm?.checkInTime ?? '14:00',
-                          selectedServices: existingForm?.selectedServices ?? [],
-                          promoCode: existingForm?.promoCode,
-                          paymentMethod: existingForm?.paymentMethod,
-                        };
-
-                        setCurrentHotelProgress({
-                          ...playerStatus.currentHotelProgress,
-                          tempBookingForm: updatedTempBookingForm,
-                        });
-                      }
-
-                      // Trigger the action to move to the next step
-                      if (action) {
-                        handleChainAction(action);
-                      }
-                      setSelectedRoom(null); // Close the modal
-                    }}
-                    className="px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25"
-                  >
-                    {language === 'ru' ? 'Забронировать' : 'Book Now'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <RoomDetailModal
+          room={selectedRoom}
+          isOpen={(selectedRoom || flowState.currentStep === 'roomCard') && !!selectedRoom}
+          language={language}
+          onClose={() => {
+            setSelectedRoom(null);
+            if (flowState.currentStep === 'roomCard') {
+              updateFlowState({ currentStep: 'hotelPage' });
+            }
+          }}
+          onBook={(room) => {
+            if (!chain) return;
+            const currentStepId = flowState.currentStep === 'roomCard' ? 'roomCard' : 'hotelPage';
+            const action = chain.steps[currentStepId]?.actions?.find(
+              (a) => a.type === 'roomSelect' || a.id === 'room-card-book'
+            );
+            const matchingRoomType = hotel.rooms?.find(
+              (r) => r.name === room?.name || r.nameEn === room?.nameEn
+            );
+            if (matchingRoomType?.value && playerStatus.currentHotelProgress) {
+              const existingForm = playerStatus.currentHotelProgress.tempBookingForm;
+              const updatedTempBookingForm = {
+                guests: existingForm?.guests ?? 1,
+                rooms: existingForm?.rooms ?? 1,
+                roomType: matchingRoomType.value,
+                checkInDate: existingForm?.checkInDate ?? null,
+                checkOutDate: existingForm?.checkOutDate ?? null,
+                mealType: existingForm?.mealType ?? '',
+                needTransfer: existingForm?.needTransfer ?? false,
+                checkInTime: existingForm?.checkInTime ?? '14:00',
+                selectedServices: existingForm?.selectedServices ?? [],
+                promoCode: existingForm?.promoCode,
+                paymentMethod: existingForm?.paymentMethod,
+              };
+              setCurrentHotelProgress({
+                ...playerStatus.currentHotelProgress,
+                tempBookingForm: updatedTempBookingForm,
+              });
+            }
+            if (action) {
+              const result = handleChainAction(action);
+              if (result?.blocked) {
+                setBlockedAlert({
+                  message: result.message ?? '',
+                  messageEn: result.messageEn ?? '',
+                });
+                return;
+              }
+            }
+            setSelectedRoom(null);
+          }}
+        />
 
         {/* Feedback and Lost & Found */}
         <div className="mb-8 grid grid-cols-2 gap-6">
@@ -1086,44 +1014,12 @@ export function HotelDetailPage() {
           </div>
         </div>
 
-        {/* Feedback Modal */}
-        {showFeedbackModal && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[95vh] overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <MessageSquare className="w-6 h-6 text-primary" />
-                  <h2 className="text-2xl text-foreground font-medium">
-                    {language === 'ru' ? 'Отзывы' : 'Feedback'}
-                  </h2>
-                </div>
-                <button
-                  onClick={() => setShowFeedbackModal(false)}
-                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-6">
-                <div className="space-y-6">
-                  {feedbacks.map((feedback, index) => (
-                    <div key={feedback.id}>
-                      <p className="text-sm font-medium text-foreground mb-2">{feedback.author}</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        <MarkdownText text={language === 'ru' ? feedback.text : feedback.textEn} />
-                      </p>
-                      {index < feedbacks.length - 1 && (
-                        <div className="flex items-center justify-center my-6">
-                          <Sparkles className="w-5 h-5 text-primary/50" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <FeedbackModal
+          isOpen={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(false)}
+          feedbacks={feedbacks}
+          language={language}
+        />
 
         {/* Lost & Found Modal */}
         {showLostFoundModal && (
@@ -1180,7 +1076,10 @@ export function HotelDetailPage() {
             mode="collect"
             onAction={() => {
               const artefact = getArtefactById(lostFoundArtifactId);
-              if (artefact && !hasInInventory(lostFoundArtifactId)) {
+              if (artefact) {
+                // Add to lost & found collection instead of inventory
+                addToLostAndFound(artefact.id);
+                // Also add to collected artifacts for display
                 handleCollectArtefact({
                   id: artefact.id,
                   name: artefact.name,
@@ -1199,14 +1098,20 @@ export function HotelDetailPage() {
           <CaptchaModal
             open={flowState.currentStep === 'captcha'}
             onClose={() => {
-              // При закрытии капчи крестиком сбрасываем выбор и возвращаемся на bookingForm
               setCaptchaSelected([]);
               setCaptchaError(false);
-              updateFlowState({
-                activeStep: 'bookingForm',
-                currentStep: 'bookingForm',
-                captchaReason: undefined,
-              });
+              const nextStep = handleCaptchaClose();
+              if (nextStep) {
+                const route = getRouteForStep(nextStep);
+                if (route) {
+                  navigate(route, { replace: true });
+                }
+                updateFlowState({
+                  activeStep: nextStep,
+                  currentStep: nextStep as LegacyChainStep,
+                  captchaReason: undefined,
+                });
+              }
             }}
             captcha={hotel.captcha}
             selection={captchaSelected}
@@ -1218,7 +1123,6 @@ export function HotelDetailPage() {
                   : hotel.captcha.errorResponseEn
                 : undefined
             }
-            title={language === 'ru' ? 'Капча' : 'Captcha'}
             confirmLabel={language === 'ru' ? 'Подтвердить' : 'Confirm'}
             mode={hotel.captcha?.correctSequence ? 'sequence' : 'toggle'}
             showSelection={true}
@@ -1233,6 +1137,14 @@ export function HotelDetailPage() {
 
                 if (!isCorrect) {
                   setCaptchaError(true);
+                  setCaptchaSelected([]);
+                  const nextStep = handleCaptchaFailure();
+                  const route = getRouteForStep(nextStep);
+                  if (route) {
+                    window.setTimeout(() => {
+                      navigate(route, { replace: true });
+                    }, 1000);
+                  }
                   return;
                 }
                 setCaptchaError(false);
@@ -1258,6 +1170,14 @@ export function HotelDetailPage() {
 
               if (!isCorrect) {
                 setCaptchaError(true);
+                setCaptchaSelected([]);
+                const nextStep = handleCaptchaFailure();
+                const route = getRouteForStep(nextStep);
+                if (route) {
+                  window.setTimeout(() => {
+                    navigate(route, { replace: true });
+                  }, 1000);
+                }
                 return;
               }
               setCaptchaError(false);
@@ -1267,280 +1187,151 @@ export function HotelDetailPage() {
           />
         )}
 
-        {hotel?.bookingStates?.default?.floorOptions &&
-          flowState.currentStep === 'floorSelect' &&
-          showFloorSelectModal && (
-            <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-              <div className="bg-card border border-border rounded-lg max-w-md w-full overflow-hidden">
-                <div className="p-6 border-b border-border flex items-center justify-between">
-                  <h2 className="text-2xl text-foreground font-medium">
-                    {language === 'ru' ? 'Выберите этаж' : 'Choose a floor'}
-                  </h2>
-                  <button
-                    onClick={() => {
-                      // При закрытии окна выбора этажа возвращаемся к капче
-                      setShowFloorSelectModal(false);
-                      setSelectedFloor(null);
-                      // Возвращаемся к шагу капчи, чтобы пользователь мог снова пройти процесс
-                      if (flowState.chainType === 'action' && flowState.currentChain) {
-                        const captchaIndex = flowState.currentChain.indexOf('captcha');
-                        if (captchaIndex !== -1) {
-                          updateFlowState({
-                            currentStep: 'captcha',
-                            currentChainIndex: captchaIndex,
-                            captchaCompleted: false,
-                            floorSelected: false,
-                          });
-                        }
-                      }
-                    }}
-                    className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-foreground" />
-                  </button>
-                </div>
-                <div className="p-6 space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    {language === 'ru'
-                      ? 'Выберите этаж, на который вы хотите забронировать комнату.'
-                      : 'Select the floor you would like to book a room on.'}
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    {hotel.bookingStates.default.floorOptions.map((floorOption: number) => (
-                      <button
-                        key={floorOption}
-                        type="button"
-                        className={`w-full rounded-lg border px-4 py-2 text-left transition ${
-                          selectedFloor === floorOption
-                            ? 'border-primary bg-primary/10 text-foreground'
-                            : 'border-border bg-background text-foreground'
-                        }`}
-                        onClick={() => setSelectedFloor(floorOption)}
-                      >
-                        {language === 'ru' ? 'Этаж' : 'Floor'}{' '}
-                        {floorOption.toString().padStart(2, '0')}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={selectedFloor === null}
-                    onClick={() => {
-                      if (selectedFloor !== null) {
-                        handleFloorSelect(selectedFloor);
-                        setShowFloorSelectModal(false);
-                        setSelectedFloor(null); // Clear selection after confirming
-                      }
-                    }}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {language === 'ru' ? 'Подтвердить' : 'Confirm'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+        <FloorSelectModal
+          isOpen={
+            !!hotel?.bookingStates?.default?.floorOptions &&
+            flowState.currentStep === 'floorSelect' &&
+            showFloorSelectModal
+          }
+          floorOptions={hotel?.bookingStates?.default?.floorOptions ?? []}
+          language={language}
+          selectedFloor={selectedFloor}
+          onSelectFloor={setSelectedFloor}
+          onConfirm={() => {
+            if (selectedFloor !== null) {
+              handleFloorSelect(selectedFloor);
+              setShowFloorSelectModal(false);
+              setSelectedFloor(null);
+            }
+          }}
+          onClose={() => {
+            setShowFloorSelectModal(false);
+            setSelectedFloor(null);
+            if (flowState.chainType === 'action' && flowState.currentChain) {
+              const captchaIndex = flowState.currentChain.indexOf('captcha');
+              if (captchaIndex !== -1) {
+                updateFlowState({
+                  currentStep: 'captcha',
+                  currentChainIndex: captchaIndex,
+                  captchaCompleted: false,
+                  floorSelected: false,
+                });
+              }
+            }
+          }}
+        />
 
         {/* Concierge Chat */}
         {id && <ConciergeChat hotelId={id} />}
 
-        {/* Main Booking Flow Modal - только для bookingForm */}
-        {showBookingFlowModal && flowState.currentStep === 'bookingForm' && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-6xl w-full max-h-[85vh] overflow-hidden flex flex-col">
-              <div className="p-6 border-b border-border flex items-center justify-between flex-shrink-0">
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-6 h-6 text-primary" />
-                  <h2 className="text-2xl text-foreground font-medium">
-                    {language === 'ru' ? 'Бронирование номера' : 'Room Booking'}
-                  </h2>
-                </div>
-                <button
-                  onClick={() => {
-                    setSelectedRoomTypeForBooking(null);
-                    setShowBookingFlowModal(false);
-                    updateFlowState({
-                      currentStep: 'hotelPage',
-                      completedSteps: [],
-                      currentChainIndex: 0,
-                      chainType: 'standard',
-                    });
-                  }}
-                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 p-6">
-                <BookingFormPage
-                  onNextStep={onNextStep}
-                  onFinalizeBooking={onFinalizeBooking}
-                  flowState={flowState}
-                  selectedRoomType={selectedRoomTypeForBooking}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        <BookingFlowModal
+          isOpen={showBookingFlowModal && flowState.currentStep === 'bookingForm'}
+          language={language}
+          onClose={() => {
+            setSelectedRoomTypeForBooking(null);
+            setShowBookingFlowModal(false);
+            updateFlowState({
+              currentStep: 'hotelPage',
+              completedSteps: [],
+              currentChainIndex: 0,
+              chainType: 'standard',
+            });
+          }}
+        >
+          <BookingFormPage
+            onNextStep={onNextStep}
+            onFinalizeBooking={onFinalizeBooking}
+            flowState={flowState}
+            selectedRoomType={selectedRoomTypeForBooking}
+          />
+        </BookingFlowModal>
 
-        {/* Booking Complete Modal - rendered separately */}
-        {flowState.currentStep === 'bookingComplete' && (
-          <div className="fixed inset-0 bg-background/30 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-lg max-w-md w-full p-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg
-                    className="w-8 h-8 text-green-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-xl text-foreground font-medium mb-2">{t.bookingConfirmed}</h3>
-                {/* Используем bookingMessage из flowState */}
-                <p className="text-muted-foreground">
-                  {playerStatus.currentHotelProgress?.bookingResult === 'unsafe'
-                    ? (language === 'ru' ? hotel.endWrongBookingMassege : hotel.endWrongBookingMassegeEn)
-                    : (language === 'ru' ? hotel.endBookingMassege : hotel.endBookingMassegeEn)}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        <BookingCompleteModal
+          isOpen={flowState.currentStep === 'bookingComplete'}
+          bookingResult={playerStatus.currentHotelProgress?.bookingResult}
+          bookingConfirmed={t.bookingConfirmed}
+          endBookingMessage={hotel.endBookingMassege ?? ''}
+          endBookingMessageEn={hotel.endBookingMassegeEn ?? ''}
+          endWrongBookingMessage={hotel.endWrongBookingMassege ?? ''}
+          endWrongBookingMessageEn={hotel.endWrongBookingMassegeEn ?? ''}
+          language={language}
+        />
 
-        {/* Confirmation Dialog - rendered separately, not inside the main modal */}
-        {flowState.currentStep === 'bookingConfirm' && tempBookingForm && (
-          <Dialog
-            open={true}
-            onOpenChange={(open) => {
-              if (!open) {
-                // User closed the confirmation dialog. Go back to the booking form.
-                updateFlowState({
-                  currentStep: 'bookingForm',
-                  currentChainIndex: 1, // Index of 'bookingForm'
-                  completedSteps: ['hotelPage', 'bookingForm'],
+        <ConfirmationDialog
+          isOpen={flowState.currentStep === 'bookingConfirm' && !!tempBookingForm}
+          onOpenChange={(open) => {
+            if (!open) {
+              updateFlowState({
+                currentStep: 'bookingForm',
+                currentChainIndex: 1,
+                completedSteps: ['hotelPage', 'bookingForm'],
+              });
+            }
+          }}
+          t={t}
+          roomType={roomType}
+          roomNumber={roomNumber}
+          showFloor={!!hotel?.bookingStates?.default?.floorOptions}
+          floor={floor}
+          language={language}
+          tempBookingForm={tempBookingForm!}
+          selectedBookingMealType={selectedBookingMealType}
+          additionalBookingServices={additionalBookingServices}
+          calculateTotalDisplay={calculateTotalDisplay}
+          onConfirm={onFinalizeBooking}
+          onCancel={() => {
+            updateFlowState({
+              currentStep: 'bookingForm',
+              currentChainIndex: 1,
+              completedSteps: ['hotelPage', 'bookingForm'],
+            });
+          }}
+        />
+
+        <AlertDialog
+          open={blockedAlert !== null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setBlockedAlert(null);
+              if (playerStatus.currentHotelProgress) {
+                const modal = playerStatus.currentHotelProgress.activeModal;
+                setCurrentHotelProgress({
+                  ...playerStatus.currentHotelProgress,
+                  activeStep: modal?.nextStep ?? playerStatus.currentHotelProgress.activeStep,
+                  activeModal: null,
                 });
               }
-            }}
-          >
-            <DialogContent className="bg-card border-border max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {t.confirmTitle}
-                </DialogTitle>
-                <DialogDescription className="text-muted-foreground">
-                  {t.confirmDesc}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4 py-4">
-                <div className="bg-secondary/50 rounded-lg p-4 space-y-3 border border-border">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t.room}:</span>
-                    <span>
-                      {language === 'ru'
-                        ? selectedBookingRoomType?.label
-                        : selectedBookingRoomType?.labelEn}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t.roomNumberLabel}:</span>
-                    <span>#{roomNumber}</span>
-                  </div>
-                  {hotel?.bookingStates?.default?.floorOptions && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t.floorLabel}:</span>
-                      <span>{floor}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t.checkIn}:</span>
-                    <span>
-                      {tempBookingForm.checkInDate &&
-                        format(new Date(tempBookingForm.checkInDate), 'PP', {
-                          locale: language === 'ru' ? ru : enUS,
-                        })}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t.checkOut}:</span>
-                    <span>
-                      {tempBookingForm.checkOutDate &&
-                        format(new Date(tempBookingForm.checkOutDate), 'PP', {
-                          locale: language === 'ru' ? ru : enUS,
-                        })}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">{t.mealType}:</span>
-                    <span>
-                      {language === 'ru'
-                        ? selectedBookingMealType?.label
-                        : selectedBookingMealType?.labelEn}
-                    </span>
-                  </div>
-                  {additionalBookingServices && additionalBookingServices.length > 0 && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">{t.additionalServices}:</span>
-                      <ul className="list-disc list-inside mt-1 space-y-1">
-                        {additionalBookingServices.map(
-                          (service: (typeof additionalBookingServices)[number]) => (
-                            <li key={service.id}>
-                              {language === 'ru' ? service.name : service.nameEn}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                  <div className="flex justify-between pt-3 border-t border-border">
-                    <span>{t.totalCost}:</span>
-                    <span className="text-primary">₽{calculateTotalDisplay.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-                  <p className="text-destructive text-sm flex items-start gap-2">
-                    <span className="text-lg">⚠️</span>
-                    <span>{t.warning}</span>
-                  </p>
-                </div>
-              </div>
-
-              <DialogFooter className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    // Возвращаемся к предыдущему шагу (форме бронирования)
-                    updateFlowState({
-                      currentStep: 'bookingForm',
-                      currentChainIndex: 1, // Index of 'bookingForm'
-                      completedSteps: ['hotelPage', 'bookingForm'],
-                    });
-                  }}
-                  className="flex-1 border-border"
-                >
-                  {t.cancel}
-                </Button>
-                <Button
-                  onClick={onFinalizeBooking}
-                  className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90 shadow-lg shadow-primary/25"
-                >
-                  {t.confirm}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
+            }
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                {blockedAlert?.title
+                  ? (language === 'ru' ? blockedAlert.title : blockedAlert.titleEn ?? blockedAlert.title)
+                  : (language === 'ru' ? 'Действие заблокировано' : 'Action blocked')}
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                {language === 'ru' ? blockedAlert?.message : blockedAlert?.messageEn}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogAction
+              onClick={() => {
+                setBlockedAlert(null);
+                if (playerStatus.currentHotelProgress) {
+                  const modal = playerStatus.currentHotelProgress.activeModal;
+                  setCurrentHotelProgress({
+                    ...playerStatus.currentHotelProgress,
+                    activeStep: modal?.nextStep ?? playerStatus.currentHotelProgress.activeStep,
+                    activeModal: null,
+                  });
+                }
+              }}
+            >
+              {language === 'ru' ? 'OK' : 'OK'}
+            </AlertDialogAction>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </TooltipProvider>
   );

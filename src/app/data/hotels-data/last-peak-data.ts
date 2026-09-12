@@ -406,7 +406,7 @@ export const lastPeakChain: Chain = {
             { field: 'additionalServices', operator: 'not-contains', value: 'entropy-fix' },
             { field: 'inventory', operator: 'contains', value: 'mountaineers-hammer' },
           ],
-          nextStep: 'bookingConfirm',
+          nextStep: 'captcha',
           params: { captchaReason: 'human' as const, bookingResult: 'safe' as const },
         },
         submitUnsafe: {

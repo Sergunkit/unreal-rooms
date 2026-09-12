@@ -16,6 +16,15 @@ export interface Amenities {
   additionalServices?: { id: string; name: string; nameEn: string; price: number }[];
 }
 
+export interface ModalConfig {
+  id: string;
+  title?: string;
+  titleEn?: string;
+  message: string;
+  messageEn: string;
+  nextStep?: string;
+}
+
 // ==================== НОВЫЕ ТИПЫ ДЛЯ ЦЕПОЧЕК ====================
 
 /**
@@ -40,6 +49,7 @@ export interface Condition {
   field:
     | 'isSafeToBook'
     | 'inventory'
+    | 'lostAndFound'
     | 'paymentMethod'
     | 'roomType'
     | 'additionalServices'
@@ -103,6 +113,13 @@ export interface GalleryActionData {
 /**
  * Действие в шаге цепочки
  */
+export interface ActionTransition {
+  conditions?: Condition[];
+  nextStep: string;
+  params?: Record<string, unknown>;
+  modal?: ModalConfig;
+}
+
 export interface Action {
   id: string;
   type: ActionType;
@@ -110,6 +127,13 @@ export interface Action {
   nextStep: string;
   params?: Record<string, unknown>; // ← Параметры для передачи в контекст
   galleryData?: GalleryActionData; // ← Данные для galleryClick (альтернатива galleryActions)
+  blocked?: {
+    conditions: Condition[];
+    message: string;
+    messageEn: string;
+  };
+  modal?: ModalConfig;
+  transitions?: Record<string, ActionTransition>;
 }
 
 /**
@@ -126,6 +150,7 @@ export interface Transitions {
       type: 'consumeInventory';
       item: string;
     }>;
+    modal?: ModalConfig;
   };
 }
 
@@ -147,6 +172,8 @@ export interface ChainStep {
   actions?: Action[]; // ← Триггеры (клики, выборы, отправки)
   transitions?: Transitions; // ← Куда идём после действия
   fallback?: { nextStep: string }; // ← Если условия не выполнены
+  modal?: ModalConfig; // ← Модалка, которая должна открыться как часть перехода по цепочке
+  nextStep?: string; // ← Куда идти после того, как модалка будет закрыта
   formConfig?: {
     initialStateId: string;
     conditionalStates?: Array<{

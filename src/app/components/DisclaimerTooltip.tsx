@@ -29,7 +29,7 @@ export const DisclaimerTooltip = () => {
       <div className="disclaimer-content">
         <p className="disclaimer-text">
           Данный сайт создан и функционирует исключительно в развлекательных целях. Все совпадения
-          случайны. Оставаясь на сайте вы не даете согласие оставаться на сайте.
+          случайны. Оставаясь на сайте вы даете согласие оставаться на сайте.
         </p>
         <button className="disclaimer-button" onClick={handleClose}>
           OK

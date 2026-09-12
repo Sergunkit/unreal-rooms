@@ -33,6 +33,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/app/components/ui/pop
 import { format } from 'date-fns';
 import { ru, enUS } from 'date-fns/locale';
 import { Room } from '../data/hotels-data/hotelTypes';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/app/components/ui/alert-dialog';
 
 interface HotelAdditionalService {
   id: string;
@@ -146,6 +155,7 @@ export function BookingFormPage({
 
   const [isCheckInOpen, setIsCheckInOpen] = useState(false);
   const [isCheckOutOpen, setIsCheckOutOpen] = useState(false);
+  const [showDateAlert, setShowDateAlert] = useState(false);
 
   const t = {
     title: language === 'ru' ? 'Бронирование номера' : 'Room Booking',
@@ -280,11 +290,7 @@ export function BookingFormPage({
 
   const handleContinue = () => {
     if (!checkInDate || !checkOutDate) {
-      alert(
-        language === 'ru'
-          ? 'Пожалуйста, выберите даты заезда и выезда'
-          : 'Please select check-in and check-out dates'
-      );
+      setShowDateAlert(true);
       return;
     }
     // Instead of showing internal confirm dialog, move to next step in flow
@@ -699,6 +705,24 @@ export function BookingFormPage({
           </div>
         </div>
       </div>
+
+      <AlertDialog open={showDateAlert} onOpenChange={setShowDateAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'ru' ? 'Не выбраны даты' : 'Dates not selected'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'ru'
+                ? 'Пожалуйста, выберите даты заезда и выезда'
+                : 'Please select check-in and check-out dates'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>{language === 'ru' ? 'OK' : 'OK'}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

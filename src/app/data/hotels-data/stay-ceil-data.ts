@@ -114,7 +114,7 @@ export const stayCeilData: Hotel = {
     ],
     restrictions: [
       'Окна заблокированы стальными рамами.',
-      'Доступ на крышу категорически запрещен.',
+      '*Выход* на крышу категорически запрещен.',
       'Телевизоры отсутствуют в номерах категории Standard и Rehab для защиты вашего спокойствия.',
       'Рекомендуется соблюдать осторожность при входе и *выходе* из отеля из-за близости к району Скид Роу.',
     ],
@@ -348,14 +348,24 @@ export const stayCeilChain: Chain = {
       step: 3,
       transitions: {
         success: { nextStep: 'floorSelect' },
-        fail: { nextStep: 'captcha' },
+        fail: { nextStep: 'captchaFailed' },
         close: { nextStep: 'hotelPage' },
+      },
+    },
+
+    captchaFailed: {
+      id: 'captchaFailed',
+      step: 4,
+      modal: {
+        id: 'captcha-failed',
+        message: 'Проверка не пройдена. Попробуйте ещё раз.',
+        messageEn: 'The check did not pass. Please try again.',
       },
     },
 
     floorSelect: {
       id: 'floorSelect',
-      step: 4,
+      step: 5,
       transitions: {
         confirm: { nextStep: 'bookingForm' },
         cancel: { nextStep: 'captcha' },
@@ -364,7 +374,7 @@ export const stayCeilChain: Chain = {
 
     bookingForm: {
       id: 'bookingForm',
-      step: 5,
+      step: 6,
       formConfig: {
         initialStateId: 'default',
         conditionalStates: [
@@ -405,7 +415,7 @@ export const stayCeilChain: Chain = {
 
     bookingConfirm: {
       id: 'bookingConfirm',
-      step: 6,
+      step: 7,
       transitions: {
         confirm: { nextStep: 'bookingComplete' },
         cancel: { nextStep: 'bookingForm' },
@@ -414,7 +424,7 @@ export const stayCeilChain: Chain = {
 
     bookingComplete: {
       id: 'bookingComplete',
-      step: 7,
+      step: 8,
       transitions: {
         default: { nextStep: 'prizeModal', delay: 3000 },
       },
@@ -422,7 +432,7 @@ export const stayCeilChain: Chain = {
 
     prizeModal: {
       id: 'prizeModal',
-      step: 8,
+      step: 9,
       conditions: [{ field: 'isSafeToBook', operator: 'eq', value: true }],
       transitions: {
         continue: { nextStep: 'myBookingsPage' },
@@ -432,7 +442,7 @@ export const stayCeilChain: Chain = {
 
     myBookingsPage: {
       id: 'myBookingsPage',
-      step: 9,
+      step: 10,
       transitions: {
         default: { nextStep: 'hotelPage' },
       },

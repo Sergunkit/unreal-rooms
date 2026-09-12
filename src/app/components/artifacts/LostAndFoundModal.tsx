@@ -5,6 +5,15 @@ import { useGame } from '../../contexts/GameContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { getArtefactById } from '../../data/artefacts';
 import { ArtifactModal } from './ArtifactModal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
 
 /**
  * Предмет в потеряшках
@@ -102,6 +111,7 @@ export function LostAndFoundModal({
   const { language } = useLanguage();
   const { playerStatus, addToInventory } = useGame();
   const [showArtifactModal, setShowArtifactModal] = useState(false);
+  const [showInventoryAlert, setShowInventoryAlert] = useState(false);
   const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<
     (LostAndFoundItem & { isStatic?: boolean }) | null
@@ -162,11 +172,7 @@ export function LostAndFoundModal({
 
     // Проверяем, есть ли место в инвентаре
     if (playerStatus.inventory.length >= 9) {
-      alert(
-        language === 'ru'
-          ? 'В чемодане нет места! Освободите слот.'
-          : 'No space in suitcase! Free up a slot.'
-      );
+      setShowInventoryAlert(true);
       return;
     }
 
@@ -271,6 +277,24 @@ export function LostAndFoundModal({
         hotelId={hotelId}
         onAction={handleCollectArtifact}
       />
+
+      <AlertDialog open={showInventoryAlert} onOpenChange={setShowInventoryAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'ru' ? 'Чемодан полон' : 'Suitcase is full'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'ru'
+                ? 'В чемодане нет места! Освободите слот.'
+                : 'No space in suitcase! Free up a slot.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>{language === 'ru' ? 'OK' : 'OK'}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
