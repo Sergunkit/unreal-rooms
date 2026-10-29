@@ -1,16 +1,16 @@
 /* eslint-disable prettier/prettier */
 import type { Chain } from './hotelTypes';
 // Импорт изображений (названия соответствуют описанию)
-import headImage from '../images/Brandt/head-image.jpg'; // Панорама замка с высоты
-import galleryStairs from '../images/Brandt/gallery-brandt1.jpg'; // Винтовая лестница
-import galleryGrounds1 from '../images/Brandt/gallery-brandt2.jpg'; // Прилегающая территория со склепами 1
-import galleryGrounds2 from '../images/Brandt/gallery-brandt3.jpg'; // Прилегающая территория со склепами 2
-import galleryUnderground from '../images/Brandt/room1.png'; // Комната на подземном уровне
-import galleryWindowRoom from '../images/Brandt/room2.jpg'; // Комната с окном
-import galleryHallTable from '../images/Brandt/gallery-brandt4.jpg'; // Зальная комната с длинным столом
-import roomDeluxeImg from '../images/Brandt/room2.jpg'; // Видовой номер в башне (заглушка)
-import roomDetoxImg from '../images/Brandt/room3.jpg'; // Каменная комната с одной свечой
-import roomCryptImg from '../images/Brandt/room1.png'; // Цокольный этаж со сводами
+import headImage from '../images/brandt/head-image.jpg'; // Панорама замка с высоты
+import galleryStairs from '../images/brandt/gallery-brandt1.jpg'; // Винтовая лестница
+import galleryGrounds1 from '../images/brandt/gallery-brandt2.jpg'; // Прилегающая территория со склепами 1
+import galleryGrounds2 from '../images/brandt/gallery-brandt3.jpg'; // Прилегающая территория со склепами 2
+import galleryUnderground from '../images/brandt/room1.png'; // Комната на подземном уровне
+import galleryWindowRoom from '../images/brandt/room2.jpg'; // Комната с окном
+import galleryHallTable from '../images/brandt/gallery-brandt4.jpg'; // Зальная комната с длинным столом
+import roomDeluxeImg from '../images/brandt/room2.jpg'; // Видовой номер в башне (заглушка)
+import roomDetoxImg from '../images/brandt/room3.jpg'; // Каменная комната с одной свечой
+import roomCryptImg from '../images/brandt/room1.png'; // Цокольный этаж со сводами
 
 export const brandtData = {
   id: 3,

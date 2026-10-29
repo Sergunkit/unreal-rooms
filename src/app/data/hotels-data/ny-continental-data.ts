@@ -1,18 +1,18 @@
 /* eslint-disable prettier/prettier */
 import type { Chain, Hotel } from './hotelTypes';
-import headImage from '../images/NYContinental/head-image.png';
-import galleryCont1 from '../images/NYContinental/gallery-nyc1.png';
-import galleryCont2 from '../images/NYContinental/gallery-nyc2.jpg';
-import galleryCont3 from '../images/NYContinental/gallery-nyc3.jpg'; // Харон за стойкой
-import galleryCont4 from '../images/NYContinental/gallery-nyc4.jpg'; // Харон за стойкой
-import galleryCont5 from '../images/NYContinental/gallery-nyc5.jpg'; // Оружейный погреб (Сомелье)
+import headImage from '../images/nycontinental/head-image.png';
+import galleryCont1 from '../images/nycontinental/gallery-nyc1.png';
+import galleryCont2 from '../images/nycontinental/gallery-nyc2.jpg';
+import galleryCont3 from '../images/nycontinental/gallery-nyc3.jpg'; // Харон за стойкой
+import galleryCont4 from '../images/nycontinental/gallery-nyc4.jpg'; // Харон за стойкой
+import galleryCont5 from '../images/nycontinental/gallery-nyc5.jpg'; // Оружейный погреб (Сомелье)
 // import galleryCont3 from '../images/Continental/lounge.jpg'; // Лаундж с винилом
 
-import roomConcierge from '../images/NYContinental/room1.jpg';
-import roomSafeHaven from '../images/NYContinental/room2.jpg';
-import roomSanctum from '../images/NYContinental/room3.jpg';
+import roomConcierge from '../images/nycontinental/room1.jpg';
+import roomSafeHaven from '../images/nycontinental/room2.jpg';
+import roomSanctum from '../images/nycontinental/room3.jpg';
 
-// import goldCoinArtefact from '../images/artefacts/gold-coin.jpg';
+// import goldCoinArtefact from '../images/artefacts/Gold-coin.jpg';
 
 export const continentalData: Hotel = {
   id: 1,

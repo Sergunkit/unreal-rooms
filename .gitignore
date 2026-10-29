@@ -52,3 +52,4 @@ supabase/storage/
 *.db
 .kilocode/
 guidelines/
+*.bak/

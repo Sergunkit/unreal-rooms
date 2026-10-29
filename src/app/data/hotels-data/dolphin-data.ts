@@ -1,25 +1,25 @@
 /* eslint-disable prettier/prettier */
 import type { Chain, Hotel } from './hotelTypes';
 // Изображения (заглушки — заменятся на реальные)
-import headImage from '../images/Dolphin/head-image.png';
-import galleryConcierge from '../images/Dolphin/gallery1.png';
-import galleryRadio from '../images/Dolphin/room2.jpg';
-import gallery2 from '../images/Dolphin/gallery2.png';
-import headImage1 from '../images/Dolphin/head-image1.jpg';
-// import galleryWindow from '../images/Dolphin/gallery-window.jpg';
-import roomStandardImg from '../images/Dolphin/room1.jpg';
-import roomSuperiorImg from '../images/Dolphin/room3.png';
-import room1408Img from '../images/Dolphin/room4.png';
+import headImage from '../images/dolphin/head-image.png';
+import galleryConcierge from '../images/dolphin/gallery1.png';
+import galleryRadio from '../images/dolphin/room2.jpg';
+import gallery2 from '../images/dolphin/gallery2.png';
+import headImage1 from '../images/dolphin/head-image1.jpg';
+// import galleryWindow from '../images/dolphin/gallery-window.jpg';
+import roomStandardImg from '../images/dolphin/room1.jpg';
+import roomSuperiorImg from '../images/dolphin/room3.png';
+import room1408Img from '../images/dolphin/room4.png';
 // Изображения для капчи (9 ключей)
-import key1408 from '../images/Dolphin/1408.png';
-import key1401 from '../images/Dolphin/1.jpg';
-import key1402 from '../images/Dolphin/5.png';
-import key1403 from '../images/Dolphin/13.png';
-import key1404 from '../images/Dolphin/237.png';
-import key1405 from '../images/Dolphin/back-door.png';
-import key1406 from '../images/Dolphin/hell-key.jpg';
-import key1407 from '../images/Dolphin/paradis-key.jpg';
-import key1409 from '../images/Dolphin/tempus-fugit.jpg';
+import key1408 from '../images/dolphin/1408.png';
+import key1401 from '../images/dolphin/1.jpg';
+import key1402 from '../images/dolphin/5.png';
+import key1403 from '../images/dolphin/13.png';
+import key1404 from '../images/dolphin/237.png';
+import key1405 from '../images/dolphin/back-door.png';
+import key1406 from '../images/dolphin/hell-key.jpg';
+import key1407 from '../images/dolphin/paradis-key.jpg';
+import key1409 from '../images/dolphin/tempus-fugit.jpg';
 
 export const dolphinData: Hotel = {
   id: 5,

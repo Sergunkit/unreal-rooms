@@ -1,19 +1,19 @@
 /* eslint-disable prettier/prettier */
 import type { Chain } from './hotelTypes';
-import headImage from '../images/Overlux/head-image.jpeg';
-import headImage2 from '../images/Overlux/head-image-alt.jpeg';
-import gallery1 from '../images/Overlux/gallery1.jpg';
-import gallery2 from '../images/Overlux/gallery2.jpg';
-// import gallery4 from '../images/Overlux/gallery4.jpg';
-import gallery3 from '../images/Overlux/gallery3.jpg';
-// import gallery5 from '../images/Overlux/gallery5.jpg';
-import gallery6 from '../images/Overlux/gallery6.jpg';
-import gallery7 from '../images/Overlux/gallery7.jpg';
-import room1 from '../images/Overlux/room1.jpg';
-import room2 from '../images/Overlux/room2.jpg';
-import room3 from '../images/Overlux/room3.jpg';
-import gallery3Alt from '../images/Overlux/gallery3-alt.jpg';
-// import gallery4Alt from '../images/Overlux/gallery4-alt.jpg';
+import headImage from '../images/overlux/head-image.jpeg';
+import headImage2 from '../images/overlux/head-image-alt.jpeg';
+import gallery1 from '../images/overlux/gallery1.jpg';
+import gallery2 from '../images/overlux/gallery2.jpg';
+// import gallery4 from '../images/overlux/gallery4.jpg';
+import gallery3 from '../images/overlux/gallery3.jpg';
+// import gallery5 from '../images/overlux/gallery5.jpg';
+import gallery6 from '../images/overlux/gallery6.jpg';
+import gallery7 from '../images/overlux/gallery7.jpg';
+import room1 from '../images/overlux/room1.jpg';
+import room2 from '../images/overlux/room2.jpg';
+import room3 from '../images/overlux/room3.jpg';
+import gallery3Alt from '../images/overlux/gallery3-alt.jpg';
+// import gallery4Alt from '../images/overlux/gallery4-alt.jpg';
 
 export const overluxData = {
   id: 2,

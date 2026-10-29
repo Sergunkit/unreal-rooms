@@ -1,38 +1,38 @@
 /* eslint-disable prettier/prettier */
 import type { Chain, Hotel } from './hotelTypes';
-import headImage8 from '../images/LastPeak/head-Image.jpg';
-import headImageAlt8 from '../images/LastPeak/head-Image-alt.jpg';
-import galleryImage1_8 from '../images/LastPeak/gallery-1.jpg';
-import galleryImage2_8 from '../images/LastPeak/gallery-2.jpg';
-import galleryImage3_8 from '../images/LastPeak/gallery-3.jpg';
-import galleryImage5_8 from '../images/LastPeak/gallery-5.jpg';
-import galleryImage6_8 from '../images/LastPeak/gallery-6.jpg';
-import galleryImageAlt2_8 from '../images/LastPeak/gallery-2-alt.jpg';
-import galleryImageAlt1_8 from '../images/LastPeak/gallery-1-alt.jpg';
+import headImage8 from '../images/lastpeak/head-Image.jpg';
+import headImageAlt8 from '../images/lastpeak/head-Image-alt.jpg';
+import galleryImage1_8 from '../images/lastpeak/gallery-1.jpg';
+import galleryImage2_8 from '../images/lastpeak/gallery-2.jpg';
+import galleryImage3_8 from '../images/lastpeak/gallery-3.jpg';
+import galleryImage5_8 from '../images/lastpeak/gallery-5.jpg';
+import galleryImage6_8 from '../images/lastpeak/gallery-6.jpg';
+import galleryImageAlt2_8 from '../images/lastpeak/gallery-2-alt.jpg';
+import galleryImageAlt1_8 from '../images/lastpeak/gallery-1-alt.jpg';
 
-import classicComfort8 from '../images/LastPeak/standart.jpg';
-import infinityView8 from '../images/LastPeak/infinity_view.jpg';
-import specialistSuite8 from '../images/LastPeak/lux-specialist.jpg';
+import classicComfort8 from '../images/lastpeak/standart.jpg';
+import infinityView8 from '../images/lastpeak/infinity_view.jpg';
+import specialistSuite8 from '../images/lastpeak/lux-specialist.jpg';
 
 // Captcha images
-import captchaApple from '../images/LastPeak/captcha-apple.jpeg';
-import captchaNail from '../images/LastPeak/captcha-nail.jpeg';
-import captchaFish from '../images/LastPeak/captcha-fish.jpg';
-import captchaCheese from '../images/LastPeak/captcha-cheese.jpg';
-import captchaIce from '../images/LastPeak/captcha-ice.jpg';
-import captchaCat from '../images/LastPeak/captcha-cat.jpg';
-import captchaClock from '../images/LastPeak/captcha-clock.jpg';
-import captchaBread from '../images/LastPeak/captcha-bread.jpg';
-import captchaEgg from '../images/LastPeak/captcha-egg.jpg';
+import captchaApple from '../images/lastpeak/captcha-apple.jpeg';
+import captchaNail from '../images/lastpeak/captcha-nail.jpeg';
+import captchaFish from '../images/lastpeak/captcha-fish.jpg';
+import captchaCheese from '../images/lastpeak/captcha-cheese.jpg';
+import captchaIce from '../images/lastpeak/captcha-ice.jpg';
+import captchaCat from '../images/lastpeak/captcha-cat.jpg';
+import captchaClock from '../images/lastpeak/captcha-clock.jpg';
+import captchaBread from '../images/lastpeak/captcha-bread.jpg';
+import captchaEgg from '../images/lastpeak/captcha-egg.jpg';
 
 // Alien captcha images
-import alienCaptcha1 from '../images/LastPeak/alien-capcha.jpg';
-import alienCaptcha2 from '../images/LastPeak/alien-capcha1.jpg';
-import alienCaptcha3 from '../images/LastPeak/alien-capcha2.jpg';
-import alienCaptcha4 from '../images/LastPeak/alien-capcha3.jpg';
-import alienCaptcha5 from '../images/LastPeak/alien-capcha4.jpg';
-import alienCaptcha6 from '../images/LastPeak/alien-capcha5.jpg';
-import alienCaptcha7 from '../images/LastPeak/alien-capcha6.jpg';
+import alienCaptcha1 from '../images/lastpeak/alien-capcha.jpg';
+import alienCaptcha2 from '../images/lastpeak/alien-capcha1.jpg';
+import alienCaptcha3 from '../images/lastpeak/alien-capcha2.jpg';
+import alienCaptcha4 from '../images/lastpeak/alien-capcha3.jpg';
+import alienCaptcha5 from '../images/lastpeak/alien-capcha4.jpg';
+import alienCaptcha6 from '../images/lastpeak/alien-capcha5.jpg';
+import alienCaptcha7 from '../images/lastpeak/alien-capcha6.jpg';
 
 export const lastPeakData: Hotel = {
   id: 8,

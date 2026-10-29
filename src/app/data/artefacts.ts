@@ -20,7 +20,7 @@ import gun from './images/artefacts/Gun.jpg';
 import goldenSnake from './images/artefacts/Golden-snake.jpg';
 import goldenApple from './images/artefacts/Golden-snake.jpg'; // изображение нужно генерировать
 import radio from './images/artefacts/Radio.png';
-import roomKey from './images/Dolphin/1408.png';
+import roomKey from './images/dolphin/1408.png';
 
 /**
  * Интерфейс для артефакта (предмет Lost & Found или приз)

@@ -1,22 +1,22 @@
 /* eslint-disable prettier/prettier */
 import type { Chain } from './hotelTypes';
-import headImage7 from '../images/Soldier/head-image.jpg';
-import headImage2_7 from '../images/Soldier/head-image2.jpg';
-import galleryImageSoldier_7 from '../images/Soldier/gallery-image-soldier.jpg';
-import galleryImageSoldier2_7 from '../images/Soldier/gallery-image-soldier2.jpg';
-import galleryImage1_7 from '../images/Soldier/gallery-image1.jpeg';
-import galleryImage2_7 from '../images/Soldier/gallery-image2.jpg';
-import lastStandSuite7 from '../images/Soldier/Last-Stand-Suite.jpg';
-import deepSleepRoom7 from '../images/Soldier/Deep-Sleep-Room.jpg';
-import anglerRestCabin7 from '../images/Soldier/Anglers-Rest-Cabin.jpg';
-import hearthHomeLodge7 from '../images/Soldier/Hearth-and-Home-Lodge.jpg';
-import goldenHourLounge7 from '../images/Soldier/Golden-Hour-Lounge.jpg';
-import goldFishStudio7 from '../images/Soldier/Gold-Fish-Studio.jpg';
-import beekeeperBalcony7 from '../images/Soldier/Beekeepers-Balcony.jpg';
-import firstAidSuite7 from '../images/Soldier/First-Aid-Suite.jpg';
-import highTideAttic7 from '../images/Soldier/High-Tide-Attic.jpeg';
-import nightcapDeluxe7 from '../images/Soldier/Nightcap-Deluxe.jpg';
-import verdictGrandSuite7 from '../images/Soldier/Verdict-Grand-Suite.jpg';
+import headImage7 from '../images/soldier/head-image.jpg';
+import headImage2_7 from '../images/soldier/head-image2.jpg';
+import galleryImageSoldier_7 from '../images/soldier/gallery-image-soldier.jpg';
+import galleryImageSoldier2_7 from '../images/soldier/gallery-image-soldier2.jpg';
+import galleryImage1_7 from '../images/soldier/gallery-image1.jpeg';
+import galleryImage2_7 from '../images/soldier/gallery-image2.jpg';
+import lastStandSuite7 from '../images/soldier/Last-Stand-Suite.jpg';
+import deepSleepRoom7 from '../images/soldier/Deep-Sleep-Room.jpg';
+import anglerRestCabin7 from '../images/soldier/Anglers-Rest-Cabin.jpg';
+import hearthHomeLodge7 from '../images/soldier/Hearth-and-Home-Lodge.jpg';
+import goldenHourLounge7 from '../images/soldier/Golden-Hour-Lounge.jpg';
+import goldFishStudio7 from '../images/soldier/Gold-Fish-Studio.jpg';
+import beekeeperBalcony7 from '../images/soldier/Beekeepers-Balcony.jpg';
+import firstAidSuite7 from '../images/soldier/First-Aid-Suite.jpg';
+import highTideAttic7 from '../images/soldier/High-Tide-Attic.jpeg';
+import nightcapDeluxe7 from '../images/soldier/Nightcap-Deluxe.jpg';
+import verdictGrandSuite7 from '../images/soldier/Verdict-Grand-Suite.jpg';
 
 export const soldierData = {
   id: 7,

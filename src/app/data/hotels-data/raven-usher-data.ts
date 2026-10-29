@@ -1,16 +1,16 @@
 /* eslint-disable prettier/prettier */
 import type { Chain, Hotel } from './hotelTypes';
-import headImage9 from '../images/Usher/head-image.png';
-import headImageAlt9 from '../images/Usher/head-image-alt.png'; // Альтернативное изображение для отеля Usher, на случай проблем с загрузкой основного изображения
-import galleryUsher1_9 from '../images/Usher/gallery-usher1.jpg'; // Сад
-import galleryUsher2_9 from '../images/Usher/gallery-usher2.jpg'; // Ресторан TaVerna с вороном
-import galleryUsher3_9 from '../images/Usher/gallery-usher3.jpg'; // SPA с бассейном
-import galleryUsher4_9 from '../images/Usher/gallery-usher4.png'; // Лобби
-import galleryUsher5_9 from '../images/Usher/gallery-usher5.jpg'; // Габилен с шимпанзе
+import headImage9 from '../images/usher/head-image.png';
+import headImageAlt9 from '../images/usher/head-image-alt.png'; // Альтернативное изображение для отеля Usher, на случай проблем с загрузкой основного изображения
+import galleryUsher1_9 from '../images/usher/gallery-usher1.jpg'; // Сад
+import galleryUsher2_9 from '../images/usher/gallery-usher2.jpg'; // Ресторан TaVerna с вороном
+import galleryUsher3_9 from '../images/usher/gallery-usher3.jpg'; // SPA с бассейном
+import galleryUsher4_9 from '../images/usher/gallery-usher4.png'; // Лобби
+import galleryUsher5_9 from '../images/usher/gallery-usher5.jpg'; // Габилен с шимпанзе
 
-import roomMorgue9 from '../images/Usher/Room1.jpg'; // С пером
-import roomTellTale9 from '../images/Usher/Room2.jpg'; // С котом
-import roomBlackCat9 from '../images/Usher/Room3.jpg'; // С кочергой и зеркалом
+import roomMorgue9 from '../images/usher/room1.jpg'; // С пером
+import roomTellTale9 from '../images/usher/room2.jpg'; // С котом
+import roomBlackCat9 from '../images/usher/room3.jpg'; // С кочергой и зеркалом
 
 export const usherData: Hotel = {
   id: 9,

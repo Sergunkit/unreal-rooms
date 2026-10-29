@@ -1,25 +1,25 @@
 /* eslint-disable prettier/prettier */
 import type { Chain, Hotel } from './hotelTypes';
-import headImage10 from '../images/StayCeil/head-image.jpg'; // Главная фотография отеля Stay-Ceil
-import galleryCeil1 from '../images/StayCeil/lobby-security.jpeg'; // Лобби с рамкой
-import galleryCeil2 from '../images/StayCeil/cafeteria.jpeg'; // Столовая
-import galleryCeil3 from '../images/StayCeil/floor14.jpeg'; // Площадка 14-го этажа с *выходом*
-import galleryCeil4 from '../images/StayCeil/gallery-stay-ceil1.jpg'; //Вид с крыши на город
-import galleryCeil6 from '../images/StayCeil/gallery-stay-ceil3.png'; //Лифт
-import galleryCeil7 from '../images/StayCeil/gallery-stay-ceil4.jpeg'; //
-import captcha1 from '../images/StayCeil/capcha1.jpg';
-import captcha2 from '../images/StayCeil/capcha2.jpg';
-import captcha3 from '../images/StayCeil/capcha3.jpg';
-import captcha4 from '../images/StayCeil/capcha4.jpg';
-import captcha5 from '../images/StayCeil/capcha5.jpg';
-import captcha6 from '../images/StayCeil/capcha6.jpg';
-import captcha7 from '../images/StayCeil/capcha7.jpg';
-import captcha8 from '../images/StayCeil/capcha8.jpg';
-import captcha9 from '../images/StayCeil/capcha9.jpg';
+import headImage10 from '../images/stayceil/head-image.jpg'; // Главная фотография отеля Stay-Ceil
+import galleryCeil1 from '../images/stayceil/lobby-security.jpeg'; // Лобби с рамкой
+import galleryCeil2 from '../images/stayceil/cafeteria.jpeg'; // Столовая
+import galleryCeil3 from '../images/stayceil/floor14.jpeg'; // Площадка 14-го этажа с *выходом*
+import galleryCeil4 from '../images/stayceil/gallery-stay-ceil1.jpg'; //Вид с крыши на город
+import galleryCeil6 from '../images/stayceil/gallery-stay-ceil3.png'; //Лифт
+import galleryCeil7 from '../images/stayceil/gallery-stay-ceil4.jpeg'; //
+import captcha1 from '../images/stayceil/capcha1.jpg';
+import captcha2 from '../images/stayceil/capcha2.jpg';
+import captcha3 from '../images/stayceil/capcha3.jpg';
+import captcha4 from '../images/stayceil/capcha4.jpg';
+import captcha5 from '../images/stayceil/capcha5.jpg';
+import captcha6 from '../images/stayceil/capcha6.jpg';
+import captcha7 from '../images/stayceil/capcha7.jpg';
+import captcha8 from '../images/stayceil/capcha8.jpg';
+import captcha9 from '../images/stayceil/capcha9.jpg';
 
-import roomStandard from '../images/StayCeil/Room-Standard.jpeg'; // Аскетичный номер с раковиной и общими удобствами
-import roomSuperior from '../images/StayCeil/Room-Superior.jpeg'; // С ТВ и кондеем
-import roomRehub from '../images/StayCeil/Room-Rehub.jpeg'; // Тот самый номер
+import roomStandard from '../images/stayceil/Room-Standard.jpeg'; // Аскетичный номер с раковиной и общими удобствами
+import roomSuperior from '../images/stayceil/Room-Superior.jpeg'; // С ТВ и кондеем
+import roomRehub from '../images/stayceil/Room-Rehub.jpeg'; // Тот самый номер
 
 export const stayCeilData: Hotel = {
   id: 10,
