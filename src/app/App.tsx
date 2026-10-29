@@ -33,7 +33,12 @@ function AppContent() {
     };
   }, []);
 
-  const handleArtefactClick = (artefact: { id: string; name: string; nameEn: string; image: string }) => {
+  const handleArtefactClick = (artefact: {
+    id: string;
+    name: string;
+    nameEn: string;
+    image: string;
+  }) => {
     setFoundArtifactId(artefact.id);
     setShowArtifactModal(true);
   };

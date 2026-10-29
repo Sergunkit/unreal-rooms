@@ -32,7 +32,13 @@ export function Header() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="relative">
-              <div className="w-8 h-8 text-primary rotate-45 stroke-[1.5]" style={{ background: 'currentColor', clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
+              <div
+                className="w-8 h-8 text-primary rotate-45 stroke-[1.5]"
+                style={{
+                  background: 'currentColor',
+                  clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
+                }}
+              />
               <div className="absolute inset-0 blur-xl bg-primary/30 -z-10" />
             </div>
             <div>
@@ -65,7 +71,18 @@ export function Header() {
 
             <DropdownMenu>
               <DropdownMenuTrigger className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all outline-none focus:ring-2 focus:ring-primary/50">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-card border-border w-56 mr-4" align="end">
                 {menuItems[language].map((item, index) => (

@@ -496,9 +496,15 @@ export function useHotelFlow(hotelId?: string) {
     [applyCaptchaTransition]
   );
 
-  const handleCaptchaFailure = useCallback(() => applyCaptchaTransition('fail'), [applyCaptchaTransition]);
+  const handleCaptchaFailure = useCallback(
+    () => applyCaptchaTransition('fail'),
+    [applyCaptchaTransition]
+  );
 
-  const handleCaptchaClose = useCallback(() => applyCaptchaTransition('close'), [applyCaptchaTransition]);
+  const handleCaptchaClose = useCallback(
+    () => applyCaptchaTransition('close'),
+    [applyCaptchaTransition]
+  );
 
   const handleFloorSelect = useCallback(
     (floor: number) => {
