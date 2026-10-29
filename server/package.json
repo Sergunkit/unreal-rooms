@@ -1,0 +1,20 @@
+{
+  "name": "unreal-rooms-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=23.6"
+  },
+  "scripts": {
+    "dev": "node --watch src/index.ts",
+    "start": "node src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.0",
+    "hono": "^4.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  }
+}

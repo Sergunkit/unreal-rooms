@@ -1,0 +1,51 @@
+{
+  "slug": "dolphin",
+  "name": "Dolphin King Hotel",
+  "nameEn": "Dolphin King Hotel",
+  "stars": 5,
+  "slogan": "Наш отель будет рад стать для вас домом",
+  "sloganEn": "Our hotel will be happy to become your home.",
+  "entryStep": "room-choice",
+  "steps": {
+    "room-choice": {
+      "id": "room-choice",
+      "prompt": "Консьерж смотрит сквозь вас: «Свободен только один номер — тот, что не сдаётся». Радиоточка в вестибюле шепчет его номер. Какой номер вы попросите?",
+      "promptEn": "The concierge looks through you: \"Only one room is free — the one that is never rented out.\" The lobby radio whispers its number. Which room will you ask for?",
+      "hints": [
+        "У дельфина есть своя волна — прислушайтесь к радиоточке.",
+        "Стивен Кинг писал об этом номере. Сумма цифр — 13."
+      ],
+      "answers": [
+        { "accept": ["1408", "номер 1408", "room 1408", "четырнадцать ноль восемь"] }
+      ],
+      "successMessage": "Ключи дрожат в руке консьержа. Лифт сам жмёт кнопку 14. Добро пожаловать домой.",
+      "artefact": "dolphin-key"
+    },
+    "captcha": {
+      "id": "captcha",
+      "prompt": "Дверь в номер заперта капчей: на стойке девять ключей — 1, 5, 13, 237, 1408, «ад», «рай», «чёрный ход» и «tempus fugit». Возьмите единственный, который откроет дверь. Что вы берёте?",
+      "promptEn": "The door is locked with a captcha: nine keys on the counter — 1, 5, 13, 237, 1408, \"hell\", \"paradise\", \"back door\" and \"tempus fugit\". Take the only one that opens it.",
+      "hints": [
+        "Время уходит. Латинское буквально.",
+        "Часы в холле тикают назад."
+      ],
+      "answers": [
+        { "accept": ["tempus fugit", "темпус фугит", "tempus", "время бежит"] }
+      ],
+      "successMessage": "Замок щёлкает — секунда, и дверь растворяется в темноту номера.",
+      "artefact": "tempus-fugit"
+    },
+    "finale": {
+      "id": "finale",
+      "prompt": "Номер пуст, но на белом мраморном полу — влажный след. На зеркале помада: «Побег начинается с переписывания». Запишите слово, которое сотрёт этот отель из вашей памяти.",
+      "promptEn": "The room is empty, but a wet trail crosses the white marble floor. On the mirror, lipstick: \"Escape begins with rewriting\". Write the word that erases this hotel from your memory.",
+      "hints": [
+        "Переписывание = перезапись. Что делает гость с бронью при выезде?",
+        "Отмена. Одним словом, по-английски."
+      ],
+      "answers": [{ "accept": ["cancel", "отмена", "cancellation", "refund"] }],
+      "successMessage": "Зеркало трескается, след высыхает. Вы снова на Лексингтон-авеню — и вас никогда здесь не было. Отель пройден.",
+      "artefact": "dolphin-escape"
+    }
+  }
+}
