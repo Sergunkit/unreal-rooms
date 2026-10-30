@@ -1,21 +1,21 @@
 import { useCallback, useMemo, useEffect } from 'react';
-import { hotelData } from '../data/hotels';
 import { useGame } from '../contexts/GameContext';
+import { useCatalog } from '../contexts/CatalogContext';
 import type {
   TempBookingFormData,
   LockedFormField,
   InitialBookingState,
 } from '../data/hotels-data/hotelTypes';
 
-import { getChainForHotel } from '../utils/getChainForHotel';
 import { evaluateConditions } from '../utils/evaluateConditions';
 
 export function useHotelProgress(hotelId?: string) {
-  const hotel = hotelId ? hotelData[hotelId as keyof typeof hotelData] : null;
+  const catalog = useCatalog();
+  const hotel = hotelId && catalog.status === 'loaded' ? catalog.hotels[hotelId] : null;
   const { playerStatus, setCurrentHotelProgress } = useGame();
   const currentProgress = playerStatus.currentHotelProgress;
   const inventory = playerStatus.inventory;
-  const chain = hotelId ? getChainForHotel(hotelId) : null;
+  const chain = hotelId && catalog.status === 'loaded' ? (catalog.chains[hotelId] ?? null) : null;
 
   const activeBookingStateAndLocks = useMemo(() => {
     if (!hotel || !currentProgress || !chain || currentProgress.hotelId !== hotel.id.toString()) {

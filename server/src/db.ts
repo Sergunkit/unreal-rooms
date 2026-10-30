@@ -30,6 +30,22 @@ db.exec(`
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     PRIMARY KEY (session_id, hotel)
   );
+
+  CREATE TABLE IF NOT EXISTS hotel_catalog (
+    hotel_id TEXT PRIMARY KEY,
+    hotel_json TEXT NOT NULL CHECK (json_valid(hotel_json)),
+    chain_json TEXT NOT NULL CHECK (json_valid(chain_json))
+  );
+
+  CREATE TABLE IF NOT EXISTS artifact_catalog (
+    artifact_id TEXT PRIMARY KEY,
+    artifact_json TEXT NOT NULL CHECK (json_valid(artifact_json))
+  );
+
+  CREATE TABLE IF NOT EXISTS catalog_metadata (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
 `);
 
 export function createSession(): string {

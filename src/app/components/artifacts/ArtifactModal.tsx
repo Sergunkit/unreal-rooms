@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Sparkle } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getArtefactById } from '../../data/artefacts';
+import { useCatalog } from '../../contexts/CatalogContext';
 
 type ArtifactModalMode = 'collect' | 'place';
 
@@ -39,8 +39,9 @@ export function ArtifactModal({
 }: ArtifactModalProps) {
   const { language } = useLanguage();
   const { hasInInventory } = useGame();
+  const catalog = useCatalog();
 
-  const artifact = getArtefactById(artifactId);
+  const artifact = catalog.status === 'loaded' ? catalog.artefacts[artifactId] : null;
 
   if (!artifact) return null;
 

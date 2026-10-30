@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Package, Search } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { getArtefactById } from '../../data/artefacts';
+import { useCatalog } from '../../contexts/CatalogContext';
 import { ArtifactModal } from './ArtifactModal';
 import {
   AlertDialog,
@@ -108,6 +108,8 @@ export function LostAndFoundModal({
   artifactId: _artifactId,
   onPlaceArtifact: _onPlaceArtifact,
 }: LostAndFoundModalProps) {
+  const catalog = useCatalog();
+  const artefacts = catalog.status === 'loaded' ? catalog.artefacts : {};
   const { language } = useLanguage();
   const { playerStatus, addToInventory } = useGame();
   const [showArtifactModal, setShowArtifactModal] = useState(false);
@@ -226,7 +228,7 @@ export function LostAndFoundModal({
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
                     {allItems.map((item, index) => {
-                      const itemArtifact = getArtefactById(item.artifactId);
+                      const itemArtifact = artefacts[item.artifactId];
                       if (!itemArtifact) return null;
 
                       // Проверяем, есть ли артефакт в инвентаре или в коллекции

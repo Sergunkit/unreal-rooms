@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { hotelData } from '../data/hotels';
 import { useGame } from '../contexts/GameContext';
+import { useCatalog } from '../contexts/CatalogContext';
 import type { CurrentHotelProgress } from '../contexts/GameContext';
 import { evaluateConditions } from '../utils/evaluateConditions';
-import { getChainForHotel } from '../utils/getChainForHotel';
 import { resolveChainTarget } from '../utils/resolveChainTarget';
 import { resolveActionTarget } from '../utils/resolveActionTarget';
 import type { LegacyChainStep, Action } from '../data/hotels-data/hotelTypes';
@@ -18,7 +17,8 @@ const STANDARD_CHAIN: LegacyChainStep[] = [
 ];
 
 export function useHotelFlow(hotelId?: string) {
-  const hotel = hotelId ? hotelData[hotelId as keyof typeof hotelData] : null;
+  const catalog = useCatalog();
+  const hotel = hotelId && catalog.status === 'loaded' ? catalog.hotels[hotelId] : null;
   const {
     playerStatus,
     setCurrentHotelProgress,
@@ -31,8 +31,8 @@ export function useHotelFlow(hotelId?: string) {
 
   const chain = useMemo(() => {
     if (!hotelId || !hotel) return null;
-    return getChainForHotel(hotelId);
-  }, [hotelId, hotel]);
+    return catalog.status === 'loaded' ? (catalog.chains[hotelId] ?? null) : null;
+  }, [catalog, hotelId, hotel]);
   const isSafeBookingState = useMemo(() => {
     console.log('[isSafeBookingState] re-evaluating...'); // ADDED LOG
     // If a booking result has been determined, that is the source of truth.
@@ -107,7 +107,7 @@ export function useHotelFlow(hotelId?: string) {
 
   const handleChainAction = useCallback(
     (action: Action): { blocked: boolean; message?: string; messageEn?: string } | null => {
-      if (!progress) return null;
+      if (!progress || !chain) return null;
 
       const actionTarget = resolveActionTarget({
         action,
@@ -167,7 +167,7 @@ export function useHotelFlow(hotelId?: string) {
       });
       return null;
     },
-    [progress, playerStatus.inventory, setCurrentHotelProgress, markActionTriggered]
+    [chain, progress, playerStatus.inventory, setCurrentHotelProgress, markActionTriggered]
   );
 
   const nextChainStep = useCallback(

@@ -28,7 +28,7 @@ _Discover and book your next unreal stay._
     *   [Radix UI](https://www.radix-ui.com/) components
 *   **State Management:** (Implied by React context usage)
 *   **Routing:** [React Router](https://reactrouter.com/en/main)
-*   **Backend/Database:** [Supabase](https://supabase.com/) (implied by file structure)
+*   **Backend/Database:** Hono API server with SQLite
 *   **Tooling:**
     *   [ESLint](https://eslint.org/) for code linting
     *   [Prettier](https://prettier.io/) for code formatting
@@ -38,7 +38,7 @@ _Discover and book your next unreal stay._
 
 ### Prerequisites
 
-Make sure you have Node.js (v18 or higher) and npm installed.
+Install Node.js and npm. The API server requires Node.js 23.6 or newer.
 
 ```bash
 node -v
@@ -59,21 +59,24 @@ npm -v
 
 ### Running Locally
 
-To start the development server:
+Start the application and SQLite API together:
 
 ```bash
+npm --prefix server install
 npm run dev
-# or using Makefile
-make dev
 ```
 
-Open your browser and navigate to `http://localhost:5173` (or the address shown in your terminal).
+`npm run dev` waits for the API health check, then starts Vite. Stop both with
+Ctrl+C. Open `http://localhost:5173`.
+The API seeds its SQLite catalog from `server/catalog/catalog.json` on startup;
+the database defaults to `server/data/game.db`.
 
 ## 📄 Available Scripts
 
 In the project directory, you can run:
 
 *   `npm run dev`: Runs the app in development mode.
+*   `npm run dev:server`: Runs the SQLite API server.
 *   `npm run build`: Builds the app for production to the `dist` folder.
 *   `npm run lint`: Lints the project files for potential errors.
 *   `npm run lint:fix`: Lints and automatically fixes fixable issues.
@@ -95,16 +98,23 @@ Convenience commands are also available via `make`:
 ```
 .
 ├── public/
+│   └── images/
 ├── src/
 │   ├── app/
 │   │   ├── components/
 │   │   ├── contexts/
-│   │   ├── data/
 │   │   ├── pages/
 │   │   └── utils/
 │   ├── main.tsx
 │   ├── sample.test.ts
 │   └── styles/
+├── server/
+│   ├── catalog/
+│   │   └── catalog.json
+│   ├── content/
+│   │   └── dolphin.json
+│   └── src/
+│       └── catalog.ts
 ├── .eslintrc.json
 ├── .gitignore
 ├── package.json

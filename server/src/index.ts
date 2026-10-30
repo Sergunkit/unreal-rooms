@@ -11,10 +11,16 @@ import {
   type StepPublic,
 } from './content.ts';
 import { createSession, db, sessionExists } from './db.ts';
+import { getCatalog } from './catalog.ts';
 
 const PORT = Number(process.env.PORT ?? 8011);
 
 const app = new Hono();
+
+app.onError((error, c) => {
+  console.error(`[${c.req.method} ${c.req.path}]`, error);
+  return c.json({ error: 'internal_server_error' }, 500);
+});
 
 // Дев: фронт на http://localhost:5173 (мак) и прод-домен зовут API напрямую.
 app.use('*', cors());
@@ -71,6 +77,9 @@ function saveProgress(token: string, slug: string, stepId: string, patch: { atte
 // ---------- Эндпоинты ----------
 
 app.get('/api/game/health', (c) => c.json({ ok: true }));
+
+/** Полный каталог отелей, цепочек и артефактов из SQLite. */
+app.get('/api/game/catalog', (c) => c.json(getCatalog()));
 
 /** Список отелей — только публичные метаданные. */
 app.get('/api/game/hotels', (c) => c.json(listHotels()));

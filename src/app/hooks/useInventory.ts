@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useGame } from '../contexts/GameContext';
-import { getArtefactById, type Artefact } from '../data/artefacts';
+import { useCatalog } from '../contexts/CatalogContext';
+import type { Artefact } from '../data/hotels-data/hotelTypes';
 import { saveLostAndFoundItem } from '../components/artifacts/LostAndFoundModal';
 
 /**
@@ -17,6 +18,7 @@ export interface AddToInventoryResult {
  * Предоставляет методы для управления артефактами с ограничением в 9 слотов
  */
 export function useInventory() {
+  const catalog = useCatalog();
   const { playerStatus, addToInventory, removeFromInventory, hasInInventory, getCurrentHotelId } =
     useGame();
 
@@ -87,9 +89,9 @@ export function useInventory() {
    */
   const getInventoryArtifacts = useCallback((): Artefact[] => {
     return inventory
-      .map((id) => getArtefactById(id))
+      .map((id) => (catalog.status === 'loaded' ? catalog.artefacts[id] : undefined))
       .filter((artefact): artefact is Artefact => artefact !== undefined);
-  }, [inventory]);
+  }, [catalog, inventory]);
 
   /**
    * Получить ID всех артефактов в инвентаре

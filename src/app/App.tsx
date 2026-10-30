@@ -13,6 +13,7 @@ import { BookingsPage } from './pages/BookingsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { HotelDetailPage } from './pages/HotelDetailPage';
 import { ArtifactModal } from './components/artifacts/ArtifactModal';
+import { CatalogProvider, useCatalog } from './contexts/CatalogContext';
 
 function AppContent() {
   const { addToInventory, getCurrentHotelId } = useGame();
@@ -81,6 +82,31 @@ function AppContent() {
 }
 
 export default function App() {
+  return (
+    <CatalogProvider>
+      <AppShell />
+    </CatalogProvider>
+  );
+}
+
+function AppShell() {
+  const catalog = useCatalog();
+
+  if (catalog.status === 'loading') {
+    return <main className="container mx-auto px-4 py-8">Загрузка каталога отелей…</main>;
+  }
+
+  if (catalog.status === 'error') {
+    return (
+      <main className="container mx-auto px-4 py-8" role="alert">
+        <p>Не удалось загрузить каталог отелей: {catalog.error.message}</p>
+        <button className="mt-4 underline" onClick={catalog.reload}>
+          Повторить
+        </button>
+      </main>
+    );
+  }
+
   return (
     <ThemeProvider>
       <LanguageProvider>

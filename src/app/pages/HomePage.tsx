@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { SearchBar } from '@/app/components/SearchBar';
 import { FilterPanel } from '@/app/components/FilterPanel';
 import { HotelCard } from '@/app/components/HotelCard';
-import { hotelData } from '../data/hotels';
+import { useCatalog } from '../contexts/CatalogContext';
 
 interface Hotel {
   id: number;
@@ -16,24 +16,31 @@ interface Hotel {
   image: string;
 }
 
-// Convert hotelData object to array
-const mockHotels: Hotel[] = Object.values(hotelData).map((hotel) => ({
-  id: hotel.id,
-  name: hotel.name,
-  nameEn: hotel.nameEn,
-  stars: hotel.stars,
-  rating: hotel.rating,
-  price: hotel.price,
-  description: hotel.description,
-  descriptionEn: hotel.descriptionEn,
-  image: hotel.image,
-}));
-
 interface HomePageProps {
   language: 'ru' | 'en';
 }
 
 export function HomePage({ language }: HomePageProps) {
+  const catalog = useCatalog();
+  const hotelRecords = catalog.status === 'loaded' ? catalog.hotels : null;
+  const mockHotels: Hotel[] = useMemo(
+    () =>
+      hotelRecords
+        ? Object.values(hotelRecords).map((hotel) => ({
+            id: hotel.id,
+            name: hotel.name,
+            nameEn: hotel.nameEn,
+            stars: hotel.stars,
+            rating: hotel.rating,
+            price: hotel.price,
+            description: hotel.description,
+            descriptionEn: hotel.descriptionEn,
+            image: hotel.image,
+          }))
+        : [],
+    [hotelRecords]
+  );
+
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [minPrice, setMinPrice] = useState(0);
@@ -75,7 +82,7 @@ export function HomePage({ language }: HomePageProps) {
     }
 
     return filtered;
-  }, [searchQuery, sortBy, minPrice, maxPrice, selectedStars, minRating, language]);
+  }, [mockHotels, searchQuery, sortBy, minPrice, maxPrice, selectedStars, minRating, language]);
 
   return (
     <main className="container mx-auto px-4 py-8">

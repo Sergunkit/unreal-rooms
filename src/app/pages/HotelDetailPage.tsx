@@ -29,8 +29,8 @@ import { CaptchaModal } from '../components/modals/CaptchaModal';
 import { useHotelProgress } from '../hooks/useHotelProgress';
 import { useHotelFlow } from '../hooks/useHotelFlow';
 import { useGame } from '../contexts/GameContext';
-import { artefacts, getArtefactById } from '../data/artefacts';
-import type { LegacyChainStep, Room } from '../data/hotels-data/hotelTypes';
+import { useCatalog } from '../contexts/CatalogContext';
+import type { Artefact, LegacyChainStep, Room } from '../data/hotels-data/hotelTypes';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 import { ArtifactModal } from '../components/artifacts/ArtifactModal';
 import { LostAndFoundModal } from '../components/artifacts/LostAndFoundModal';
@@ -56,6 +56,11 @@ export function HotelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const catalog = useCatalog();
+  const artefacts: Record<string, Artefact> = useMemo(
+    () => (catalog.status === 'loaded' ? catalog.artefacts : {}),
+    [catalog]
+  );
 
   const {
     playerStatus,
@@ -258,7 +263,7 @@ export function HotelDetailPage() {
       const isSafeBooking = playerStatus.currentHotelProgress?.bookingResult === 'safe';
 
       if (isSafeBooking && hotel?.prize) {
-        const prizeArtefact = getArtefactById(hotel.prize);
+        const prizeArtefact = artefacts[hotel.prize];
         if (prizeArtefact) {
           const alreadyCollected = hasInInventory(prizeArtefact.id);
           setIsPrizeAlreadyCollected(alreadyCollected);
@@ -283,6 +288,7 @@ export function HotelDetailPage() {
     playerStatus.currentHotelProgress?.bookingResult,
     hasInInventory,
     addToInventory,
+    artefacts,
     nextChainStep,
   ]);
 
@@ -1047,7 +1053,7 @@ export function HotelDetailPage() {
             onAction={() => {
               // Add artifact to inventory if not already there
               if (foundArtifactId && !hasInInventory(foundArtifactId)) {
-                const artefact = getArtefactById(foundArtifactId);
+                const artefact = artefacts[foundArtifactId];
                 if (artefact) {
                   handleCollectArtefact({
                     id: artefact.id,
@@ -1075,7 +1081,7 @@ export function HotelDetailPage() {
             hotelId={id}
             mode="collect"
             onAction={() => {
-              const artefact = getArtefactById(lostFoundArtifactId);
+              const artefact = artefacts[lostFoundArtifactId];
               if (artefact) {
                 // Add to lost & found collection instead of inventory
                 addToLostAndFound(artefact.id);

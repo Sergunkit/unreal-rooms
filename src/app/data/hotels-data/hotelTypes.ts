@@ -442,3 +442,13 @@ export interface Hotel {
   initialFlow?: InitialFlow;
   customBookingChain?: LegacyChainConfig;
 }
+
+export interface Artefact {
+  id: string;
+  name: string;
+  nameEn: string;
+  description?: string;
+  descriptionEn?: string;
+  image: string;
+  hotelId?: string;
+}

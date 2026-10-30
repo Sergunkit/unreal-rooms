@@ -4,7 +4,7 @@ import { X, Package } from 'lucide-react';
 import { useGame, MAX_INVENTORY_SLOTS } from '../../contexts/GameContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useInventory } from '../../hooks/useInventory';
-import { getArtefactById } from '../../data/artefacts';
+import { useCatalog } from '../../contexts/CatalogContext';
 import { ArtifactModal } from '../artifacts/ArtifactModal';
 import type { Position } from '../artifacts/ArtifactTransferAnimation';
 
@@ -33,6 +33,8 @@ export function SuitcaseModal({
 }: SuitcaseModalProps) {
   const { language } = useLanguage();
   const { playerStatus } = useGame();
+  const catalog = useCatalog();
+  const artefacts = catalog.status === 'loaded' ? catalog.artefacts : null;
   const { placeInLostAndFound } = useInventory();
   const [hoveredSlot, setHoveredSlot] = useState<number | null>(null);
   const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
@@ -44,10 +46,10 @@ export function SuitcaseModal({
   const slots = useMemo(() => {
     return Array.from({ length: MAX_INVENTORY_SLOTS }, (_, index) => {
       const artifactId = inventory[index];
-      const artifact = artifactId ? getArtefactById(artifactId) : null;
+      const artifact = artifactId && artefacts ? artefacts[artifactId] : null;
       return { index, artifactId, artifact };
     });
-  }, [inventory]);
+  }, [artefacts, inventory]);
 
   const translations = {
     title: language === 'ru' ? 'Ваш чемодан' : 'Your Suitcase',
