@@ -32,14 +32,19 @@ nginx `location /api/game/`.
 
 ## Эндпоинты
 
-| Метод | Путь | Что делает |
-|---|---|---|
-| GET | `/api/game/catalog` | каталог гостиниц, цепочек и артефактов из SQLite |
-| GET | `/api/game/hotels` | список отелей (публичные метаданные) |
-| POST | `/api/game/session` | новая анонимная сессия → `{token}` |
-| GET | `/api/game/state/:slug` | текущий шаг игрока |
-| POST | `/api/game/answer/:slug` | `{answer}` → `{correct, message?, next?}` |
-| POST | `/api/game/hint/:slug` | открыть следующую подсказку |
+| Метод   | Путь                     | Что делает                                        |
+| ------- | ------------------------ | ------------------------------------------------- |
+| GET     | `/api/game/catalog`      | каталог гостиниц, цепочек и артефактов из SQLite  |
+| GET     | `/api/game/hotels`       | список отелей (публичные метаданные)              |
+| POST    | `/api/auth/register`     | регистрация по никнейму и паролю                  |
+| POST    | `/api/auth/login`        | вход и установка HttpOnly cookie                  |
+| GET     | `/api/auth/me`           | текущий аккаунт                                   |
+| POST    | `/api/auth/logout`       | завершение сессии                                 |
+| GET/PUT | `/api/account/state`     | загрузка и сохранение игрового состояния аккаунта |
+| POST    | `/api/game/session`      | новая анонимная сессия → `{token}`                |
+| GET     | `/api/game/state/:slug`  | текущий шаг игрока                                |
+| POST    | `/api/game/answer/:slug` | `{answer}` → `{correct, message?, next?}`         |
+| POST    | `/api/game/hint/:slug`   | открыть следующую подсказку                       |
 
 Все, кроме `catalog`, `hotels` и `session`, требуют `Authorization: Bearer <token>`.
 

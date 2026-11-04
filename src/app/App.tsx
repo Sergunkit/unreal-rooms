@@ -14,6 +14,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { HotelDetailPage } from './pages/HotelDetailPage';
 import { ArtifactModal } from './components/artifacts/ArtifactModal';
 import { CatalogProvider, useCatalog } from './contexts/CatalogContext';
+import { AuthProvider } from './contexts/AuthContext';
 
 function AppContent() {
   const { addToInventory, getCurrentHotelId } = useGame();
@@ -108,19 +109,21 @@ function AppShell() {
   }
 
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <GameProvider>
-          <Router>
-            <div className="min-h-screen bg-background text-foreground">
-              <Header />
-              <main className="pt-6">
-                <AppContent />
-              </main>
-            </div>
-          </Router>
-        </GameProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <GameProvider>
+            <Router>
+              <div className="min-h-screen bg-background text-foreground">
+                <Header />
+                <main className="pt-6">
+                  <AppContent />
+                </main>
+              </div>
+            </Router>
+          </GameProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

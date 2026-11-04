@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Package, Search } from 'lucide-react';
-import { useGame } from '../../contexts/GameContext';
+import { useGame, type PlacedLostAndFoundItem } from '../../contexts/GameContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { useCatalog } from '../../contexts/CatalogContext';
 import { ArtifactModal } from './ArtifactModal';
@@ -14,17 +14,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog';
-
-/**
- * Предмет в потеряшках
- */
-export interface LostAndFoundItem {
-  artifactId: string;
-  hotelId: string;
-  placedAt: string;
-  message?: string;
-  messageEn?: string;
-}
 
 interface LostAndFoundModalProps {
   /** Открыта ли модалка */
@@ -42,61 +31,6 @@ interface LostAndFoundModalProps {
 }
 
 /**
- * Ключ для хранения потеряшек в localStorage
- */
-const LOST_AND_FOUND_STORAGE_KEY = 'unreal-rooms-lost-and-found';
-
-/**
- * Получить все предметы из потеряшек
- */
-function getLostAndFoundItems(): LostAndFoundItem[] {
-  if (typeof window === 'undefined') return [];
-  const saved = localStorage.getItem(LOST_AND_FOUND_STORAGE_KEY);
-  if (!saved) return [];
-  try {
-    return JSON.parse(saved);
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Сохранить предметы в потеряшки
- */
-export function saveLostAndFoundItem(item: LostAndFoundItem) {
-  const items = getLostAndFoundItems();
-
-  // Проверяем, нет ли уже такого артефакта в потеряшках этого отеля
-  const exists = items.some(
-    (existingItem) =>
-      existingItem.artifactId === item.artifactId && existingItem.hotelId === item.hotelId
-  );
-
-  if (!exists) {
-    items.push(item);
-    localStorage.setItem(LOST_AND_FOUND_STORAGE_KEY, JSON.stringify(items));
-  }
-}
-
-/**
- * Удалить предмет из потеряшек
- */
-function removeLostAndFoundItem(artifactId: string, hotelId: string) {
-  const items = getLostAndFoundItems();
-  const filtered = items.filter(
-    (item) => !(item.artifactId === artifactId && item.hotelId === hotelId)
-  );
-  localStorage.setItem(LOST_AND_FOUND_STORAGE_KEY, JSON.stringify(filtered));
-}
-
-/**
- * Получить предметы из потеряшек для конкретного отеля
- */
-export function getLostAndFoundByHotel(hotelId: string): LostAndFoundItem[] {
-  return getLostAndFoundItems().filter((item) => item.hotelId === hotelId);
-}
-
-/**
  * Модалка "Потеряшки" (Lost & Found)
  * Показывает предметы из конфига отеля + добавленные пользователями
  */
@@ -111,25 +45,27 @@ export function LostAndFoundModal({
   const catalog = useCatalog();
   const artefacts = catalog.status === 'loaded' ? catalog.artefacts : {};
   const { language } = useLanguage();
-  const { playerStatus, addToInventory } = useGame();
+  const { playerStatus, addToInventory, placedLostAndFoundItems, removePlacedLostAndFoundItem } =
+    useGame();
   const [showArtifactModal, setShowArtifactModal] = useState(false);
   const [showInventoryAlert, setShowInventoryAlert] = useState(false);
   const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<
-    (LostAndFoundItem & { isStatic?: boolean }) | null
+    (PlacedLostAndFoundItem & { isStatic?: boolean }) | null
   >(null);
 
-  // Объединяем статические предметы из конфига и предметы из localStorage
+  // Объединяем статические предметы из конфига и предметы, оставленные игроками
   const allItems = (() => {
-    // Предметы из localStorage
-    const localStorageItems = getLostAndFoundByHotel(hotelId).map((item) => ({
-      ...item,
-      isStatic: false,
-    }));
+    const playerItems = placedLostAndFoundItems
+      .filter((item) => item.hotelId === hotelId)
+      .map((item) => ({
+        ...item,
+        isStatic: false,
+      }));
 
-    // Статические предметы из конфига отеля (только те, которых нет в localStorage)
+    // Статические предметы из конфига отеля (только те, которых игроки не оставляли)
     const staticItems = staticLostAndFound
-      .filter((artifactId) => !localStorageItems.some((item) => item.artifactId === artifactId))
+      .filter((artifactId) => !playerItems.some((item) => item.artifactId === artifactId))
       .map((artifactId) => ({
         artifactId,
         hotelId,
@@ -137,7 +73,7 @@ export function LostAndFoundModal({
         isStatic: true,
       }));
 
-    return [...staticItems, ...localStorageItems];
+    return [...staticItems, ...playerItems];
   })();
 
   const translations = {
@@ -151,7 +87,7 @@ export function LostAndFoundModal({
   /**
    * Открыть модалку артефакта
    */
-  const handleOpenArtifactModal = (item: LostAndFoundItem & { isStatic?: boolean }) => {
+  const handleOpenArtifactModal = (item: PlacedLostAndFoundItem & { isStatic?: boolean }) => {
     setSelectedArtifactId(item.artifactId);
     setSelectedItem(item);
     setShowArtifactModal(true);
@@ -182,7 +118,7 @@ export function LostAndFoundModal({
 
     // Удаляем только если это не статический предмет
     if (!selectedItem.isStatic) {
-      removeLostAndFoundItem(selectedItem.artifactId, selectedItem.hotelId);
+      removePlacedLostAndFoundItem(selectedItem.artifactId, selectedItem.hotelId);
     }
   };
 

@@ -39,12 +39,6 @@ coverage/
 tmp/
 temp/
 
-# Supabase local artifacts
-supabase/.env
-supabase/.local/
-supabase/db/
-supabase/storage/
-
 # Misc
 *.pem
 *.key

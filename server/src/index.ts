@@ -12,6 +12,7 @@ import {
 } from './content.ts';
 import { createSession, db, sessionExists } from './db.ts';
 import { getCatalog } from './catalog.ts';
+import { registerAuthRoutes } from './auth.ts';
 
 const PORT = Number(process.env.PORT ?? 8011);
 
@@ -24,6 +25,15 @@ app.onError((error, c) => {
 
 // Дев: фронт на http://localhost:5173 (мак) и прод-домен зовут API напрямую.
 app.use('*', cors());
+app.use('/api/account/*', async (c, next) => {
+  const method = c.req.method;
+  const requestSite = c.req.header('sec-fetch-site');
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && requestSite === 'cross-site') {
+    return c.json({ error: 'cross_site_request_rejected' }, 403);
+  }
+  await next();
+});
+registerAuthRoutes(app);
 
 /** Достаёт и проверяет сессию из Authorization: Bearer <token>. */
 function requireSession(token: string | undefined): string | null {
@@ -31,7 +41,12 @@ function requireSession(token: string | undefined): string | null {
   return token;
 }
 
-function publicStep(hotelSlug: string, stepId: string, hintsUsed: number, solved: boolean): StepPublic {
+function publicStep(
+  hotelSlug: string,
+  stepId: string,
+  hintsUsed: number,
+  solved: boolean
+): StepPublic {
   const hotel = getHotel(hotelSlug)!;
   const step = getStep(hotel, stepId);
   return {
@@ -49,11 +64,23 @@ function loadProgress(token: string, slug: string) {
   return db
     .prepare('SELECT * FROM progress WHERE session_id = ? AND hotel = ?')
     .get(token, slug) as
-    | { session_id: string; hotel: string; step_id: string; attempts: number; hints_used: number; solved: number }
+    | {
+        session_id: string;
+        hotel: string;
+        step_id: string;
+        attempts: number;
+        hints_used: number;
+        solved: number;
+      }
     | undefined;
 }
 
-function saveProgress(token: string, slug: string, stepId: string, patch: { attempts?: number; hintsUsed?: number; solved?: boolean } = {}) {
+function saveProgress(
+  token: string,
+  slug: string,
+  stepId: string,
+  patch: { attempts?: number; hintsUsed?: number; solved?: boolean } = {}
+) {
   const current = loadProgress(token, slug);
   db.prepare(
     `INSERT INTO progress (session_id, hotel, step_id, attempts, hints_used, solved, updated_at)
@@ -114,7 +141,8 @@ app.post('/api/game/answer/:slug', async (c) => {
   const body = (await c.req.json().catch(() => null)) as { answer?: string } | null;
   if (!body?.answer) return c.json({ error: 'answer_required' }, 400);
 
-  const progress = loadProgress(token, hotel.slug) ??
+  const progress =
+    loadProgress(token, hotel.slug) ??
     (saveProgress(token, hotel.slug, hotel.entryStep), loadProgress(token, hotel.slug))!;
   if (progress.solved) return c.json({ error: 'already_solved' }, 409);
 

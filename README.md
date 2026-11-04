@@ -7,32 +7,33 @@ _Discover and book your next unreal stay._
 
 ## ✨ Features
 
-*   **Interactive Hotel Listings:** Browse a curated selection of distinctive hotels.
-*   **Detailed Hotel Pages:** View comprehensive information about each hotel, including descriptions, amenities, and image galleries.
-*   **Room Exploration:** Discover available rooms with details on price, size, capacity, and bedding.
-*   **Lost & Found Section:** (Feature for specific hotels) A dedicated area for lost and found items.
-*   **Concierge Chat:** (Feature for specific hotels) Direct interaction with a virtual concierge for assistance.
-*   **Responsive Design:** Optimized for a flawless experience across various devices.
-*   **Multi-language Support:** (Russian and English)
-*   **Image Carousel:** Beautifully presented image galleries for hotels and rooms.
+- **Interactive Hotel Listings:** Browse a curated selection of distinctive hotels.
+- **Detailed Hotel Pages:** View comprehensive information about each hotel, including descriptions, amenities, and image galleries.
+- **Room Exploration:** Discover available rooms with details on price, size, capacity, and bedding.
+- **Lost & Found Section:** (Feature for specific hotels) A dedicated area for lost and found items.
+- **Concierge Chat:** (Feature for specific hotels) Direct interaction with a virtual concierge for assistance.
+- **Responsive Design:** Optimized for a flawless experience across various devices.
+- **Multi-language Support:** (Russian and English)
+- **Image Carousel:** Beautifully presented image galleries for hotels and rooms.
+- **Accounts:** Public nickname/password registration with account-linked game saves.
 
 ## 🚀 Technologies Used
 
-*   **Frontend:**
-    *   [React](https://react.dev/)
-    *   [TypeScript](https://www.typescriptlang.org/)
-    *   [Vite](https://vitejs.dev/)
-    *   [Tailwind CSS](https://tailwindcss.com/)
-    *   [Lucide React](https://lucide.dev/) for icons
-    *   [Embla Carousel](https://www.embla-carousel.com/) for image carousels
-    *   [Radix UI](https://www.radix-ui.com/) components
-*   **State Management:** (Implied by React context usage)
-*   **Routing:** [React Router](https://reactrouter.com/en/main)
-*   **Backend/Database:** Hono API server with SQLite
-*   **Tooling:**
-    *   [ESLint](https://eslint.org/) for code linting
-    *   [Prettier](https://prettier.io/) for code formatting
-    *   [Vitest](https://vitest.dev/) for testing
+- **Frontend:**
+  - [React](https://react.dev/)
+  - [TypeScript](https://www.typescriptlang.org/)
+  - [Vite](https://vitejs.dev/)
+  - [Tailwind CSS](https://tailwindcss.com/)
+  - [Lucide React](https://lucide.dev/) for icons
+  - [Embla Carousel](https://www.embla-carousel.com/) for image carousels
+  - [Radix UI](https://www.radix-ui.com/) components
+- **State Management:** (Implied by React context usage)
+- **Routing:** [React Router](https://reactrouter.com/en/main)
+- **Backend/Database:** Hono API server with SQLite
+- **Tooling:**
+  - [ESLint](https://eslint.org/) for code linting
+  - [Prettier](https://prettier.io/) for code formatting
+  - [Vitest](https://vitest.dev/) for testing
 
 ## 💻 Getting Started
 
@@ -70,28 +71,31 @@ npm run dev
 Ctrl+C. Open `http://localhost:5173`.
 The API seeds its SQLite catalog from `server/catalog/catalog.json` on startup;
 the database defaults to `server/data/game.db`.
+New accounts are stored in SQLite. Passwords are stored as scrypt hashes, and
+sessions use HttpOnly cookies. On first login, existing browser game progress is
+copied into the account; later progress is synchronized to the server.
 
 ## 📄 Available Scripts
 
 In the project directory, you can run:
 
-*   `npm run dev`: Runs the app in development mode.
-*   `npm run dev:server`: Runs the SQLite API server.
-*   `npm run build`: Builds the app for production to the `dist` folder.
-*   `npm run lint`: Lints the project files for potential errors.
-*   `npm run lint:fix`: Lints and automatically fixes fixable issues.
-*   `npm run format`: Formats code using Prettier.
-*   `npm test`: Runs tests using Vitest.
-*   `npm test:ui`: Runs tests with Vitest UI.
-*   `npm test:coverage`: Runs tests and generates a coverage report.
+- `npm run dev`: Runs the app in development mode.
+- `npm run dev:server`: Runs the SQLite API server.
+- `npm run build`: Builds the app for production to the `dist` folder.
+- `npm run lint`: Lints the project files for potential errors.
+- `npm run lint:fix`: Lints and automatically fixes fixable issues.
+- `npm run format`: Formats code using Prettier.
+- `npm test`: Runs tests using Vitest.
+- `npm test:ui`: Runs tests with Vitest UI.
+- `npm test:coverage`: Runs tests and generates a coverage report.
 
 ### Makefile Commands
 
 Convenience commands are also available via `make`:
 
-*   `make dev`: Starts the development server.
-*   `make lint`: Runs ESLint.
-*   `make test`: Runs Vitest.
+- `make dev`: Starts the development server.
+- `make lint`: Runs ESLint.
+- `make test`: Runs Vitest.
 
 ## 📁 Project Structure
 
@@ -106,7 +110,6 @@ Convenience commands are also available via `make`:
 │   │   ├── pages/
 │   │   └── utils/
 │   ├── main.tsx
-│   ├── sample.test.ts
 │   └── styles/
 ├── server/
 │   ├── catalog/
@@ -149,4 +152,4 @@ For any questions or suggestions, please open an issue on GitHub.
 За успешное бронирование пользователь получает артефакт, который может ему помочь пройти другой отель. Также артефакты можно получить, посмотрев забытые другими посетителями отеля предметы или при тщательном исследовании интерфейса страницы отеля и находя так называемые пасхалки.
 
 Вкратце суть такая: сайт на первый взгляд выглядит как обычный букинг. На главной странице панели для фильтрации и поиска авторизация, выбор языка, темы, список карточек отелей и виджет чемодана (это хранилище артефактов). Стиль так скажем мрачноватый (черный основной и фиолетовые акценты). На карточках отелей достаточно сочные картинки, передающие атмосферу, но пока без треша. на карточках есть сердечки избранного, но они не нажимаются - тут так не работает. Клик на карточке открывает страницу отеля. Здесь есть галерея изображений (к ней вернемся), название, звездность, рейтинг (с наиболее популярным отзывом), кредо, описание, расположение, кнопка "Забронировать". Ниже блоками удобства, бассейны и спа, спорт и отдых, транспортная доступность, питание, дополнительные удобства. Ниже карточки номеров с "фото". На них название, max количество гостей, площадь, количество кроватей. К карточке мы тоже еще вернемся. Ниже блоки отзывов, потеряшек (lost&found) - там можно найти артефакты. Еще ниже особые условия проживания. Да и опять не нажимаемое сердечко, но теперь оно с двусмысленным тултипом. В галерее у нас есть активные картинки, при клике на которые у нас могут происходить несколько типов событий. Картинка может просто измениться. Может при клике на определенную область появиться подсказка. Также на при клике в определенную область можно получить необходимый артефакт. Это у меня называется galleryAction. При клике на карточе номера открывается модалка номера; здесь к картинке, площади, кроватям добавляется стоимость и удобства конкретного номера. И также присутствует кнопка забронировать. При клике на нее открывается модалка с формой бронирования. Вот тут начинается самое интересное. Нужно выбрать опции бронирования тип номера, питание, дополнительные удобства, дату, тип оплаты и т.д. таким образом, чтоб избежать катострофы. На заднем фоне за формой видно то самое сердечко, которое гаснет ровно в тот момент, когда выполнены все необходимые условия и у юзера есть необходимые предметы в качестве просто волшебной вещи или оплаты. Посмотреть имеющиея вещи можно кликнув на чемодане. количество вещей в чемодане ограничено девятью. В игре есть есть полезные артефакты, вещи для оплаты и пустышки. Все артефакты можно оставлять в потеряшках. Также они выдаются в качестве приза при успешном бронировании. Дальнейшая механика по статистике пройденных отелей пока не продумана. У меня есть страницы "Мои бронирования", "Избраное", "Страница пользователя", но концепции по ним пока нет. Ниже будет пример данных для отеля Сесил. Там механика такая: пользователю в форме предлагается номер 1402. Он может выбрать другой номер, но только на фатальном 14-м этаже. Для того, чтоб сменить этаж юзер должен найти в галерее изображение площадки этажа с лифтом и аварийным выходом, кликнуть на надписи EXIT и пройти капчу в виде кнопок панели управления лифтом. Для этого нужно ввести код, который есть в отзывах и потеряшках. далее появляется модалка выбора этажа. Пользователь меняет этаж и получает возможность безопасно забронировать номер.
-Механика избранного: Все отели на домашней странице не выделены сердцем. Но при клике на сердце или при открытии отеля он попадает в избранное. И погасить сердце можно только успешным прохождением. Далее отель попадает в мои бронирования, где хранятся условия успешного бронирования. 
+Механика избранного: Все отели на домашней странице не выделены сердцем. Но при клике на сердце или при открытии отеля он попадает в избранное. И погасить сердце можно только успешным прохождением. Далее отель попадает в мои бронирования, где хранятся условия успешного бронирования.

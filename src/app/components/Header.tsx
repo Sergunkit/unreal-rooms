@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Moon, Sun, Languages } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useGame } from '../contexts/GameContext';
+import { AuthControls, AuthDialog } from './AuthDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +15,10 @@ import {
 
 export function Header() {
   const navigate = useNavigate();
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const { language, toggleLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { accountSyncError } = useGame();
 
   const menuItems = {
     ru: [
@@ -52,6 +57,13 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-3">
+            {accountSyncError && (
+              <span className="hidden max-w-48 text-xs text-destructive md:inline" role="status">
+                {accountSyncError}
+              </span>
+            )}
+            <AuthControls onOpenAuth={() => setAuthDialogOpen(true)} />
+
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 text-secondary-foreground transition-all"
@@ -102,6 +114,7 @@ export function Header() {
           </div>
         </div>
       </div>
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </header>
   );
 }

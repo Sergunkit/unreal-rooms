@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
+import { useAuth } from './AuthContext';
 import type { ModalConfig, TempBookingFormData } from '../data/hotels-data/hotelTypes';
 
 /**
@@ -116,6 +118,14 @@ export interface PlayerStatus {
   updatedAt: string;
 }
 
+export interface PlacedLostAndFoundItem {
+  artifactId: string;
+  hotelId: string;
+  placedAt: string;
+  message?: string;
+  messageEn?: string;
+}
+
 /**
  * Начальный статус игрока
  */
@@ -143,6 +153,10 @@ const initialPlayerStatus: PlayerStatus = {
 interface GameContextType {
   playerStatus: PlayerStatus;
   isLoading: boolean;
+  placedLostAndFoundItems: PlacedLostAndFoundItem[];
+  addPlacedLostAndFoundItem: (item: PlacedLostAndFoundItem) => void;
+  removePlacedLostAndFoundItem: (artifactId: string, hotelId: string) => void;
+  accountSyncError: string | null;
   // Методы для работы с бронированиями
   setCurrentBooking: (booking: RoomBooking | null) => void;
   clearCurrentBooking: () => void;
@@ -200,6 +214,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
  */
 const STORAGE_KEY_USER_ID = 'unreal-rooms-user-id';
 const STORAGE_KEY_PREFIX = 'unreal-rooms-player-';
+const STORAGE_KEY_LOST_AND_FOUND = 'unreal-rooms-lost-and-found';
 
 /**
  * Получить или создать ID пользователя
@@ -222,46 +237,165 @@ function getUserStorageKey(userId: string): string {
   return `${STORAGE_KEY_PREFIX}${userId}`;
 }
 
+function loadGuestPlayerStatus(userId: string): PlayerStatus {
+  const saved = localStorage.getItem(getUserStorageKey(userId));
+  if (!saved) return { ...initialPlayerStatus, id: userId };
+  try {
+    return { ...JSON.parse(saved), id: userId } as PlayerStatus;
+  } catch {
+    return { ...initialPlayerStatus, id: userId };
+  }
+}
+
+function loadPlacedLostAndFoundItems(): PlacedLostAndFoundItem[] {
+  const saved = localStorage.getItem(STORAGE_KEY_LOST_AND_FOUND);
+  if (!saved) return [];
+  try {
+    const items: unknown = JSON.parse(saved);
+    return Array.isArray(items) ? (items as PlacedLostAndFoundItem[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function isPlayerStatus(value: unknown): value is PlayerStatus {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'id' in value &&
+    typeof value.id === 'string' &&
+    'inventory' in value &&
+    Array.isArray(value.inventory) &&
+    'visitedHotels' in value &&
+    Array.isArray(value.visitedHotels)
+  );
+}
+
+async function accountStateRequest(method: 'GET' | 'PUT', state?: unknown): Promise<unknown> {
+  const response = await fetch('/api/account/state', {
+    method,
+    headers: method === 'PUT' ? { 'Content-Type': 'application/json' } : undefined,
+    body: method === 'PUT' ? JSON.stringify(state) : undefined,
+  });
+  if (!response.ok) {
+    throw new Error(`Не удалось синхронизировать прогресс аккаунта (${response.status}).`);
+  }
+  return response.json();
+}
+
 /**
  * Провайдер контекста игры
  */
 export function GameProvider({ children }: { children: ReactNode }) {
+  const auth = useAuth();
   const [userId, setUserId] = useState<string>(() => getUserId());
-  const [playerStatus, setPlayerStatus] = useState<PlayerStatus>(() => {
-    // Загрузка из localStorage для текущего пользователя
-    if (typeof window !== 'undefined') {
-      const storageKey = getUserStorageKey(userId);
-      const saved = localStorage.getItem(storageKey);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          // Обновляем ID пользователя в загруженных данных
-          return { ...parsed, id: userId };
-        } catch {
-          return { ...initialPlayerStatus, id: userId };
+  const [playerStatus, setPlayerStatus] = useState<PlayerStatus>(() =>
+    loadGuestPlayerStatus(userId)
+  );
+  const [placedLostAndFoundItems, setPlacedLostAndFoundItems] = useState<PlacedLostAndFoundItem[]>(
+    () => loadPlacedLostAndFoundItems()
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [hydratedScope, setHydratedScope] = useState<string | null>(null);
+  const [accountSyncError, setAccountSyncError] = useState<string | null>(null);
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
+  const currentScope =
+    auth.status === 'authenticated' && auth.user
+      ? `account:${auth.user.id}`
+      : auth.status === 'guest'
+        ? 'guest'
+        : null;
+
+  useEffect(() => {
+    if (!currentScope) return;
+
+    let active = true;
+    setIsLoading(true);
+    setAccountSyncError(null);
+    setHydratedScope(null);
+
+    async function hydrateState() {
+      try {
+        if (auth.status === 'authenticated' && auth.user) {
+          const response = (await accountStateRequest('GET')) as { state: unknown };
+          if (!active) return;
+
+          if (response.state === null) {
+            const guestStatus = loadGuestPlayerStatus(userId);
+            const guestLostAndFound = loadPlacedLostAndFoundItems();
+            const migratedStatus = { ...guestStatus, id: auth.user.id };
+            const migratedState = {
+              playerStatus: migratedStatus,
+              lostAndFoundItems: guestLostAndFound,
+            };
+            await accountStateRequest('PUT', migratedState);
+            if (!active) return;
+            setPlayerStatus(migratedStatus);
+            setPlacedLostAndFoundItems(guestLostAndFound);
+          } else if (
+            typeof response.state === 'object' &&
+            response.state !== null &&
+            'playerStatus' in response.state &&
+            isPlayerStatus(response.state.playerStatus) &&
+            'lostAndFoundItems' in response.state &&
+            Array.isArray(response.state.lostAndFoundItems)
+          ) {
+            const accountState = response.state as {
+              playerStatus: PlayerStatus;
+              lostAndFoundItems: PlacedLostAndFoundItem[];
+            };
+            setPlayerStatus({ ...accountState.playerStatus, id: auth.user.id });
+            setPlacedLostAndFoundItems(accountState.lostAndFoundItems);
+          } else {
+            throw new Error('Сохранение аккаунта имеет неверный формат.');
+          }
+        } else {
+          setPlayerStatus(loadGuestPlayerStatus(userId));
+          setPlacedLostAndFoundItems(loadPlacedLostAndFoundItems());
+        }
+
+        if (active) {
+          setHydratedScope(currentScope);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        if (active) {
+          const message = error instanceof Error ? error.message : String(error);
+          setAccountSyncError(message);
+          setIsLoading(false);
+          toast.error(message);
         }
       }
     }
-    return { ...initialPlayerStatus, id: userId };
-  });
 
-  const [isLoading, setIsLoading] = useState(true);
+    void hydrateState();
+    return () => {
+      active = false;
+    };
+  }, [auth.status, auth.user, currentScope, userId]);
 
-  // Сохранение в localStorage при изменении статуса
   useEffect(() => {
-    if (!isLoading) {
-      const storageKey = getUserStorageKey(userId);
-      localStorage.setItem(storageKey, JSON.stringify(playerStatus));
+    if (!currentScope || hydratedScope !== currentScope || isLoading) return;
+
+    const snapshot = { playerStatus, lostAndFoundItems: placedLostAndFoundItems };
+    if (currentScope === 'guest') {
+      localStorage.setItem(getUserStorageKey(userId), JSON.stringify(playerStatus));
+      localStorage.setItem(STORAGE_KEY_LOST_AND_FOUND, JSON.stringify(placedLostAndFoundItems));
+      return;
     }
-  }, [playerStatus, isLoading, userId]);
 
-  // Имитация загрузки (можно заменить на реальный API вызов)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
+    saveQueue.current = saveQueue.current
+      .catch(() => undefined)
+      .then(async () => {
+        await accountStateRequest('PUT', snapshot);
+        setAccountSyncError(null);
+      })
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        setAccountSyncError(message);
+        toast.error(message);
+      });
+  }, [currentScope, hydratedScope, isLoading, playerStatus, placedLostAndFoundItems, userId]);
 
   /**
    * Установить текущее бронирование
@@ -508,6 +642,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return playerStatus.inventory.includes(item);
   };
 
+  const addPlacedLostAndFoundItem = (item: PlacedLostAndFoundItem) => {
+    setPlacedLostAndFoundItems((items) => {
+      const exists = items.some(
+        (existing) => existing.artifactId === item.artifactId && existing.hotelId === item.hotelId
+      );
+      return exists ? items : [...items, item];
+    });
+  };
+
+  const removePlacedLostAndFoundItem = (artifactId: string, hotelId: string) => {
+    setPlacedLostAndFoundItems((items) =>
+      items.filter((item) => !(item.artifactId === artifactId && item.hotelId === hotelId))
+    );
+  };
+
   /**
    * Увеличить значение статистики
    */
@@ -531,6 +680,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       id: playerStatus.id,
       createdAt: playerStatus.createdAt,
     });
+    setPlacedLostAndFoundItems([]);
   };
 
   /**
@@ -795,6 +945,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
       value={{
         playerStatus,
         isLoading,
+        placedLostAndFoundItems,
+        addPlacedLostAndFoundItem,
+        removePlacedLostAndFoundItem,
+        accountSyncError,
         setCurrentBooking,
         clearCurrentBooking,
         setCurrentHotelProgress,

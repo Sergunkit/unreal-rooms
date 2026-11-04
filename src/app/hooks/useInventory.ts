@@ -2,7 +2,6 @@ import { useCallback, useMemo } from 'react';
 import { useGame } from '../contexts/GameContext';
 import { useCatalog } from '../contexts/CatalogContext';
 import type { Artefact } from '../data/hotels-data/hotelTypes';
-import { saveLostAndFoundItem } from '../components/artifacts/LostAndFoundModal';
 
 /**
  * Результат добавления артефакта в инвентарь
@@ -19,8 +18,14 @@ export interface AddToInventoryResult {
  */
 export function useInventory() {
   const catalog = useCatalog();
-  const { playerStatus, addToInventory, removeFromInventory, hasInInventory, getCurrentHotelId } =
-    useGame();
+  const {
+    playerStatus,
+    addToInventory,
+    removeFromInventory,
+    hasInInventory,
+    getCurrentHotelId,
+    addPlacedLostAndFoundItem,
+  } = useGame();
 
   const inventory = playerStatus.inventory;
 
@@ -117,13 +122,13 @@ export function useInventory() {
       removeFromInventory(artifactId);
 
       // Добавляем в потеряшки
-      saveLostAndFoundItem({
+      addPlacedLostAndFoundItem({
         artifactId,
         hotelId: currentHotelId,
         placedAt: new Date().toISOString(),
       });
     },
-    [getCurrentHotelId, removeFromInventory]
+    [addPlacedLostAndFoundItem, getCurrentHotelId, removeFromInventory]
   );
 
   return {
