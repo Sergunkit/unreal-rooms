@@ -13,6 +13,7 @@ import {
 import { createSession, db, sessionExists } from './db.ts';
 import { getCatalog } from './catalog.ts';
 import { registerAuthRoutes } from './auth.ts';
+import { registerConciergeRoutes } from './concierge.ts';
 
 const PORT = Number(process.env.PORT ?? 8011);
 
@@ -33,7 +34,16 @@ app.use('/api/account/*', async (c, next) => {
   }
   await next();
 });
+app.use('/api/concierge/*', async (c, next) => {
+  const method = c.req.method;
+  const requestSite = c.req.header('sec-fetch-site');
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && requestSite === 'cross-site') {
+    return c.json({ error: 'cross_site_request_rejected' }, 403);
+  }
+  await next();
+});
 registerAuthRoutes(app);
+registerConciergeRoutes(app);
 
 /** Достаёт и проверяет сессию из Authorization: Bearer <token>. */
 function requireSession(token: string | undefined): string | null {

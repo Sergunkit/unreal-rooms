@@ -83,7 +83,7 @@ function issueSession(c: Context, userId: string): void {
   setSessionCookie(c, token);
 }
 
-function getAuthenticatedUser(c: Context): PublicUser | null {
+export function getAuthenticatedUser(c: Context): PublicUser | null {
   const token = getCookie(c, SESSION_COOKIE);
   if (!token) return null;
 

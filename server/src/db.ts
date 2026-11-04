@@ -69,6 +69,15 @@ db.exec(`
     state_json TEXT NOT NULL CHECK (json_valid(state_json)),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS concierge_conversations (
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    hotel_id TEXT NOT NULL,
+    messages_json TEXT NOT NULL CHECK (json_valid(messages_json)),
+    message_index INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (user_id, hotel_id)
+  );
 `);
 
 export function createSession(): string {
