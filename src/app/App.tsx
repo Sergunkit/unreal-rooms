@@ -58,7 +58,7 @@ function AppContent() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<HomePage language={'ru'} />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/profile" element={<ProfilePage language={'ru'} />} />

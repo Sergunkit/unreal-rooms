@@ -69,6 +69,8 @@ export function HotelDetailPage() {
     addToLostAndFound,
     clearCurrentHotelProgress,
     setCurrentHotelProgress,
+    addFavoriteHotel,
+    isLoading,
   } = useGame();
   const {
     chain,
@@ -87,12 +89,21 @@ export function HotelDetailPage() {
     handleCaptchaClose,
     handleFloorSelect,
     getGalleryActions,
-    canBook,
     nextChainStep,
     updateFlowState,
     handleChainAction,
   } = useHotelFlow(id);
   const { hotel, floor, tempBookingForm, roomNumber, roomType } = useHotelProgress(id);
+  const isHotelCompleted = playerStatus.visitedHotels.some(
+    (visitedHotel) => visitedHotel.hotelId === id && visitedHotel.completed
+  );
+  const isFavorite = !isHotelCompleted && playerStatus.favoriteHotelIds.includes(id ?? '');
+
+  React.useEffect(() => {
+    if (!isLoading && id && hotel && !isHotelCompleted) {
+      addFavoriteHotel(id);
+    }
+  }, [isLoading, id, hotel, isHotelCompleted, addFavoriteHotel]);
 
   // Устанавливаем hotelId при загрузке страницы отеля
   React.useEffect(() => {
@@ -171,7 +182,6 @@ export function HotelDetailPage() {
   const [captchaSelected, setCaptchaSelected] = useState<string[]>([]);
   const [captchaError, setCaptchaError] = useState(false);
 
-  const [isFavorite, setIsFavorite] = useState(false);
   const [showFloorSelectModal, setShowFloorSelectModal] = useState(false);
   const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
   const [blockedAlert, setBlockedAlert] = useState<{
@@ -642,10 +652,17 @@ export function HotelDetailPage() {
                   {hotel.amenities.heart_tool_tip ? (
                     <Tooltip delayDuration={200}>
                       <TooltipTrigger asChild>
-                        <button className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
+                        <button
+                          type="button"
+                          aria-label={language === 'ru' ? 'Добавить в любимые отели' : 'Add to favorites'}
+                          aria-pressed={isFavorite}
+                          disabled={isLoading || isHotelCompleted || isFavorite}
+                          onClick={() => id && addFavoriteHotel(id)}
+                          className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all disabled:cursor-default"
+                        >
                           <Heart
                             className={`w-6 h-6 transition-all cursor-pointer ${
-                              !canBook ? 'fill-red-500 text-red-500' : 'text-primary-foreground'
+                              isFavorite ? 'fill-red-500 text-red-500' : 'text-primary-foreground/60'
                             }`}
                           />
                         </button>
@@ -664,12 +681,16 @@ export function HotelDetailPage() {
                     </Tooltip>
                   ) : (
                     <button
-                      onClick={() => setIsFavorite(!isFavorite)}
-                      className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all"
+                      type="button"
+                      aria-label={language === 'ru' ? 'Добавить в любимые отели' : 'Add to favorites'}
+                      aria-pressed={isFavorite}
+                      disabled={isLoading || isHotelCompleted || isFavorite}
+                      onClick={() => id && addFavoriteHotel(id)}
+                      className="p-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all disabled:cursor-default"
                     >
                       <Heart
                         className={`w-6 h-6 transition-all ${
-                          !canBook ? 'fill-red-500 text-red-500' : 'text-primary-foreground'
+                          isFavorite ? 'fill-red-500 text-red-500' : 'text-primary-foreground/60'
                         }`}
                       />
                     </button>

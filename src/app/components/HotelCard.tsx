@@ -1,5 +1,4 @@
 import { Star, Sparkles, Heart } from 'lucide-react';
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useGame } from '../contexts/GameContext';
 
@@ -29,14 +28,12 @@ export function HotelCard({
   language,
 }: HotelCardProps) {
   const navigate = useNavigate();
-  const { playerStatus } = useGame();
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { playerStatus, addFavoriteHotel, isLoading } = useGame();
 
-  // Сердечко красное, если отель не завершен
   const isHotelCompleted = playerStatus.visitedHotels.some(
     (hotel) => hotel.hotelId === id.toString() && hotel.completed
   );
-  const hasSafeBooking = isHotelCompleted;
+  const isFavorite = !isHotelCompleted && playerStatus.favoriteHotelIds.includes(id.toString());
 
   return (
     <div
@@ -57,22 +54,21 @@ export function HotelCard({
           </span>
         </div>
         <button
+          type="button"
+          aria-label={language === 'ru' ? 'Добавить в любимые отели' : 'Add to favorites'}
+          aria-pressed={isFavorite}
+          disabled={isLoading || isHotelCompleted || isFavorite}
           onClick={(e) => {
             e.stopPropagation();
-            if (!hasSafeBooking) return; // Не кликабельно, пока не безопасно
-            setIsFavorite(!isFavorite);
+            addFavoriteHotel(id.toString());
           }}
           className={`absolute top-4 left-4 p-2 bg-black/50 backdrop-blur-sm rounded-full transition-all ${
-            hasSafeBooking ? 'hover:bg-black/70' : 'cursor-not-allowed opacity-75'
+            isFavorite ? 'cursor-default' : 'hover:bg-black/70'
           }`}
         >
           <Heart
             className={`w-5 h-5 transition-all ${
-              !hasSafeBooking
-                ? 'fill-red-500 text-red-500'
-                : isFavorite
-                  ? 'fill-red-500 text-red-500'
-                  : 'text-white hover:text-red-500'
+              isFavorite ? 'fill-red-500 text-red-500' : 'text-white/60 hover:text-red-500'
             }`}
           />
         </button>

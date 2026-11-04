@@ -110,6 +110,7 @@ export interface PlayerStats {
 export interface PlayerStatus {
   id: string;
   visitedHotels: VisitedHotel[];
+  favoriteHotelIds: string[];
   currentBooking: RoomBooking | null;
   currentHotelProgress: CurrentHotelProgress | null;
   inventory: string[];
@@ -132,6 +133,7 @@ export interface PlacedLostAndFoundItem {
 const initialPlayerStatus: PlayerStatus = {
   id: 'local-player',
   visitedHotels: [],
+  favoriteHotelIds: [],
   currentBooking: null,
   currentHotelProgress: null,
   inventory: [],
@@ -191,7 +193,8 @@ interface GameContextType {
   setCompletedSteps: (steps: string[]) => void;
   // Методы для посещённых отелей
   addVisitedHotel: (hotel: VisitedHotel) => void;
-  completeHotelVisit: (hotelId: string) => void;
+  completeHotelVisit: (hotelId: string, hotelName?: string, hotelNameEn?: string) => void;
+  addFavoriteHotel: (hotelId: string) => void;
   // Методы для инвентаря
   addToInventory: (item: string) => void;
   removeFromInventory: (item: string) => void;
@@ -241,7 +244,10 @@ function loadGuestPlayerStatus(userId: string): PlayerStatus {
   const saved = localStorage.getItem(getUserStorageKey(userId));
   if (!saved) return { ...initialPlayerStatus, id: userId };
   try {
-    return { ...JSON.parse(saved), id: userId } as PlayerStatus;
+    const status: unknown = JSON.parse(saved);
+    return isPlayerStatus(status)
+      ? normalizePlayerStatus(status, userId)
+      : { ...initialPlayerStatus, id: userId };
   } catch {
     return { ...initialPlayerStatus, id: userId };
   }
@@ -269,6 +275,20 @@ function isPlayerStatus(value: unknown): value is PlayerStatus {
     'visitedHotels' in value &&
     Array.isArray(value.visitedHotels)
   );
+}
+
+function normalizePlayerStatus(status: PlayerStatus, id = status.id): PlayerStatus {
+  const favoriteHotelIds = Array.isArray(status.favoriteHotelIds) ? status.favoriteHotelIds : [];
+  const completedHotelIds = new Set(
+    status.visitedHotels.filter((hotel) => hotel.completed).map((hotel) => hotel.hotelId)
+  );
+  return {
+    ...status,
+    id,
+    favoriteHotelIds: [...new Set(favoriteHotelIds)].filter(
+      (hotelId): hotelId is string => typeof hotelId === 'string' && !completedHotelIds.has(hotelId)
+    ),
+  };
 }
 
 async function accountStateRequest(method: 'GET' | 'PUT', state?: unknown): Promise<unknown> {
@@ -323,7 +343,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
           if (response.state === null) {
             const guestStatus = loadGuestPlayerStatus(userId);
             const guestLostAndFound = loadPlacedLostAndFoundItems();
-            const migratedStatus = { ...guestStatus, id: auth.user.id };
+            const migratedStatus = normalizePlayerStatus(guestStatus, auth.user.id);
             const migratedState = {
               playerStatus: migratedStatus,
               lostAndFoundItems: guestLostAndFound,
@@ -344,7 +364,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
               playerStatus: PlayerStatus;
               lostAndFoundItems: PlacedLostAndFoundItem[];
             };
-            setPlayerStatus({ ...accountState.playerStatus, id: auth.user.id });
+            setPlayerStatus(normalizePlayerStatus(accountState.playerStatus, auth.user.id));
             setPlacedLostAndFoundItems(accountState.lostAndFoundItems);
           } else {
             throw new Error('Сохранение аккаунта имеет неверный формат.');
@@ -582,6 +602,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       return {
         ...prev,
         visitedHotels: [...prev.visitedHotels, hotel],
+        favoriteHotelIds: hotel.completed
+          ? prev.favoriteHotelIds.filter((hotelId) => hotelId !== hotel.hotelId)
+          : prev.favoriteHotelIds,
         stats: {
           ...prev.stats,
           totalHotelsVisited: prev.stats.totalHotelsVisited + 1,
@@ -594,14 +617,46 @@ export function GameProvider({ children }: { children: ReactNode }) {
   /**
    * Отметить отель как пройденный
    */
-  const completeHotelVisit = (hotelId: string) => {
-    setPlayerStatus((prev) => ({
-      ...prev,
-      visitedHotels: prev.visitedHotels.map((h) =>
-        h.hotelId === hotelId ? { ...h, completed: true } : h
-      ),
-      updatedAt: new Date().toISOString(),
-    }));
+  const completeHotelVisit = (hotelId: string, hotelName?: string, hotelNameEn?: string) => {
+    setPlayerStatus((prev) => {
+      const existing = prev.visitedHotels.find((hotel) => hotel.hotelId === hotelId);
+      if (existing?.completed && !prev.favoriteHotelIds.includes(hotelId)) return prev;
+
+      const completedHotel: VisitedHotel = {
+        hotelId,
+        hotelName: hotelName ?? existing?.hotelName ?? hotelId,
+        hotelNameEn: hotelNameEn ?? existing?.hotelNameEn ?? hotelId,
+        visitedAt: existing?.visitedAt ?? new Date().toISOString(),
+        ...(existing?.roomId !== undefined ? { roomId: existing.roomId } : {}),
+        completed: true,
+      };
+
+      return {
+        ...prev,
+        visitedHotels: existing
+          ? prev.visitedHotels.map((hotel) => (hotel.hotelId === hotelId ? completedHotel : hotel))
+          : [...prev.visitedHotels, completedHotel],
+        favoriteHotelIds: prev.favoriteHotelIds.filter((favoriteId) => favoriteId !== hotelId),
+        stats: existing
+          ? prev.stats
+          : { ...prev.stats, totalHotelsVisited: prev.stats.totalHotelsVisited + 1 },
+        updatedAt: new Date().toISOString(),
+      };
+    });
+  };
+
+  const addFavoriteHotel = (hotelId: string) => {
+    setPlayerStatus((prev) => {
+      const completed = prev.visitedHotels.some(
+        (hotel) => hotel.hotelId === hotelId && hotel.completed
+      );
+      if (completed || prev.favoriteHotelIds.includes(hotelId)) return prev;
+      return {
+        ...prev,
+        favoriteHotelIds: [...prev.favoriteHotelIds, hotelId],
+        updatedAt: new Date().toISOString(),
+      };
+    });
   };
 
   /**
@@ -972,6 +1027,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setCompletedSteps,
         addVisitedHotel,
         completeHotelVisit,
+        addFavoriteHotel,
         addToInventory,
         removeFromInventory,
         hasInInventory,

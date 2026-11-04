@@ -25,9 +25,29 @@ export function useHotelFlow(hotelId?: string) {
     markActionTriggered,
     removeFromInventory,
     addToInventory,
+    completeHotelVisit,
   } = useGame();
 
   const progress = playerStatus.currentHotelProgress;
+
+  useEffect(() => {
+    if (
+      hotelId &&
+      hotel &&
+      progress?.hotelId === hotelId &&
+      progress.activeStep === 'bookingComplete' &&
+      progress.bookingResult !== 'unsafe'
+    ) {
+      completeHotelVisit(hotelId, hotel.name, hotel.nameEn);
+    }
+  }, [
+    hotelId,
+    hotel,
+    progress?.hotelId,
+    progress?.activeStep,
+    progress?.bookingResult,
+    completeHotelVisit,
+  ]);
 
   const chain = useMemo(() => {
     if (!hotelId || !hotel) return null;
@@ -322,7 +342,7 @@ export function useHotelFlow(hotelId?: string) {
     if (progress?.activeStep === 'bookingComplete') {
       const timer = setTimeout(() => {
         nextChainStep();
-      }, 2000); // 2-second delay to show the completion message
+      }, 10_000); // Keep the booking confirmation visible for 10 seconds.
       return () => clearTimeout(timer);
     }
   }, [progress?.activeStep, nextChainStep]);

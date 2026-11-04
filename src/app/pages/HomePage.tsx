@@ -3,6 +3,7 @@ import { SearchBar } from '@/app/components/SearchBar';
 import { FilterPanel } from '@/app/components/FilterPanel';
 import { HotelCard } from '@/app/components/HotelCard';
 import { useCatalog } from '../contexts/CatalogContext';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Hotel {
   id: number;
@@ -16,11 +17,8 @@ interface Hotel {
   image: string;
 }
 
-interface HomePageProps {
-  language: 'ru' | 'en';
-}
-
-export function HomePage({ language }: HomePageProps) {
+export function HomePage() {
+  const { language } = useLanguage();
   const catalog = useCatalog();
   const hotelRecords = catalog.status === 'loaded' ? catalog.hotels : null;
   const mockHotels: Hotel[] = useMemo(

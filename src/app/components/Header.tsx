@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Moon, Sun, Languages } from 'lucide-react';
+import { KeyRound, Moon, Sun, Languages } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -37,13 +37,7 @@ export function Header() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="relative">
-              <div
-                className="w-8 h-8 text-primary rotate-45 stroke-[1.5]"
-                style={{
-                  background: 'currentColor',
-                  clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-                }}
-              />
+              <KeyRound className="w-8 h-8 text-primary rotate-45 stroke-[1.5]" />
               <div className="absolute inset-0 blur-xl bg-primary/30 -z-10" />
             </div>
             <div>
