@@ -82,8 +82,10 @@ export function useHotelFlow(hotelId?: string) {
       }
     }
 
-    // If we are not on the booking form, the concept of a "safe booking state" is not applicable
-    if (!chain || !progress?.tempBookingForm || progress.activeStep !== 'bookingForm') {
+    // Keep evaluating the form conditions while its confirmation dialog is open.
+    const isBookingStep =
+      progress?.activeStep === 'bookingForm' || progress?.activeStep === 'bookingConfirm';
+    if (!chain || !progress?.tempBookingForm || !isBookingStep) {
       console.log('[isSafeBookingState] not on bookingForm, returning false');
       return false;
     }

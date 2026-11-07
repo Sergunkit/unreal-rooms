@@ -92,6 +92,7 @@ export function HotelDetailPage() {
     nextChainStep,
     updateFlowState,
     handleChainAction,
+    canBook,
   } = useHotelFlow(id);
   const { hotel, floor, tempBookingForm, roomNumber, roomType } = useHotelProgress(id);
   const isHotelCompleted = playerStatus.visitedHotels.some(
@@ -374,8 +375,8 @@ export function HotelDetailPage() {
 
   // Moved useMemo hooks outside of conditional return
   const selectedBookingRoomType = useMemo(() => {
-    return hotel?.roomTypes?.find((r) => r.value === tempBookingForm?.roomType);
-  }, [hotel?.roomTypes, tempBookingForm?.roomType]);
+    return hotel?.rooms?.find((r) => r.value === tempBookingForm?.roomType);
+  }, [hotel?.rooms, tempBookingForm?.roomType]);
 
   const selectedBookingMealType = useMemo(() => {
     return hotel?.mealTypes?.find((m) => m.value === tempBookingForm?.mealType);
@@ -663,7 +664,7 @@ export function HotelDetailPage() {
                           <Heart
                             className={`w-6 h-6 transition-all cursor-pointer ${
                               isFavorite ? 'fill-red-500 text-red-500' : 'text-primary-foreground/60'
-                            }`}
+                            } ${canBook ? 'opacity-0' : 'opacity-100'}`}
                           />
                         </button>
                       </TooltipTrigger>
@@ -691,7 +692,7 @@ export function HotelDetailPage() {
                       <Heart
                         className={`w-6 h-6 transition-all ${
                           isFavorite ? 'fill-red-500 text-red-500' : 'text-primary-foreground/60'
-                        }`}
+                        } ${canBook ? 'opacity-0' : 'opacity-100'}`}
                       />
                     </button>
                   )}

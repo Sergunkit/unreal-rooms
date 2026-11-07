@@ -812,8 +812,8 @@
         {
           "id": 3,
           "author": "Mina_M",
-          "text": "В номере не работал звонок. Пришлось выходить в коридор, а там… но не будем о грустном.",
-          "textEn": "The room bell didn’t work. Had to go out into the corridor, and there… but let’s not dwell."
+          "text": "В номере не работал звонок. Пришлось выходить в коридор... Мой Вам совет: воздержитесь от ночных прогулок по замку.",
+          "textEn": "The room bell didn’t work. Had to go out into the corridor... My advice: refrain from night walks around the castle."
         }
       ],
       "noise": "Вой волков, далёкий стук копыт, скрип половиц и редкий звон цепей.",
@@ -1144,19 +1144,19 @@
         ],
         "additional": [
           "*Радиоточка*",
-          "Дом кирпичный",
-          "Пол - белый мрамор",
-          "Много подсобных помещений",
-          "Санузел раздельный",
-          "Рядом с метро. Центр."
+          "Телевизор",
+          "Автоматическая сиситема отопления, кондиционирования и вентиляции",
+          "Система пожаротушения",
+          "Открывающиеся вверх окна",
+          "Сантехника а автоматической регулировкой температуры воды"
         ],
         "additionalEn": [
           "*Radio* outlet",
-          "Brick house",
-          "White marble floor",
-          "Many utility rooms",
-          "Separate bathroom",
-          "Near the metro. Central"
+          "TV",
+          "Automatic heating, air conditioning and ventilation system",
+          "Fire extinguishing system",
+          "Windows that open upwards",
+          "Plumbing with automatic water temperature control"
         ],
         "additionalServices": [
           {
@@ -2721,36 +2721,6 @@
           "24/7 staff psychological support."
         ],
         "additionalServices": [
-          {
-            "id": "spa-access",
-            "name": "Абонемент в бассейн и SPA",
-            "nameEn": "Pool and SPA membership",
-            "price": 15
-          },
-          {
-            "id": "sommelier",
-            "name": "Cомелье",
-            "nameEn": "Sommelier",
-            "price": 20
-          },
-          {
-            "id": "safe-box",
-            "name": "Аренда сейфа",
-            "nameEn": "Safe box rental",
-            "price": 5
-          },
-          {
-            "id": "tailor",
-            "name": "Индивидуальный портной",
-            "nameEn": "Custom tailor",
-            "price": 30
-          },
-          {
-            "id": "elimination",
-            "name": "Элиминация по договоренности",
-            "nameEn": "Elimination by agreement",
-            "price": 100000
-          }
         ],
         "restrictions": [
           "Окна заблокированы стальными рамами.",
