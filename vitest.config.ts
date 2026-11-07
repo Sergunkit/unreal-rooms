@@ -8,6 +8,9 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: [],
+    // Серверные тесты запускаются отдельной конфигурацией:
+    // npm run test:server (vitest --config server/vitest.config.ts)
+    exclude: ['**/node_modules/**', 'server/**', 'dist/**', 'dist-selfhost/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
