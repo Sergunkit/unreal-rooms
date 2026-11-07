@@ -34,6 +34,9 @@ export const evaluateConditions = (
         break;
       case 'floor': {
         const floorValue = progress?.floor;
+        // Этаж должен быть явно выбран: undefined не должен проходить `ne`-условия
+        // (иначе safe-бронирование возможно без выбора этажа вообще).
+        if (floorValue === undefined || floorValue === null) return false;
         console.log('[evaluateConditions] floor condition:', {
           floorValue,
           operator: op,
