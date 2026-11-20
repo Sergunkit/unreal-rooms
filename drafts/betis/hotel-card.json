@@ -1,0 +1,320 @@
+{
+  "id": 11,
+  "name": "Betis Motel",
+  "nameEn": "Betis Motel",
+  "stars": 1,
+  "rating": 6.0,
+  "price": 19.6,
+  "slogan": "У нас можно укрыться от суеты, непогоды и любых проблем. Даже от усталости — за шторкой душа.",
+  "sloganEn": "Here you can hide from the bustle, the weather and any trouble. Even from fatigue — behind the shower curtain.",
+  "description": "Уютный придорожный мотель для уставших путников — вдали от оживленных трасс. Тихие ночи, горячая вода и сэндвичи с молоком после заката. Из окон открывается вид на старый дом на холме, где живет мама хозяина. Пожалуйста, не заходите туда и не спрашивайте о ней. Чучела птиц в офисе — ручной работы и очень наблюдательные.",
+  "descriptionEn": "A cozy roadside motel for weary travelers — far from the busy highways. Quiet nights, hot water and sandwiches with milk after sunset. The windows overlook the old house on the hill, where the owner's mother lives. Please do not go there and do not ask about her. The stuffed birds in the office are handmade and very observant.",
+  "location": "Старая трасса в обход Фэрвейла, Калифорния. Когда построили новую развязку, мотели здесь закрылись один за другим. Наш — остался. Мама не разрешает закрываться.",
+  "locationEn": "The old highway bypassing Fairvale, California. When the new interchange was built, the motels here closed one after another. Ours remained. Mother does not allow closing.",
+  "commonFeedback": "Тихое место вдали от шоссе. Идеально, чтобы остаться наедине со своими мыслями... или чужими.",
+  "commonFeedbackEn": "A quiet place away from the highway. Perfect for staying alone with your thoughts... or someone else's.",
+  "image": "/images/Betis/head-day.jpg",
+  "images": [
+    "/images/Betis/head-day.jpg",
+    "/images/Betis/head-night.jpg",
+    "/images/Betis/office-owls.jpg",
+    "/images/Betis/room-shower.jpg",
+    "/images/Betis/terrace-chair.jpg",
+    "/images/Betis/room3.jpg",
+    "/images/Betis/room7.jpg",
+    "/images/Betis/room12.jpg",
+    "/images/Betis/sandwich-milk.jpg"
+  ],
+  "amenities": {
+    "dining": [
+      "Сэндвичи и молоко в кабинете у камина",
+      "Кофе-машина на рецепшн"
+    ],
+    "diningEn": [
+      "Sandwiches and milk in the parlor by the fireplace",
+      "Coffee machine at the reception"
+    ],
+    "pools": [
+      "Душ со шторкой в каждом номере",
+      "Поблизости есть естественный водоем, не очень приспособленный для купания, но вполне подходящий для других целей"
+    ],
+    "poolsEn": [
+      "Shower with a curtain in every room",
+      "There is a natural pond nearby — not really suitable for swimming, but quite suitable for other purposes"
+    ],
+    "transport": [
+      "Парковка прямо у мотеля",
+      "Автобус до Фэрвейла раз в день"
+    ],
+    "transportEn": [
+      "Parking right outside the motel",
+      "Bus to Fairvale once a day"
+    ],
+    "sports": [
+      "Данные услуги в мотеле не предусмотрены"
+    ],
+    "sportsEn": [
+      "These services are not provided at the motel"
+    ],
+    "additional": [
+      "*Чучела сов и орлов* в офисе",
+      "Глазок в стене кабинета (декоративный?)",
+      "Недавно постелили новые ковры. Старые не удалось отстирать — даже по совету из Нью-Йорка",
+      "Размещение с домашними животными приветствуется (мы позаботимся о ваших питомцах, при необходимости)"
+    ],
+    "additionalEn": [
+      "*Stuffed owls and eagles* in the office",
+      "A peephole in the parlor wall (decorative?)",
+      "New carpets have recently been laid. The old ones could not be cleaned — even with advice from New York",
+      "Pets are welcome (we will take care of your pets, if necessary)"
+    ],
+    "restrictions": [
+      "Посещение дома на холме без хозяина строго запрещено",
+      "Соблюдение режима тишины после 22:00 — мама рано ложится",
+      "Первый номер не сдаётся",
+      "Администрация не несёт ответственности за порезы, укусы сов и внезапную тягу к таксидермии"
+    ],
+    "restrictionsEn": [
+      "Visiting the house on the hill without the owner is strictly forbidden",
+      "Quiet hours after 10 PM — Mother goes to bed early",
+      "Room one is not for rent",
+      "The administration is not responsible for cuts, owl bites and a sudden urge for taxidermy"
+    ],
+    "heart_tool_tip": "Наш отель всегда открыт для вас. Откройте свое сердце для нашего отеля.",
+    "heart_tool_tipEn": "Our motel is always open for you. Open your heart to it.",
+    "additionalServices": [
+      {
+        "id": "taxidermy-class",
+        "name": "Мастер-класс по таксидермии (птицы)",
+        "nameEn": "Taxidermy master class (birds)",
+        "price": 0
+      },
+      {
+        "id": "quiet-mother",
+        "name": "«Заткнуть маму» на ночь",
+        "nameEn": "«Silence Mother» for the night",
+        "price": 0
+      },
+      {
+        "id": "collection-tour",
+        "name": "Осмотр коллекции чучел",
+        "nameEn": "Tour of the stuffed collection",
+        "price": 0
+      }
+    ]
+  },
+  "mealTypes": [
+    {
+      "value": "mother-sandwich",
+      "label": "Сэндвичи от мамы",
+      "labelEn": "Mother's sandwiches",
+      "price": 0
+    },
+    {
+      "value": "milk",
+      "label": "Молоко",
+      "labelEn": "Milk",
+      "price": 1
+    },
+    {
+      "value": "parlor-dinner",
+      "label": "Ужин в кабинете с чучелами",
+      "labelEn": "Dinner in the parlor with the stuffed birds",
+      "price": 4
+    }
+  ],
+  "rooms": [
+    {
+      "id": 1,
+      "roomNumber": "1",
+      "name": "Кабина №1 «Историческая»",
+      "nameEn": "Cabin No. 1 \"Historic\"",
+      "value": "cabin-1",
+      "price": 19.6,
+      "size": 14,
+      "capacity": 1,
+      "beds": "1 двуспальная кровать",
+      "bedsEn": "1 double bed",
+      "amenities": [
+        "Душ со шторкой",
+        "Только для одного гостя"
+      ],
+      "amenitiesEn": [
+        "Shower with curtain",
+        "Single guests only"
+      ],
+      "image": "/images/Betis/room-shower.jpg"
+    },
+    {
+      "id": 2,
+      "roomNumber": "3",
+      "name": "Кабина №3 «Тихая»",
+      "nameEn": "Cabin No. 3 \"Quiet\"",
+      "value": "cabin-3",
+      "price": 19.6,
+      "size": 16,
+      "capacity": 2,
+      "beds": "1 двуспальная кровать",
+      "bedsEn": "1 double bed",
+      "amenities": [
+        "Душ со шторкой",
+        "Свежий ковёр",
+        "Вид на парковку"
+      ],
+      "amenitiesEn": [
+        "Shower with curtain",
+        "Fresh carpet",
+        "Parking view"
+      ],
+      "image": "/images/Betis/room3.jpg"
+    },
+    {
+      "id": 3,
+      "roomNumber": "7",
+      "name": "Cabana №7 «Фартовая»",
+      "nameEn": "Cabana No. 7 \"Lucky\"",
+      "value": "cabin-7",
+      "price": 19.6,
+      "size": 18,
+      "capacity": 2,
+      "beds": "1 двуспальная кровать",
+      "bedsEn": "1 double bed",
+      "amenities": [
+        "Душ со шторкой",
+        "Свежий ковёр",
+        "Тихие соседи",
+        "Удача (не гарантируется, но пока везло)"
+      ],
+      "amenitiesEn": [
+        "Shower with curtain",
+        "Fresh carpet",
+        "Quiet neighbors",
+        "Luck (not guaranteed, but so far so good)"
+      ],
+      "image": "/images/Betis/room7.jpg"
+    },
+    {
+      "id": 4,
+      "roomNumber": "12",
+      "name": "Кабина №12 «Предпоследняя»",
+      "nameEn": "Cabin No. 12 \"Second to Last\"",
+      "value": "cabin-12",
+      "price": 19.6,
+      "size": 16,
+      "capacity": 2,
+      "beds": "2 односпальные кровати",
+      "bedsEn": "2 single beds",
+      "amenities": [
+        "Душ со шторкой",
+        "Вид на закат",
+        "Не выходите ночью проверять, что там после парковки"
+      ],
+      "amenitiesEn": [
+        "Shower with curtain",
+        "Sunset view",
+        "Do not go out at night to check what is beyond the parking"
+      ],
+      "image": "/images/Betis/room12.jpg"
+    },
+    {
+      "id": 5,
+      "roomNumber": "H1",
+      "name": "Люкс на холме «Апартаменты „Мама“»",
+      "nameEn": "Hill Suite \"Mother's Apartments\"",
+      "value": "suite-hill",
+      "price": 66.6,
+      "size": 220,
+      "capacity": 2,
+      "beds": "3 спальни, викторианская мебель",
+      "bedsEn": "3 bedrooms, Victorian furniture",
+      "amenities": [
+        "2 этажа",
+        "Камин",
+        "Фруктовый подвал в цене",
+        "Кресло-качалка"
+      ],
+      "amenitiesEn": [
+        "2 floors",
+        "Fireplace",
+        "Fruit cellar included",
+        "Rocking chair"
+      ],
+      "image": "/images/Betis/head-day.jpg"
+    }
+  ],
+  "lostandfaund": [
+    "suitcase-money"
+  ],
+  "chatMassages": [
+    "Добро пожаловать в Betis. Регистрация до заката — мама рано ложится.",
+    "НОРМАН! КТО ЭТО ОПЯТЬ?!",
+    "Простите. Мама устала. Сэндвич будете?",
+    "Я не потерплю в этом доме грязных девиц с чемоданами!",
+    "Мы все в своих ловушках, знаете. Каждый — в своей.",
+    "НЕ СМЕЙ ЗАЖИГАТЬ СВЕТ В КОРИДОРЕ!"
+  ],
+  "chatMessagesEn": [
+    "Welcome to Betis. Check-in before sunset — Mother goes to bed early.",
+    "NORMAN! WHO IS IT AGAIN?!",
+    "Forgive me. Mother is tired. Would you like a sandwich?",
+    "I will not tolerate dirty girls with suitcases in this house!",
+    "We are all in our private traps, you know. Each in our own.",
+    "DON'T YOU DARE TURN ON THE LIGHT IN THE HALLWAY!"
+  ],
+  "feedBacks": [
+    {
+      "id": 1,
+      "author": "Kit S.",
+      "text": "Видно, что за мотелем следят — в номерах новые ковры.",
+      "textEn": "You can tell the motel is well kept — new carpets in the rooms."
+    },
+    {
+      "id": 2,
+      "author": "Marion C.",
+      "text": "Хозяин милый, мама строгая, вода горячая. Вилка чистая. 5/5",
+      "textEn": "Nice owner, strict mother, hot water. Clean fork. 5/5"
+    },
+    {
+      "id": 3,
+      "author": "Lila C.",
+      "text": "Санузел не запирается изнутри. Впрочем, от кого тут закрываться?",
+      "textEn": "The bathroom does not lock from the inside. Then again, who is there to lock out?"
+    },
+    {
+      "id": 4,
+      "author": "A.",
+      "text": "Норман отказался проводить меня к маме. Пришлось вернуться ночью. Больше не возвращаюсь. 1/5",
+      "textEn": "Norman refused to take me to his mother. I had to come back at night. I am not coming back again. 1/5"
+    }
+  ],
+  "noise": "Скрип качалки из подвала. Если прислушаться — плеск воды и один короткий визг. Потом снова тихо.",
+  "prize": "",
+  "promoCodes": [
+    {
+      "code": "MOTHER",
+      "discount": 0,
+      "description": "Мама одобряет. Этого достаточно",
+      "descriptionEn": "Mother approves. That is enough"
+    }
+  ],
+  "endBookingMassege": "Ночь прошла тихо. Вода шумела только за стеной — у соседа, у которого не было ключа №3. Утром ваша машина всё ещё на парковке. Мама вами довольна.",
+  "endBookingMassegeEn": "The night passed quietly. Water was running only behind the wall — at the neighbor's, the one without the No. 3 key. In the morning your car was still in the parking lot. Mother is pleased with you.",
+  "endWrongBookingMassege": "Утром шторку отдраивали. Не только от мыла. Номер 1 больше не сдаётся — и вы тоже больше не заезжаете.",
+  "endWrongBookingMassegeEn": "In the morning they were scrubbing the curtain. Not just the soap off it. Room 1 is no longer for rent — and neither are you.",
+  "bookingStates": {
+    "default": {
+      "roomNumber": "3",
+      "roomType": "cabin-3",
+      "lockedFields": [],
+      "guests": 1,
+      "rooms": 1,
+      "checkInTime": "после заката"
+    },
+    "motherOk": {
+      "lockedFields": [],
+      "guests": 1,
+      "rooms": 1,
+      "checkInTime": "до заката"
+    }
+  }
+}

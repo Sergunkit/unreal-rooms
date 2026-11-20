@@ -1,0 +1,33 @@
+{
+  "_comment": "Правки в существующие отели (catalog.json). Применять при раскатке Бетиса. ID отзывов — следующие свободные в каждом отеле.",
+  "brandt-citadel": {
+    "hotelId": 3,
+    "addFeedBacks": [
+      {
+        "author": "Emma D.",
+        "text": "Этот отель показался более безопасным по сравнению с предыдущим, где хозяин вел себя подозрительно, постоянно упоминал про маму и касался кухонного ножа. Хорошо, что у меня с собой оказался ключ, найденный в другом отеле: он подошел к первой комнате мотеля, и я спряталась там, пока хозяин с ножом искал меня в моем номере.",
+        "textEn": "This hotel felt safer than the previous one, where the owner acted suspiciously, kept mentioning his mother and touching a kitchen knife. Luckily I had a key I had found in another hotel: it fit the first room of that motel, and I hid there while the owner searched my room with a knife."
+      }
+    ]
+  },
+  "twister-bar": {
+    "hotelId": 4,
+    "addFeedBacks": [
+      {
+        "author": "Trucker_J",
+        "text": "Мне сказали оставить фуру на обрыве. Сосед по трассе парковался в болоте — каждый сдаёт машину по-своему.",
+        "textEn": "I was told to leave my rig at the cliff. The guy from the route below parked in a swamp — everyone surrenders their vehicle their own way."
+      }
+    ]
+  },
+  "usher-guest-house": {
+    "hotelId": 9,
+    "addFeedBacks": [
+      {
+        "author": "Bookworm",
+        "text": "Хозяин посоветовал: прятать надо на видном месте. Гости из соседнего мотеля — живое подтверждение.",
+        "textEn": "The host advised: hide things in plain sight. The guests from the motel next route are living proof."
+      }
+    ]
+  }
+}

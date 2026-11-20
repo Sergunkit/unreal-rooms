@@ -1,0 +1,176 @@
+{
+  "hotelId": 11,
+  "type": "custom",
+  "steps": {
+    "hotelPage": {
+      "id": "hotelPage",
+      "step": 1,
+      "actions": [
+        {
+          "id": "house-night-toggle",
+          "type": "galleryClick",
+          "trigger": {
+            "imageIndex": 0,
+            "coords": {
+              "x1": 55,
+              "y1": 5,
+              "x2": 90,
+              "y2": 45
+            }
+          },
+          "nextStep": "hotelPage",
+          "galleryData": {
+            "type": "toggle",
+            "alternateImage": "/images/Betis/head-night.jpg",
+            "message": "В мансарде дома на холме зажегся свет. Мама не спит. Повторный клик — свет гаснет: «Мама легла»."
+          }
+        },
+        {
+          "id": "rocking-chair-promo",
+          "type": "galleryClick",
+          "trigger": {
+            "imageIndex": 4,
+            "coords": {
+              "x1": 30,
+              "y1": 40,
+              "x2": 60,
+              "y2": 80
+            }
+          },
+          "nextStep": "hotelPage",
+          "galleryData": {
+            "type": "hint",
+            "message": "На подлокотнике кресла-качалки что-то нацарапано острым: MOTHER. Кресло всё ещё качается. Его никто не занимает."
+          }
+        },
+        {
+          "id": "owl-hint",
+          "type": "galleryClick",
+          "trigger": {
+            "imageIndex": 2,
+            "coords": {
+              "x1": 20,
+              "y1": 30,
+              "x2": 40,
+              "y2": 60
+            }
+          },
+          "nextStep": "hotelPage",
+          "galleryData": {
+            "type": "hint",
+            "message": "Сова смотрит на вас. Второй раз за минуту. Совы не умеют моргать — а эта даже не пытается."
+          }
+        },
+        {
+          "id": "peephole-hint",
+          "type": "galleryClick",
+          "trigger": {
+            "imageIndex": 2,
+            "coords": {
+              "x1": 60,
+              "y1": 40,
+              "x2": 70,
+              "y2": 50
+            }
+          },
+          "nextStep": "hotelPage",
+          "galleryData": {
+            "type": "hint",
+            "message": "За картиной в кабинете — дырочка. Отсюда видно весь двор. И все номера. И вас."
+          }
+        },
+        {
+          "id": "book-now-btn",
+          "type": "buttonClick",
+          "trigger": {
+            "elementId": "book-now-button"
+          },
+          "nextStep": "bookingForm"
+        },
+        {
+          "id": "room-card-open",
+          "type": "roomOpen",
+          "trigger": {
+            "source": "roomCard"
+          },
+          "nextStep": "roomCard"
+        }
+      ]
+    },
+    "roomCard": {
+      "id": "roomCard",
+      "step": 2,
+      "actions": [
+        {
+          "id": "room-card-book",
+          "type": "roomSelect",
+          "trigger": {
+            "source": "roomDetailModal"
+          },
+          "nextStep": "bookingForm"
+        },
+        {
+          "id": "room-card-close",
+          "type": "buttonClick",
+          "trigger": {
+            "elementId": "room-modal-close"
+          },
+          "nextStep": "hotelPage"
+        }
+      ]
+    },
+    "bookingForm": {
+      "id": "bookingForm",
+      "step": 3,
+      "formConfig": {
+        "initialStateId": "default",
+        "conditionalStates": [
+          {
+            "condition": [
+              {
+                "field": "promoCode",
+                "operator": "eq",
+                "value": "MOTHER"
+              }
+            ],
+            "stateId": "motherOk"
+          },
+          {
+            "condition": [
+              {
+                "field": "inventory",
+                "operator": "contains",
+                "value": "betis-room1-key"
+              },
+              {
+                "field": "roomType",
+                "operator": "ne",
+                "value": "cabin-1"
+              }
+            ],
+            "stateId": "motherOk"
+          }
+        ]
+      },
+      "actions": [
+        {
+          "id": "submit-form",
+          "type": "formSubmit",
+          "nextStep": "bookingConfirm"
+        }
+      ]
+    },
+    "bookingConfirm": {
+      "id": "bookingConfirm",
+      "step": 4,
+      "transitions": {
+        "success": {
+          "nextStep": "hotelPage"
+        },
+        "fail": {
+          "nextStep": "hotelPage"
+        }
+      }
+    }
+  }
+}

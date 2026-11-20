@@ -1,0 +1,32 @@
+{
+  "betis-room1-key": {
+    "id": "betis-room1-key",
+    "name": "Ключ от кабины №1",
+    "nameEn": "Cabin No. 1 Key",
+    "description": "Латунный ключ с ромбовидной биркой «1». Этот ключ лежал в отеле «Дельфин» среди девяти ключей на стойке — и был почти никому не нужен.",
+    "descriptionEn": "A brass key with a diamond-shaped tag \"1\". Found in another hotel, among the keys nobody there needs.",
+    "image": "/images/Dolphin/1.png",
+    "hotelId": "11",
+    "caption": "За дверью, которую откроет этот ключ, можно спрятаться от мамы."
+  },
+  "suitcase-money": {
+    "id": "suitcase-money",
+    "name": "Чемодан",
+    "nameEn": "The Suitcase",
+    "description": "Потёртый кожаный чемодан. Внутри — $40 000 старыми купюрами. Пахнет болотом.",
+    "descriptionEn": "A worn leather suitcase. Inside — $40,000 in old banknotes. Smells of swamp water.",
+    "image": "/images/artefacts/Betis-suitcase-money.png",
+    "hotelId": "11",
+    "caption": "Владелица не вернулась. Выглядит так, будто он путешествует из отеля в отель. Следующая остановка — где-то на границе штатов."
+  },
+  "stuffed-owl": {
+    "id": "stuffed-owl",
+    "name": "Чучело совы",
+    "nameEn": "Stuffed Owl",
+    "description": "Совы не умеют моргать. Эта даже не пытается.",
+    "descriptionEn": "Owls cannot blink. This one does not even try.",
+    "image": "/images/artefacts/Betis-stuffed-owl.png",
+    "hotelId": "11",
+    "caption": "Оно наблюдало за вами с первой минуты. Теперь ваша очередь наблюдать."
+  }
+}
